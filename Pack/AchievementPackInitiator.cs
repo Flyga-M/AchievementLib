@@ -1,6 +1,7 @@
 ﻿using AchievementLib.Pack.Content;
 using AchievementLib.Pack.Reader;
 using Newtonsoft.Json;
+using PositionEvents.Area.JSON;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,7 +24,8 @@ namespace AchievementLib.Pack
 
         /// <summary>
         /// <paramref name="customConverters"/> currently only respects custom 
-        /// <see cref="V1.JSON.ActionConverter">ActionConverters</see>.
+        /// <see cref="V1.JSON.ActionConverter">ActionConverters</see> and custom 
+        /// <see cref="BoundingObjectConverter">BoundingObjectConverters</see>.
         /// </summary>
         /// <param name="watchPath"></param>
         /// <param name="customConverters"></param>
@@ -282,7 +284,7 @@ namespace AchievementLib.Pack
                         
                         try
                         {
-                            newPack = V1.AchievementPackManager.FromArchivedMarkerPack(v1Manifest.PackFilePath, v1Manifest, TryGetCustomConverter<V1.JSON.ActionConverter>());
+                            newPack = V1.AchievementPackManager.FromArchivedMarkerPack(v1Manifest.PackFilePath, v1Manifest, TryGetCustomConverter<V1.JSON.ActionConverter>(), TryGetCustomConverter<BoundingObjectConverter>());
                         }
                         catch (FileNotFoundException ex)
                         {

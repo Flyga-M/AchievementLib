@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using AchievementLib.Pack.V1.JSON;
 using Newtonsoft.Json;
+using PositionEvents.Area.JSON;
 
 namespace AchievementLib.Pack.V1
 {
@@ -18,6 +19,7 @@ namespace AchievementLib.Pack.V1
         private Manifest _manifest;
 
         private ActionConverter _actionConverter;
+        private BoundingObjectConverter _areaConverter;
 
         private AchievementData[] _data;
 
@@ -151,12 +153,13 @@ namespace AchievementLib.Pack.V1
 
         public IHierarchyObject[] Children => Data;
 
-        public AchievementPackManager(IDataReader dataReader, Manifest manifest, ActionConverter actionConverter = null)
+        public AchievementPackManager(IDataReader dataReader, Manifest manifest, ActionConverter actionConverter = null, BoundingObjectConverter areaConverter = null)
         {   
             _dataReader = dataReader ?? throw new ArgumentNullException(nameof(dataReader));
             _manifest = manifest ?? throw new ArgumentNullException(nameof(manifest));
 
             _actionConverter = actionConverter;
+            _areaConverter = areaConverter;
 
             ResourceManager = new AchievementPackResourceManager(dataReader);
 
@@ -165,7 +168,7 @@ namespace AchievementLib.Pack.V1
             _data = Array.Empty<AchievementData>();
         }
 
-        public static AchievementPackManager FromArchivedMarkerPack(string archivePath, Manifest manifest, ActionConverter actionConverter = null) => new AchievementPackManager(new ZipArchiveReader(archivePath), manifest, actionConverter);
+        public static AchievementPackManager FromArchivedMarkerPack(string archivePath, Manifest manifest, ActionConverter actionConverter = null, BoundingObjectConverter areaConverter = null) => new AchievementPackManager(new ZipArchiveReader(archivePath), manifest, actionConverter, areaConverter);
 
         /// <summary>
         /// Attempts to enable the Achievement Pack and load it's data into 
@@ -377,7 +380,7 @@ namespace AchievementLib.Pack.V1
                 try
                 {
                     achievementData = AchievementPackReader.
-                    DeserializeV1FromJson(fileStream, _actionConverter);
+                    DeserializeV1FromJson(fileStream, _actionConverter, _areaConverter);
                 }
                 catch (JsonSerializationException ex)
                 {
@@ -445,6 +448,7 @@ namespace AchievementLib.Pack.V1
             _manifest = null;
 
             _actionConverter = null;
+            _areaConverter = null;
 
             _data = null;
 

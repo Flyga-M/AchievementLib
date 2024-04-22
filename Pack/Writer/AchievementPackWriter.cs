@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
+using PositionEvents.Area.JSON;
 
 namespace AchievementLib.Pack.Writer
 {
@@ -26,21 +27,29 @@ namespace AchievementLib.Pack.Writer
             return JsonConvert.SerializeObject(manifest, settings);
         }
 
-        public static string SerializeV1ToJson(V1.Models.AchievementData data, V1.JSON.ActionConverter actionConverter = null)
+        public static string SerializeV1ToJson(V1.Models.AchievementData data, V1.JSON.ActionConverter actionConverter = null, BoundingObjectConverter areaConverter = null)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {
-                Converters = { actionConverter ?? V1.JSON.ActionConverter.Default }
+                Converters =
+                {
+                    actionConverter ?? V1.JSON.ActionConverter.Default,
+                    areaConverter ?? BoundingObjectConverter.Default
+                }
             };
 
             return SerializeToJson(data, settings);
         }
 
-        public static void SerializeV1ToJson(V1.Models.AchievementData data, Stream target, V1.JSON.ActionConverter actionConverter = null)
+        public static void SerializeV1ToJson(V1.Models.AchievementData data, Stream target, V1.JSON.ActionConverter actionConverter = null, BoundingObjectConverter areaConverter = null)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {
-                Converters = { actionConverter ?? V1.JSON.ActionConverter.Default }
+                Converters =
+                {
+                    actionConverter ?? V1.JSON.ActionConverter.Default,
+                    areaConverter ?? BoundingObjectConverter.Default
+                }
             };
 
             SerializeToJson(data, target, settings);
