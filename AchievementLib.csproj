@@ -59,6 +59,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Pack\AchievementPackInitiator.cs" />
@@ -283,6 +284,9 @@
   <ItemGroup>
     <Folder Include="_Extensions\" />
     <Folder Include="_Interface\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LICENSE.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
