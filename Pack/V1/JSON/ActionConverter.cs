@@ -1,13 +1,13 @@
-﻿using AchievementLib.Pack.JSON;
-using AchievementLib.Pack.V1.Models;
+﻿using AchievementLib.Pack.V1.Models;
 using System;
 using System.Collections.Generic;
+using PositionEvents.Area.JSON;
 
 namespace AchievementLib.Pack.V1.JSON
 {
     public class ActionConverter : BasicConverter<Models.Action>
     {   
-        internal static ActionConverter Default = new ActionConverter();
+        public static ReadOnlyBasicConverter<Models.Action> Default = new ReadOnlyBasicConverter<Models.Action>(new ActionConverter());
 
         public ActionConverter() : base(GetSubTypes())
         {

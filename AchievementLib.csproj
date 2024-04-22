@@ -64,7 +64,6 @@
   <ItemGroup>
     <Compile Include="Pack\AchievementPackInitiator.cs" />
     <Compile Include="Pack\Constants.cs" />
-    <Compile Include="Pack\JSON\BasicConverter.cs" />
     <Compile Include="Pack\MinimalManifest.cs" />
     <Compile Include="Pack\Reader\AchievementPackReader.cs" />
     <Compile Include="Pack\Reader\ManifestReader.cs" />
@@ -138,9 +137,8 @@
       <HintPath>packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="PositionEvents, Version=1.1.1.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>packages\PositionEvents.1.1.1\lib\net48\PositionEvents.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="PositionEvents, Version=1.1.2.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>packages\PositionEvents.1.1.2\lib\net48\PositionEvents.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>packages\SharpDX.4.0.1\lib\net45\SharpDX.dll</HintPath>
