@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Threading.Tasks;
 
 namespace AchievementLib.Pack.V1.Models

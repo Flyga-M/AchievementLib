@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-
-namespace AchievementLib.Pack.V1.Models
+﻿namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
     /// Checks whether a <see cref="Achievement"/> is completed.

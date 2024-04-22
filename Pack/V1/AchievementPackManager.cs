@@ -8,7 +8,6 @@ using System.IO;
 using System.Threading.Tasks;
 using AchievementLib.Pack.V1.JSON;
 using Newtonsoft.Json;
-using AchievementLib.Pack.JSON;
 
 namespace AchievementLib.Pack.V1
 {

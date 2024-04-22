@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 
 namespace AchievementLib.Pack.V1.Models
 {
