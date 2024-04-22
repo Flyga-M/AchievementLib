@@ -1,6 +1,6 @@
 ﻿namespace AchievementLib.Pack.V1
 {
-    public class PackLoadReport
+    public class PackLoadReport : IPackLoadReport
     {
         /// <summary>
         /// Might be null, if the data was not yet loaded.

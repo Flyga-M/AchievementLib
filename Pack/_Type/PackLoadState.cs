@@ -1,4 +1,4 @@
-﻿namespace AchievementLib.Pack.V1
+﻿namespace AchievementLib.Pack
 {
     public enum PackLoadState
     {

@@ -12,7 +12,7 @@ using PositionEvents.Area.JSON;
 
 namespace AchievementLib.Pack.V1
 {
-    public class AchievementPackManager : IHierarchyObject, IAchievementPackManager
+    public class AchievementPackManager : IAchievementPackManager
     {
         private readonly IDataReader _dataReader;
 
@@ -46,7 +46,7 @@ namespace AchievementLib.Pack.V1
         public event EventHandler<PackLoadState> PackLoadStateChanged;
 
         /// <summary>
-        /// Fires, if an error occurs during <see cref="Enable(bool)"/>.
+        /// Fires, if an error occurs during <see cref="Enable(GraphicsDevice, out Task)"/>.
         /// </summary>
         public event EventHandler<AchievementLibException> PackError;
 
@@ -79,7 +79,7 @@ namespace AchievementLib.Pack.V1
         }
 
         /// <summary>
-        /// The <see cref="PackLoadState"/> of the Achievement Pack.
+        /// The <see cref="PackLoadState"/> of the <see cref="AchievementPackManager"/>.
         /// </summary>
         public PackLoadState State
         {
@@ -108,6 +108,8 @@ namespace AchievementLib.Pack.V1
         /// information on the (un)successfully loading of the Achievement Pack.
         /// </summary>
         public PackLoadReport Report => _report;
+
+        IPackLoadReport IAchievementPackManager.Report => Report;
 
         /// <summary>
         /// The file name of the Achievement Pack without the .zip extension.
@@ -173,16 +175,21 @@ namespace AchievementLib.Pack.V1
         /// <summary>
         /// Attempts to enable the Achievement Pack and load it's data into 
         /// <see cref="Data"/>. The data is loaded asynchronously and is not available 
-        /// directly after <see cref="Enable(bool)"/> was called. Listen to 
+        /// directly after <see cref="Enable(GraphicsDevice, out Task)"/> was called. Listen to 
         /// <see cref="PackLoaded"/> and <see cref="PackError"/> to make sure, the 
         /// data is available.
         /// </summary>
+        /// <remarks>
+        /// The <paramref name="loadingTask"/> should be awaited before disposing the 
+        /// <paramref name="graphicsDevice"/> or its context.
+        /// </remarks>
         /// <param name="graphicsDevice"></param>
+        /// <param name="loadingTask"></param>
         /// <returns>True, if the Achievement Pack is eligible to be enabled. 
         /// Otherwise false.</returns>
-        public bool Enable(GraphicsDevice graphicsDevice, out Task task)
+        public bool Enable(GraphicsDevice graphicsDevice, out Task loadingTask)
         {
-            task = null;
+            loadingTask = null;
             if (State == PackLoadState.FatalError
                 || State == PackLoadState.Unloading
                 || State == PackLoadState.Loading
@@ -193,7 +200,7 @@ namespace AchievementLib.Pack.V1
 
             State = PackLoadState.Loading;
 
-            task = Load(graphicsDevice);
+            loadingTask = Load(graphicsDevice);
             
             return true;
         }

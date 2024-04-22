@@ -104,7 +104,8 @@
     <Compile Include="Pack\_Interface\ILoadableResource.cs" />
     <Compile Include="Pack\V1\Models\_Type\Comparison.cs" />
     <Compile Include="Pack\V1\PackLoadReport.cs" />
-    <Compile Include="Pack\V1\_Type\PackLoadState.cs" />
+    <Compile Include="Pack\_Interface\IPackLoadReport.cs" />
+    <Compile Include="Pack\_Type\PackLoadState.cs" />
     <Compile Include="Pack\_Extensions\IManifestExtensions.cs" />
     <Compile Include="Pack\_Interface\IAchievementPackManager.cs" />
     <Compile Include="Pack\_Interface\IManifest.cs" />

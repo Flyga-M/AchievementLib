@@ -292,6 +292,12 @@ namespace AchievementLib.Pack
                                 $"load an invalid Achievement Pack ({manifest.PackFilePath}): Path is " +
                                 $"not available anymore.", ex);
                         }
+                        catch (Exception ex)
+                        {
+                            throw new PackException("Attempted to " +
+                                $"load an invalid Achievement Pack ({manifest.PackFilePath}): Uncaught exception " +
+                                $"occured.", ex);
+                        }
 
                         break;
                     }
