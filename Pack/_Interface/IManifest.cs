@@ -21,6 +21,11 @@ namespace AchievementLib.Pack
         /// </summary>
         string Namespace { get; set; }
 
+        /// <summary>
+        /// The (preferably unique) name of the Achievement Pack.
+        /// </summary>
+        ILocalizable Name { get; }
+
         [JsonIgnore]
         string PackFilePath { get; set; }
     }

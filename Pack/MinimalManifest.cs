@@ -11,6 +11,8 @@ namespace AchievementLib.Pack
 
         public string Namespace { get; set; }
 
+        public ILocalizable Name { get; set; }
+
         [JsonIgnore]
         public string PackFilePath { get; set; }
 

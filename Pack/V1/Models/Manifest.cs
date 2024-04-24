@@ -27,6 +27,8 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         public Localizable Name { get; set; }
 
+        ILocalizable IManifest.Name => Name;
+
         /// <summary>
         /// The description of the Achievement Pack.
         /// </summary>
