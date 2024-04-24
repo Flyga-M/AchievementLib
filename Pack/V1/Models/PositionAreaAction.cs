@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using PositionEvents.Area;
+﻿using PositionEvents.Area;
 
 namespace AchievementLib.Pack.V1.Models
 {
