@@ -9,6 +9,8 @@ namespace AchievementLib.Pack
 
         public int PackVersion { get; set; }
 
+        public string Author { get; set; }
+
         public string Namespace { get; set; }
 
         public ILocalizable Name { get; set; }

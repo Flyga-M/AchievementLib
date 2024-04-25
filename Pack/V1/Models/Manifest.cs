@@ -5,26 +5,17 @@ namespace AchievementLib.Pack.V1.Models
 {
     public class Manifest : IManifest
     {
-        /// <summary>
-        /// The version of the Achievement Pack. Used to check for 
-        /// newer versions.
-        /// </summary>
         public Version Version { get; set; }
 
         /// <summary>
-        /// The PackVersion, that the Achievement Pack adheres to. 
+        /// <inheritdoc/>
         /// Has to be 1 for this iteration of the Achievement Pack.
         /// </summary>
         public int PackVersion { get; set; }
 
-        /// <summary>
-        /// The author of the Achievement Pack.
-        /// </summary>
         public string Author { get; set; }
 
-        /// <summary>
-        /// The name of the Achievement Pack.
-        /// </summary>
+        /// <inheritdoc cref="IManifest.Name"/>
         public Localizable Name { get; set; }
 
         ILocalizable IManifest.Name => Name;
@@ -34,9 +25,6 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         public Localizable Description { get; set; }
 
-        /// <summary>
-        /// The unique namespace of the Achievement Pack.
-        /// </summary>
         public string Namespace { get; set; }
 
         [JsonIgnore]

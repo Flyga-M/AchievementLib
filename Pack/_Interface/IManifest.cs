@@ -17,6 +17,11 @@ namespace AchievementLib.Pack
         int PackVersion { get; set; }
 
         /// <summary>
+        /// The author of the Achievement Pack.
+        /// </summary>
+        string Author { get; set; }
+
+        /// <summary>
         /// The unique namespace of the Achievement Pack.
         /// </summary>
         string Namespace { get; set; }
