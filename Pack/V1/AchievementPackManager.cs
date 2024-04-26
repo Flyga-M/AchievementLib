@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using AchievementLib.Pack.V1.JSON;
 using Newtonsoft.Json;
 using PositionEvents.Area.JSON;
+using System.Threading;
 
 namespace AchievementLib.Pack.V1
 {
@@ -31,6 +32,8 @@ namespace AchievementLib.Pack.V1
         private object _packStateLock = new object();
 
         private PackLoadReport _report;
+
+        private CancellationTokenSource _cancellationSourceEnable = new CancellationTokenSource();
 
         /// <summary>
         /// Fires, once the pack was successfully enabled and loaded via 
@@ -213,26 +216,52 @@ namespace AchievementLib.Pack.V1
         public bool Enable(GraphicsDevice graphicsDevice, out Task loadingTask)
         {
             loadingTask = null;
-            if (State == PackLoadState.FatalError
-                || State == PackLoadState.Unloading
-                || State == PackLoadState.Loading
-                || State == PackLoadState.Loaded)
+            if (State != PackLoadState.Unloaded)
             {
                 return false;
             }
 
             State = PackLoadState.Loading;
 
-            loadingTask = Load(graphicsDevice);
+            loadingTask = Load(graphicsDevice, _cancellationSourceEnable.Token);
             
             return true;
         }
 
-        private async Task Load(GraphicsDevice graphicsDevice)
-        {   
-            (bool success, PackFormatException ex) = await TryLoadAchievements();
+        private void OnLoadCancelled()
+        {
+            // Currently NOOP
+        }
 
-            if (!success)
+        /// <exception cref="OperationCanceledException"></exception>
+        private async Task Load(GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                OnLoadCancelled();
+                return;
+            }
+
+            bool achievementSuccess;
+            PackFormatException ex;
+
+            try
+            {
+                (achievementSuccess, ex) = await TryLoadAchievements(cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                OnLoadCancelled();
+                return;
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                OnLoadCancelled();
+                return;
+            }
+
+            if (!achievementSuccess)
             {
                 _report.FaultyData = true;
                 _report.Exception = ex;
@@ -244,8 +273,26 @@ namespace AchievementLib.Pack.V1
 
             _report.FaultyData = false;
 
-            (bool resourceEval, PackResourceException[] exceptions) = await TryLoadResourcesAsync(graphicsDevice);
-            if (!resourceEval)
+            if (cancellationToken.IsCancellationRequested)
+            {
+                OnLoadCancelled();
+                return;
+            }
+
+            bool resourceSuccess;
+            PackResourceException[] exceptions;
+
+            try
+            {
+                (resourceSuccess, exceptions) = await TryLoadResourcesAsync(graphicsDevice, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                OnLoadCancelled();
+                return;
+            }
+
+            if (!resourceSuccess)
             {
                 _report.FaultyResources = true;
                 _report.Exception = new AchievementLibAggregateException("Some resources could not be loaded.", exceptions);
@@ -258,8 +305,16 @@ namespace AchievementLib.Pack.V1
             }
 
             State = PackLoadState.Loaded;
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                OnLoadCancelled();
+                return;
+            }
         }
 
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="AggregateException"></exception>
         private void LoadResources(GraphicsDevice graphicsDevice)
         {
             if (State != PackLoadState.Loaded)
@@ -310,16 +365,33 @@ namespace AchievementLib.Pack.V1
         /// Throws, if at least one resource was not loaded successfully.
         /// </summary>
         /// <param name="graphicsDevice"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="AggregateException"></exception>
-        private async Task LoadResourcesAsync(GraphicsDevice graphicsDevice)
+        /// <exception cref="OperationCanceledException"></exception>
+        private async Task LoadResourcesAsync(GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
         {
-            (bool eval, PackResourceException[] exceptions) = await this.TryLoadChildrensResourcesAsync(ResourceManager, graphicsDevice);
+            cancellationToken.ThrowIfCancellationRequested();
 
-            if (!eval)
+            bool success = false;
+            PackResourceException[] exceptions = Array.Empty<PackResourceException>();
+
+            try
+            {
+                (success, exceptions) = await this.TryLoadChildrensResourcesAsync(ResourceManager, graphicsDevice, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+            
+
+            if (!success)
             {
                 throw new AggregateException(exceptions);
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
         }
 
         /// <summary>
@@ -327,12 +399,16 @@ namespace AchievementLib.Pack.V1
         /// strill try to attempt to load the other resources.
         /// </summary>
         /// <param name="graphicsDevice"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task<(bool, PackResourceException[])> TryLoadResourcesAsync(GraphicsDevice graphicsDevice)
+        /// <exception cref="OperationCanceledException"></exception>
+        private async Task<(bool, PackResourceException[])> TryLoadResourcesAsync(GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            
             try
             {
-                await LoadResourcesAsync(graphicsDevice);
+                await LoadResourcesAsync(graphicsDevice, cancellationToken);
             }
             catch (AggregateException ex)
             {
@@ -349,18 +425,34 @@ namespace AchievementLib.Pack.V1
                 PackResourceException[] exceptions = allExceptions.ToArray();
                 return (false, exceptions);
             }
+            catch (OperationCanceledException)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
 
             return (true, Array.Empty<PackResourceException>());
         }
 
         /// <inheritdoc/>
-        public bool Disable()
+        public bool Disable(bool forceDisable)
         {
             if (State == PackLoadState.Unloading
-                || State == PackLoadState.Loading
-                || State == PackLoadState.Unloaded)
+                || State == PackLoadState.Unloaded
+                || State == PackLoadState.FatalError)
             {
                 return false;
+            }
+            
+            if (!forceDisable
+                && State == PackLoadState.Loading)
+                
+            {
+                return false;
+            }
+
+            if (forceDisable)
+            {
+                _cancellationSourceEnable.Cancel();
             }
 
             State = PackLoadState.Unloading;
@@ -379,8 +471,11 @@ namespace AchievementLib.Pack.V1
 
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="PackFormatException"></exception>
-        private async Task LoadAchievements()
-        {   
+        /// <exception cref="OperationCanceledException"></exception>
+        private async Task LoadAchievements(CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (_dataReader == null)
             {
                 throw new InvalidOperationException("_dataReader must be != null.");
@@ -392,14 +487,20 @@ namespace AchievementLib.Pack.V1
 
             List<(Stream, IDataReader, string)> candidates = new List<(Stream fileStream, IDataReader dataReader, string fileName)>();
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             await _dataReader.LoadOnFileTypeAsync((fileStream, dataReader, fileName) =>
             {
                 candidates.Add((fileStream, dataReader, fileName));
                 return Task.CompletedTask;
             }, ".json");
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             foreach ((Stream fileStream, IDataReader dataReader, string fileName) in candidates)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (fileName == Path.GetFileNameWithoutExtension(Constants.MANIFEST_NAME))
                 {
                     // ignore manifest here
@@ -434,6 +535,8 @@ namespace AchievementLib.Pack.V1
                     "appears to be malformed.");
                 }
 
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     achievementData.Validate();
@@ -451,10 +554,15 @@ namespace AchievementLib.Pack.V1
             }
 
             _data = data.ToArray();
+
+            cancellationToken.ThrowIfCancellationRequested();
         }
 
-        private async Task<(bool, PackFormatException)> TryLoadAchievements()
+        /// <exception cref="OperationCanceledException"></exception>
+        private async Task<(bool, PackFormatException)> TryLoadAchievements(CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (_dataReader == null)
             {
                 return (false, null);
@@ -462,11 +570,15 @@ namespace AchievementLib.Pack.V1
 
             try
             {
-                await LoadAchievements();
+                await LoadAchievements(cancellationToken);
             }
             catch (PackFormatException ex)
             {
                 return (false, ex);
+            }
+            catch (OperationCanceledException)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
             }
 
             return (true, null);
@@ -494,6 +606,7 @@ namespace AchievementLib.Pack.V1
             ResourceManager = null;
             
             _dataReader?.Dispose();
+            _cancellationSourceEnable?.Dispose();
         }
     }
 }

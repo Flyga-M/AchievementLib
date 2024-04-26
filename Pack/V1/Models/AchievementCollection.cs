@@ -2,7 +2,9 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using System;
 
 namespace AchievementLib.Pack.V1.Models
 {
@@ -89,9 +91,9 @@ namespace AchievementLib.Pack.V1.Models
         }
 
         /// <inheritdoc/>
-        public async Task LoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice)
+        public async Task LoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
         {
-            await Icon?.LoadAsync(resourceManager, graphicsDevice);
+            await Icon?.LoadAsync(resourceManager, graphicsDevice, cancellationToken);
         }
 
         /// <summary>
@@ -115,13 +117,14 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         /// <returns><inheritdoc/> Also true, if the optional resource is null and does 
         /// not need to be loaded.</returns>
-        public async Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice)
+        /// <exception cref="OperationCanceledException"></exception>
+        public async Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
         {
             if (Icon == null)
             {
                 return (true, null);
             }
-            return await Icon.TryLoadAsync(resourceManager, graphicsDevice);
+            return await Icon.TryLoadAsync(resourceManager, graphicsDevice, cancellationToken);
         }
 
         /// <inheritdoc/>

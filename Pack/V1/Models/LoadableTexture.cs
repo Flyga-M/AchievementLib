@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AchievementLib.Pack.V1.Models
@@ -131,13 +132,17 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         /// <param name="resourceManager"></param>
         /// <param name="graphicsDevice"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="PackResourceException"></exception>
-        public async Task LoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice)
+        /// <exception cref="OperationCanceledException"></exception>
+        public async Task LoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (resourceManager == null)
             {
                 throw new ArgumentNullException(nameof(resourceManager));
@@ -153,16 +158,22 @@ namespace AchievementLib.Pack.V1.Models
                 throw new FileNotFoundException("Resource does not exist.", resourceManager.DataReader.GetPathRepresentation(ActualPath));
             }
 
-            Texture2D loadedTexture;
+            Texture2D loadedTexture = null;
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            Stream fileStream = null;
 
             try
             {
-                Stream fileStream = await resourceManager.LoadResourceStreamAsync(ActualPath);
+                fileStream = await resourceManager.LoadResourceStreamAsync(ActualPath);
                 loadedTexture = Texture2D.FromStream(graphicsDevice, fileStream);
-                fileStream.Dispose();
+                fileStream?.Dispose();
             }
             catch (Exception ex)
             {
+                fileStream?.Dispose();
+                loadedTexture?.Dispose();
                 throw new PackResourceException("Resource could not be loaded as " +
                     $"{nameof(Texture2D)}", resourceManager.DataReader.GetPathRepresentation(ActualPath), ex);
             }
@@ -173,15 +184,19 @@ namespace AchievementLib.Pack.V1.Models
                     $"{nameof(Texture2D)}", resourceManager.DataReader.GetPathRepresentation(ActualPath));
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             LoadedTexture = loadedTexture;
         }
 
         /// <inheritdoc/>
-        public async Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice)
+        /// <exception cref="OperationCanceledException"></exception>
+        public async Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                await LoadAsync(resourceManager, graphicsDevice);
+                await LoadAsync(resourceManager, graphicsDevice, cancellationToken);
             }
             catch (ArgumentNullException ex)
             {
@@ -202,6 +217,10 @@ namespace AchievementLib.Pack.V1.Models
             {
                 PackResourceException exception = new PackResourceException("Resource could not be loaded.", resourceManager.DataReader.GetPathRepresentation(ActualPath), ex);
                 return (false, exception);
+            }
+            catch (OperationCanceledException)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
             }
 
             return (true, null);

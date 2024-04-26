@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AchievementLib.Pack
@@ -216,12 +217,16 @@ namespace AchievementLib.Pack
         /// <param name="hierarchyObject"></param>
         /// <param name="resourceManager"></param>
         /// <param name="graphicsDevice"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns>True, if all children successfully loaded their 
         /// resources. False, if at least one childs resources were not 
         /// loaded successfully. Might contain information on failed 
         /// attempts.</returns>
-        public async static Task<(bool, PackResourceException[])> TryLoadChildrensResourcesAsync(this IHierarchyObject hierarchyObject, AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice)
+        /// <exception cref="OperationCanceledException"></exception>
+        public async static Task<(bool, PackResourceException[])> TryLoadChildrensResourcesAsync(this IHierarchyObject hierarchyObject, AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             List<PackResourceException> allExceptions = new List<PackResourceException>();
 
             if (hierarchyObject.Children == null || !hierarchyObject.Children.Any())
@@ -233,9 +238,21 @@ namespace AchievementLib.Pack
 
             foreach (IHierarchyObject child in hierarchyObject.Children)
             {
-                (bool grandChildrenEval, PackResourceException[] grandChildrenExceptions) = await child.TryLoadChildrensResourcesAsync(resourceManager, graphicsDevice);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                bool grandChildrenSuccess = false;
+                PackResourceException[] grandChildrenExceptions = Array.Empty<PackResourceException>();
+
+                try
+                {
+                    (grandChildrenSuccess, grandChildrenExceptions) = await child.TryLoadChildrensResourcesAsync(resourceManager, graphicsDevice, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
                 
-                if (!grandChildrenEval)
+                if (!grandChildrenSuccess)
                 {
                     eval = false;
                     allExceptions.AddRange(grandChildrenExceptions);
@@ -243,15 +260,29 @@ namespace AchievementLib.Pack
 
                 if (child is ILoadable loadable)
                 {
-                    (bool childEval, PackResourceException childException) = await loadable.TryLoadAsync(resourceManager, graphicsDevice);
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                    if (!childEval)
+                    bool childSuccess = false;
+                    PackResourceException childException = null;
+
+                    try
+                    {
+                        (childSuccess, childException) = await loadable.TryLoadAsync(resourceManager, graphicsDevice, cancellationToken);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+
+                    if (!childSuccess)
                     {
                         eval = false;
-                        allExceptions.Add(childException);
+                        allExceptions.Add(childException ?? new PackResourceException("An internal exception occured.", new AchievementLibInternalException("PackResourceException is null.")));
                     }
                 }
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             return (eval, allExceptions.ToArray());
         }

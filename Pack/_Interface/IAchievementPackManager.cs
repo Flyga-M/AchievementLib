@@ -69,8 +69,9 @@ namespace AchievementLib.Pack
         /// Attempts to disable the <see cref="IAchievementPackManager"/> and free it's resources by 
         /// disposing of any <see cref="IDisposable"/> children.
         /// </summary>
+        /// <param name="forceDisable"></param>
         /// <returns>True, if the <see cref="IAchievementPackManager"/> is eligible to be disabled. 
         /// Otherwise false.</returns>
-        bool Disable();
+        bool Disable(bool forceDisable);
     }
 }

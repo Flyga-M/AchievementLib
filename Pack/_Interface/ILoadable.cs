@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AchievementLib.Pack
@@ -40,15 +41,19 @@ namespace AchievementLib.Pack
         /// </summary>
         /// <param name="resourceManager"></param>
         /// <param name="graphicsDevice"></param>
-        Task LoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice);
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="OperationCanceledException"></exception>
+        Task LoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken);
 
         /// <summary>
         /// Attempts to load the <see cref="ILoadable"/> asynchronously.
         /// </summary>
         /// <param name="resourceManager"></param>
         /// <param name="graphicsDevice"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns>True, if the <see cref="ILoadable"/> was sucessfully loaded. Otherwise 
         /// false. Might contain information on a <see cref="PackResourceException"/>.</returns>
-        Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice);
+        /// <exception cref="OperationCanceledException"></exception>
+        Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken);
     }
 }
