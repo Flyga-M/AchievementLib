@@ -3,7 +3,7 @@
 namespace AchievementLib.Pack
 {
     /// <summary>
-    /// Extensions for the IManifest interface.
+    /// Provides extension methods for the <see cref="IManifest"/> interface.
     /// </summary>
     public static class IManifestExtensions
     {

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace AchievementLib.Pack
 {
+    /// <summary>
+    /// Provides extension methods for the <see cref="IHierarchyObject"/> interface.
+    /// </summary>
     public static class IHierarchyObjectExtensions
     {
         /// <summary>

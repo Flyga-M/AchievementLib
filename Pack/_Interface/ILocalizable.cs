@@ -1,5 +1,8 @@
 ﻿namespace AchievementLib.Pack
 {
+    /// <summary>
+    /// Represents a class, that has different content depending on the locale of the user.
+    /// </summary>
     public interface ILocalizable : IValidateable
     {
         /// <summary>

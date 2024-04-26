@@ -1,5 +1,8 @@
 ﻿namespace AchievementLib.Pack
 {
+    /// <summary>
+    /// Represents a class that can be validated.
+    /// </summary>
     public interface IValidateable
     {
         /// <summary>

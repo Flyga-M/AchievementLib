@@ -2,6 +2,9 @@
 
 namespace AchievementLib.Pack
 {
+    /// <summary>
+    /// Represents a class, that contains a resource that can be loaded.
+    /// </summary>
     public interface ILoadableResource : ILoadable, IValidateable
     {
         /// <summary>
@@ -9,10 +12,10 @@ namespace AchievementLib.Pack
         /// </summary>
         string Path { get; set; }
 
-        [JsonIgnore]
         /// <summary>
-        /// The loaded resource. Might be null, if <see cref="IsLoaded"/> == false.
+        /// The loaded resource. Might be null, if <see cref="ILoadable.IsLoaded"/> == false.
         /// </summary>
+        [JsonIgnore]
         object LoadedResource { get; }
     }
 }

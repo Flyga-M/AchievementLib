@@ -10,16 +10,16 @@ namespace AchievementLib.Pack
         /// </summary>
         string Id { get; }
 
-        [JsonIgnore]
         /// <summary>
         /// The parent of the <see cref="IHierarchyObject"/>.
         /// </summary>
+        [JsonIgnore]
         IHierarchyObject Parent { get; set; }
 
-        [JsonIgnore]
         /// <summary>
         /// The children of the <see cref="IHierarchyObject"/>.
         /// </summary>
+        [JsonIgnore]
         IHierarchyObject[] Children { get; }
     }
 }

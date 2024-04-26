@@ -92,6 +92,7 @@
     <Compile Include="Pack\V1\Models\LoadableTexture.cs" />
     <Compile Include="Pack\Writer\AchievementPackWriter.cs" />
     <Compile Include="Pack\Writer\ManifestWriter.cs" />
+    <Compile Include="Pack\_Interface\IAchievementData.cs" />
     <Compile Include="Pack\_Interface\IHierarchyObject.cs" />
     <Compile Include="Pack\V1\Models\Localizable.cs" />
     <Compile Include="Pack\V1\Models\LookingAtAction.cs" />

@@ -5,13 +5,16 @@ using System.Threading.Tasks;
 
 namespace AchievementLib.Pack
 {
+    /// <summary>
+    /// Represents a class that can be loaded.
+    /// </summary>
     public interface ILoadable : IDisposable
     {
-        [JsonIgnore]
         /// <summary>
         /// True, if the <see cref="ILoadableResource"/> was successfully loaded. 
         /// Otherwise false.
         /// </summary>
+        [JsonIgnore]
         bool IsLoaded { get; }
 
         /// <summary>

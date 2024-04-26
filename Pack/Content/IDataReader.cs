@@ -11,7 +11,7 @@ namespace AchievementLib.Pack.Content
     public interface IDataReader : IDisposable
     {
         /// <summary>
-        /// Gets a new <see cref="IDataReader"/> with the root path set to the provided <see cref="subPath"/>.
+        /// Gets a new <see cref="IDataReader"/> with the root path set to the provided <paramref name="subPath"/>.
         /// </summary>
         /// <param name="subPath">A sub path within the context of the <see cref="IDataReader"/>.</param>
         IDataReader GetSubPath(string subPath);
