@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 namespace AchievementLib.Pack.Content
 {
     // Full copy of TmfLib.Content.AsyncSafeZipArchive https://github.com/dlamkins/TmfLib
+    /// <summary>
+    /// Manages access to a .zip archive.
+    /// </summary>
     public sealed class AsyncSafeZipArchive
     {
 
@@ -18,8 +21,15 @@ namespace AchievementLib.Pack.Content
 
         private readonly string _archivePath;
 
+        /// <summary>
+        /// The filepaths of the entries in the .zip archive.
+        /// </summary>
         public IEnumerable<string> Entries => _entryLookup.Keys;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filePath"></param>
         public AsyncSafeZipArchive(string filePath)
         {
             _archivePath = filePath;
@@ -51,6 +61,11 @@ namespace AchievementLib.Pack.Content
             return filePath.Replace(@"\", "/").Replace("//", "/").ToLowerInvariant().Trim().TrimStart('.');
         }
 
+        /// <summary>
+        /// Determines whether a file exists inside the .zip archive.
+        /// </summary>
+        /// <param name="filePath">The relative filepath inside the .zip archive.</param>
+        /// <returns>True, if the <paramref name="filePath"/> exists. Otherwise false.</returns>
         public bool FileExists(string filePath)
         {
             return _entryLookup.ContainsKey(GetUniformFilePath(filePath));
@@ -82,6 +97,14 @@ namespace AchievementLib.Pack.Content
             }
         }
 
+        /// <summary>
+        /// Asynchronously retreives a <see cref="Stream"/> of the file.
+        /// </summary>
+        /// <param name="filePath">A path to a file within the context of the <see cref="AsyncSafeZipArchive"/>.</param>
+        /// <returns>
+        /// A task that represents the file's opened <see cref="Stream"/>.
+        /// If the file does not exist or cannot be read, the <see cref="Task"/> will result in null instead of a <see cref="Stream"/>.
+        /// </returns>
         public async Task<Stream> GetFileStreamAsync(string filePath)
         {
             var (archive, generation) = GetArchive();
@@ -112,6 +135,14 @@ namespace AchievementLib.Pack.Content
             return null;
         }
 
+        /// <summary>
+        /// Retreives a file <see cref="Stream"/> of the file.
+        /// </summary>
+        /// <param name="filePath">A path to a file within the context of the <see cref="AsyncSafeZipArchive"/>.</param>
+        /// <returns>
+        /// A <see cref="Stream"/> that represents the file's content.
+        /// If the file does not exist or cannot be read, null will be returned instead of a <see cref="Stream"/>.
+        /// </returns>
         public Stream GetFileStream(string filePath)
         {
             var (archive, generation) = GetArchive();
@@ -142,6 +173,14 @@ namespace AchievementLib.Pack.Content
             return null;
         }
 
+        /// <summary>
+        /// Asynchronously opens a file and returns the raw data in a byte array.
+        /// </summary>
+        /// <param name="filePath">A path to a file within the context of the <see cref="AsyncSafeZipArchive"/>.</param>
+        /// <returns>
+        /// A task that represents a byte array of the file's data.
+        /// If the file does not exist or cannot be read, the <see cref="Task"/> will result in null instead of a byte[].
+        /// </returns>
         public async Task<byte[]> GetFileBytesAsync(string filePath)
         {
             // We know GetFileStream returns a MemoryStream, so we don't check
@@ -156,6 +195,14 @@ namespace AchievementLib.Pack.Content
             return null;
         }
 
+        /// <summary>
+        /// Opens a file and returns the raw data in a byte array.
+        /// </summary>
+        /// <param name="filePath">A path to a file within the context of the <see cref="AsyncSafeZipArchive"/>.</param>
+        /// <returns>
+        /// A byte array of the file's data.
+        /// If the file does not exist or cannot be read, null will be returned instead of byte[].
+        /// </returns>
         public byte[] GetFileBytes(string filePath)
         {
             // We know GetFileStream returns a MemoryStream, so we don't check

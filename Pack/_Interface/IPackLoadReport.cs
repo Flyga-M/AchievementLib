@@ -1,5 +1,8 @@
 ﻿namespace AchievementLib.Pack
 {
+    /// <summary>
+    /// Contains data on the loading success of an achievement pack.
+    /// </summary>
     public interface IPackLoadReport
     {
         /// <summary>
@@ -18,6 +21,10 @@
         /// </summary>
         bool Success { get; }
 
+        /// <summary>
+        /// An exception that occured during the loading of the achievement pack, or null if 
+        /// no exception occured (yet).
+        /// </summary>
         AchievementLibException Exception { get; }
     }
 }

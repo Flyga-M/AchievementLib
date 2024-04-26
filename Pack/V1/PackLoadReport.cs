@@ -1,25 +1,24 @@
 ﻿namespace AchievementLib.Pack.V1
 {
+    /// <summary>
+    /// <inheritdoc cref="IPackLoadReport"/>
+    /// This is the V1 implementation.
+    /// </summary>
     public class PackLoadReport : IPackLoadReport
     {
-        /// <summary>
-        /// Might be null, if the data was not yet loaded.
-        /// </summary>
+        /// <inheritdoc/>
         public bool? FaultyData { get; internal set; }
 
-        /// <summary>
-        /// Might be null, if the data was not yet loaded, or faulty. Does not determine 
-        /// <see cref="Success"/>.
-        /// </summary>
+        /// <inheritdoc/>
         public bool? FaultyResources { get; internal set; }
 
-        /// <summary>
-        /// Will still be true, if some resources are faulty.
-        /// </summary>
+        /// <inheritdoc/>
         public bool Success => FaultyData.HasValue && !FaultyData.Value;
 
+        /// <inheritdoc/>
         public AchievementLibException Exception { get; internal set; }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"FaultyData?: {FaultyData}, FaultyResources?: {FaultyResources}, " +

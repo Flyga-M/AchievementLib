@@ -1,6 +1,6 @@
 ﻿namespace AchievementLib.Pack
 {
-    public interface ILocalizable
+    public interface ILocalizable : IValidateable
     {
         /// <summary>
         /// Determines whether the <see cref="ILocalizable"/> has an entry for the 

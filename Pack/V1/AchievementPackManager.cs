@@ -12,6 +12,10 @@ using PositionEvents.Area.JSON;
 
 namespace AchievementLib.Pack.V1
 {
+    /// <summary>
+    /// <inheritdoc cref="IAchievementPackManager"/>
+    /// This is the implementation of the V1 AchievementPackManager.
+    /// </summary>
     public class AchievementPackManager : IAchievementPackManager
     {
         private readonly IDataReader _dataReader;
@@ -30,7 +34,7 @@ namespace AchievementLib.Pack.V1
 
         /// <summary>
         /// Fires, once the pack was successfully enabled and loaded via 
-        /// <see cref="Enable(bool)"/>.
+        /// <see cref="Enable(GraphicsDevice, out Task)"/>.
         /// </summary>
         public event EventHandler PackLoaded;
 
@@ -135,8 +139,10 @@ namespace AchievementLib.Pack.V1
         /// </summary>
         public AchievementPackResourceManager ResourceManager { get; private set; }
 
+        /// <inheritdoc/>
         public string Id => Manifest?.Namespace;
 
+        /// <inheritdoc/>
         public IHierarchyObject Parent
         {
             get
@@ -153,8 +159,17 @@ namespace AchievementLib.Pack.V1
             }
         }
 
+        /// <inheritdoc/>
         public IHierarchyObject[] Children => Data;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dataReader"></param>
+        /// <param name="manifest"></param>
+        /// <param name="actionConverter"></param>
+        /// <param name="areaConverter"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public AchievementPackManager(IDataReader dataReader, Manifest manifest, ActionConverter actionConverter = null, BoundingObjectConverter areaConverter = null)
         {   
             _dataReader = dataReader ?? throw new ArgumentNullException(nameof(dataReader));
@@ -170,7 +185,15 @@ namespace AchievementLib.Pack.V1
             _data = Array.Empty<AchievementData>();
         }
 
-        public static AchievementPackManager FromArchivedMarkerPack(string archivePath, Manifest manifest, ActionConverter actionConverter = null, BoundingObjectConverter areaConverter = null) => new AchievementPackManager(new ZipArchiveReader(archivePath), manifest, actionConverter, areaConverter);
+        /// <summary>
+        /// Creates an <see cref="AchievementPackManager"/> from a .zip archive file.
+        /// </summary>
+        /// <param name="archivePath"></param>
+        /// <param name="manifest"></param>
+        /// <param name="actionConverter"></param>
+        /// <param name="areaConverter"></param>
+        /// <returns>The corresponding <see cref="AchievementPackManager"/>.</returns>
+        public static AchievementPackManager FromArchivedPack(string archivePath, Manifest manifest, ActionConverter actionConverter = null, BoundingObjectConverter areaConverter = null) => new AchievementPackManager(new ZipArchiveReader(archivePath), manifest, actionConverter, areaConverter);
 
         /// <summary>
         /// Attempts to enable the Achievement Pack and load it's data into 
@@ -330,6 +353,7 @@ namespace AchievementLib.Pack.V1
             return (true, Array.Empty<PackResourceException>());
         }
 
+        /// <inheritdoc/>
         public bool Disable()
         {
             if (State == PackLoadState.Unloading
@@ -448,6 +472,7 @@ namespace AchievementLib.Pack.V1
             return (true, null);
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             this.DisposeChildren();

@@ -10,7 +10,6 @@ namespace AchievementLib.Pack.Content
     /// </summary>
     public interface IDataReader : IDisposable
     {
-
         /// <summary>
         /// Gets a new <see cref="IDataReader"/> with the root path set to the provided <see cref="subPath"/>.
         /// </summary>
@@ -24,11 +23,12 @@ namespace AchievementLib.Pack.Content
         string GetPathRepresentation(string relativeFilePath = null);
 
         /// <summary>
-        /// Enumerates all available files. Files that have the extension <see cref="fileExtension"/>
-        /// will be passed to the provided <see cref="loadFileFunc"/>.
+        /// Enumerates all available files. Files that have the extension <paramref name="fileExtension"/>
+        /// will be passed to the provided <paramref name="loadFileFunc"/>.
         /// </summary>
         /// <param name="loadFileFunc">The method to call on all files within the context of the <see cref="IDataReader"/> that have the required file extension.</param>
         /// <param name="fileExtension">The file extension criteria. Should contain the '.' before the extension. If no fileExtension is provided, all files will meet the criteria.</param>
+        /// <param name="progress"></param>
         Task LoadOnFileTypeAsync(Func<Stream, IDataReader, string, Task> loadFileFunc, string fileExtension = "", IProgress<string> progress = null);
 
         /// <summary>
@@ -38,12 +38,12 @@ namespace AchievementLib.Pack.Content
         bool FileExists(string filePath);
 
         /// <summary>
-        /// Retreives a file stream of the file.
+        /// Retreives a file <see cref="Stream"/> of the file.
         /// </summary>
         /// <param name="filePath">A path to a file within the context of the <see cref="IDataReader"/>.</param>
         /// <returns>
-        /// A task that represents the file's opened stream.
-        /// If the file does not exist or cannot be read, <see cref="T:null"/> will be returned instead of a <see cref="Stream"/>.
+        /// A <see cref="Stream"/> that represents the file's content.
+        /// If the file does not exist or cannot be read, null will be returned instead of a <see cref="Stream"/>.
         /// </returns>
         Stream GetFileStream(string filePath);
 
@@ -53,17 +53,17 @@ namespace AchievementLib.Pack.Content
         /// <param name="filePath">A path to a file within the context of the <see cref="IDataReader"/>.</param>
         /// <returns>
         /// A byte array of the file's data.
-        /// If the file does not exist or cannot be read, <see cref="T:null"/> will be returned instead of <see cref="T:byte[]"/>.
+        /// If the file does not exist or cannot be read, null will be returned instead of byte[].
         /// </returns>
         byte[] GetFileBytes(string filePath);
 
         /// <summary>
-        /// Asynchronously retreives a stream of the file.
+        /// Asynchronously retreives a <see cref="Stream"/> of the file.
         /// </summary>
         /// <param name="filePath">A path to a file within the context of the <see cref="IDataReader"/>.</param>
         /// <returns>
-        /// A task that represents the file's opened stream.
-        /// If the file does not exist or cannot be read, the <see cref="Task"/> will result in <see cref="T:null"/> instead of a <see cref="Stream"/>.
+        /// A task that represents the file's opened <see cref="Stream"/>.
+        /// If the file does not exist or cannot be read, the <see cref="Task"/> will result in null instead of a <see cref="Stream"/>.
         /// </returns>
         Task<Stream> GetFileStreamAsync(string filePath);
 
@@ -73,7 +73,7 @@ namespace AchievementLib.Pack.Content
         /// <param name="filePath">A path to a file within the context of the <see cref="IDataReader"/>.</param>
         /// <returns>
         /// A task that represents a byte array of the file's data.
-        /// If the file does not exist or cannot be read, the <see cref="Task"/> will result in <see cref="T:null"/> instead of a <see cref="T:byte[]"/>.
+        /// If the file does not exist or cannot be read, the <see cref="Task"/> will result in null instead of a byte[].
         /// </returns>
         Task<byte[]> GetFileBytesAsync(string filePath);
 

@@ -9,6 +9,9 @@ using System.Linq;
 
 namespace AchievementLib.Pack
 {
+    /// <summary>
+    /// Handles the registering of all the Achievement Packs in the watch path.
+    /// </summary>
     public class AchievementPackInitiator : IDisposable
     {   
         // TODO: maybe add option to delete pack here?
@@ -20,6 +23,10 @@ namespace AchievementLib.Pack
         private readonly SafeList<IManifest> _manifests = new SafeList<IManifest>();
         private readonly SafeList<IAchievementPackManager> _packs = new SafeList<IAchievementPackManager>();
 
+        /// <summary>
+        /// Contains all packs from the watch path, that did not fail to load after 
+        /// <see cref="LoadWatchPath"/> was called.
+        /// </summary>
         public IAchievementPackManager[] Packs => _packs.ToArray();
 
         /// <summary>
@@ -284,7 +291,7 @@ namespace AchievementLib.Pack
                         
                         try
                         {
-                            newPack = V1.AchievementPackManager.FromArchivedMarkerPack(v1Manifest.PackFilePath, v1Manifest, TryGetCustomConverter<V1.JSON.ActionConverter>(), TryGetCustomConverter<BoundingObjectConverter>());
+                            newPack = V1.AchievementPackManager.FromArchivedPack(v1Manifest.PackFilePath, v1Manifest, TryGetCustomConverter<V1.JSON.ActionConverter>(), TryGetCustomConverter<BoundingObjectConverter>());
                         }
                         catch (FileNotFoundException ex)
                         {
@@ -328,6 +335,7 @@ namespace AchievementLib.Pack
             _packs.Clear();
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             UnregisterPacks();

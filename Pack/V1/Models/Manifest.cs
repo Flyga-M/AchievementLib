@@ -3,8 +3,13 @@ using System;
 
 namespace AchievementLib.Pack.V1.Models
 {
+    /// <summary>
+    /// <inheritdoc cref="IManifest"/>
+    /// This is the V1 implementation.
+    /// </summary>
     public class Manifest : IManifest
     {
+        /// <inheritdoc/>
         public Version Version { get; set; }
 
         /// <summary>
@@ -13,6 +18,7 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         public int PackVersion { get; set; }
 
+        /// <inheritdoc/>
         public string Author { get; set; }
 
         /// <inheritdoc cref="IManifest.Name"/>
@@ -25,11 +31,14 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         public Localizable Description { get; set; }
 
+        /// <inheritdoc/>
         public string Namespace { get; set; }
 
+        /// <inheritdoc/>
         [JsonIgnore]
         public string PackFilePath { get; set; }
 
+        /// <inheritdoc/>
         public bool IsValid()
         {
             return Version != null
@@ -63,6 +72,7 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(Manifest)}: {{ " +

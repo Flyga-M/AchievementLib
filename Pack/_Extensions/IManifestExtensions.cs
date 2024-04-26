@@ -2,6 +2,9 @@
 
 namespace AchievementLib.Pack
 {
+    /// <summary>
+    /// Extensions for the IManifest interface.
+    /// </summary>
     public static class IManifestExtensions
     {
         /// <summary>

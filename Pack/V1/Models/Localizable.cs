@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace AchievementLib.Pack.V1.Models
 {
-    public class Localizable : ILocalizable, IValidateable
+    public class Localizable : ILocalizable
     {
         /// <summary>
         /// The values accessible via their locale.

@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace AchievementLib.Pack
 {
+    /// <summary>
+    /// Manages the state and contents of an Achievement Pack.
+    /// </summary>
     public interface IAchievementPackManager : IDisposable, IHierarchyObject
     {
         /// <summary>
@@ -14,7 +17,7 @@ namespace AchievementLib.Pack
 
         /// <summary>
         /// Fires, once the pack was successfully enabled and loaded via 
-        /// <see cref="Enable(bool)"/>.
+        /// <see cref="Enable(GraphicsDevice, out Task)"/>.
         /// </summary>
         event EventHandler PackLoaded;
 

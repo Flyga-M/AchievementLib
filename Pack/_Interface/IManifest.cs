@@ -3,6 +3,9 @@ using System;
 
 namespace AchievementLib.Pack
 {
+    /// <summary>
+    /// Represents the Manifest data of an Achievement Pack.
+    /// </summary>
     public interface IManifest : IValidateable
     {
         /// <summary>
@@ -31,6 +34,9 @@ namespace AchievementLib.Pack
         /// </summary>
         ILocalizable Name { get; }
 
+        /// <summary>
+        /// The file path of the <see cref="IManifest"/>.
+        /// </summary>
         [JsonIgnore]
         string PackFilePath { get; set; }
     }
