@@ -2,6 +2,9 @@
 
 namespace AchievementLib.Pack
 {
+    /// <summary>
+    /// Represents an object, that is part of a hierarchy tree.
+    /// </summary>
     public interface IHierarchyObject
     {
         /// <summary>

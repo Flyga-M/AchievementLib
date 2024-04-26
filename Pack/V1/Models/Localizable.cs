@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace AchievementLib.Pack.V1.Models
 {
+    /// <inheritdoc cref="ILocalizable"/>
     public class Localizable : ILocalizable
     {
         /// <summary>
@@ -43,14 +44,13 @@ namespace AchievementLib.Pack.V1.Models
             return GetLocalized(fallbackLocale);
         }
 
+        /// <inheritdoc/>
         public bool IsValid()
         {
             return ByLocale != null && ByLocale.Any();
         }
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         /// <exception cref="PackFormatException"></exception>
         public void Validate()
         {
@@ -60,6 +60,7 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(Localizable)}: {{ " +

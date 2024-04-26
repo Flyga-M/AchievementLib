@@ -28,6 +28,7 @@
         /// </summary>
         public Restraint Restraint { get; set; }
 
+        /// <inheritdoc/>
         public override bool IsValid()
         {
             return !string.IsNullOrWhiteSpace(Key)
@@ -36,9 +37,7 @@
                 && base.IsValid();
         }
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         /// <exception cref="PackFormatException"></exception>
         public override void Validate()
         {
@@ -57,6 +56,7 @@
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(ApiActionComparison)}: {{ " +

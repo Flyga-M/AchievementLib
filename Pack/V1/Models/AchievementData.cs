@@ -4,6 +4,10 @@ using System.Linq;
 
 namespace AchievementLib.Pack.V1.Models
 {
+    /// <summary>
+    /// <inheritdoc cref="IAchievementData"/> 
+    /// This is the V1 implementation.
+    /// </summary>
     public class AchievementData : IAchievementData
     {
         /// <inheritdoc/>

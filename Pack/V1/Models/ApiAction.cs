@@ -1,5 +1,8 @@
 ﻿namespace AchievementLib.Pack.V1.Models
 {
+    /// <summary>
+    /// Represents an <see cref="Action"/>, that uses the GW2 API to evaluates it's status.
+    /// </summary>
     public abstract class ApiAction : Action
     {
         /// <summary>
@@ -7,6 +10,7 @@
         /// </summary>
         public string Endpoint { get; set; }
 
+        /// <inheritdoc/>
         public override bool IsValid()
         {
             return !string.IsNullOrEmpty(Endpoint);

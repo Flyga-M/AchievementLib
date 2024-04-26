@@ -1,5 +1,10 @@
 ﻿namespace AchievementLib.Pack.V1.Models
 {
+    // TODO: maybe implement ComparisonType, so not only "equals" can be supported
+    
+    /// <summary>
+    /// A restraint that is imposed on an <see cref="ApiAction"/>, to filter it's response.
+    /// </summary>
     public class Restraint : IValidateable
     {
         /// <summary>
@@ -26,6 +31,7 @@
         /// </summary>
         public string Value { get; set; }
 
+        /// <inheritdoc/>
         public bool IsValid()
         {
             return !string.IsNullOrEmpty(Key)
@@ -34,9 +40,7 @@
                 && (AndRestraint == null || AndRestraint.IsValid());
         }
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         /// <exception cref="PackFormatException"></exception>
         public void Validate()
         {
@@ -56,6 +60,7 @@
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(Restraint)}: {{ " +

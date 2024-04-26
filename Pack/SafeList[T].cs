@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
+#pragma warning disable CS1591
+
 namespace AchievementLib.Pack
 {
     // Full copy of Pathing.SafeList<T> https://github.com/blish-hud/Pathing

@@ -51,9 +51,7 @@ namespace AchievementLib.Pack.V1.Models
                 && !string.IsNullOrWhiteSpace(Namespace);
         }
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         /// <exception cref="PackManifestException"></exception>
         public void Validate()
         {

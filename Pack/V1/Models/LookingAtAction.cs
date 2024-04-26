@@ -25,6 +25,7 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         public float ToleranceAngle { get; set; }
 
+        /// <inheritdoc/>
         public override bool IsValid()
         {
             return Target.HasValue
@@ -44,6 +45,7 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(LookingAtAction)}: {{ " +

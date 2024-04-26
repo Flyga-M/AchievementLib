@@ -10,14 +10,13 @@
         /// </summary>
         public string FullName { get; set; }
 
+        /// <inheritdoc/>
         public override bool IsValid()
         {
             return !string.IsNullOrWhiteSpace(FullName);
         }
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         /// <exception cref="PackFormatException"></exception>
         public override void Validate()
         {
@@ -27,6 +26,7 @@
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(AchievementAction)}: {{ " +

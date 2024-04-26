@@ -6,10 +6,16 @@ using System.Threading.Tasks;
 
 namespace AchievementLib.Pack.V1.Models
 {
+    /// <summary>
+    /// <inheritdoc cref="ILoadableResource"/> 
+    /// In this implementation the resource is a <see cref="Texture2D"/>.
+    /// </summary>
     public class LoadableTexture : ILoadableResource
     {
+        /// <inheritdoc/>
         public string Path { get; set; }
 
+        /// <inheritdoc/>
         [JsonIgnore]
         public string ActualPath
         {
@@ -24,12 +30,17 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <inheritdoc/>
         [JsonIgnore]
         public bool IsLoaded => LoadedTexture != null;
 
+        /// <summary>
+        /// The loaded texture. Might be null, if <see cref="ILoadable.IsLoaded"/> == false.
+        /// </summary>
         [JsonIgnore]
         public Texture2D LoadedTexture { get; private set; }
 
+        /// <inheritdoc/>
         [JsonIgnore]
         public object LoadedResource => LoadedTexture;
 
@@ -82,6 +93,7 @@ namespace AchievementLib.Pack.V1.Models
             LoadedTexture = loadedTexture;
         }
 
+        /// <inheritdoc/>
         public bool TryLoad(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, out PackResourceException exception)
         {
             exception = null;
@@ -117,6 +129,9 @@ namespace AchievementLib.Pack.V1.Models
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
+        /// <param name="resourceManager"></param>
+        /// <param name="graphicsDevice"></param>
+        /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="FileNotFoundException"></exception>
@@ -161,6 +176,7 @@ namespace AchievementLib.Pack.V1.Models
             LoadedTexture = loadedTexture;
         }
 
+        /// <inheritdoc/>
         public async Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice)
         {
             try
@@ -191,6 +207,7 @@ namespace AchievementLib.Pack.V1.Models
             return (true, null);
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             LoadedTexture?.Dispose();
@@ -198,14 +215,13 @@ namespace AchievementLib.Pack.V1.Models
             LoadedTexture = null;
         }
 
+        /// <inheritdoc/>
         public bool IsValid()
         {
             return !string.IsNullOrWhiteSpace(ActualPath);
         }
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         /// <exception cref="PackFormatException"></exception>
         public void Validate()
         {
@@ -215,6 +231,7 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(LoadableTexture)}: {{ " +

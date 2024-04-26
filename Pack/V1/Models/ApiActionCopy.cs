@@ -16,6 +16,7 @@
         /// </summary>
         public string Key { get; set; }
 
+        /// <inheritdoc/>
         public override bool IsValid()
         {
             return (Restraint == null || Restraint.IsValid())
@@ -23,9 +24,7 @@
                 && base.IsValid();
         }
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         /// <exception cref="PackFormatException"></exception>
         public override void Validate()
         {
@@ -44,6 +43,7 @@
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(ApiActionCopy)}: {{ " +

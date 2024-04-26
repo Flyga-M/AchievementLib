@@ -4,8 +4,12 @@ using System.Linq;
 
 namespace AchievementLib.Pack.V1.Models
 {
+    /// <summary>
+    /// A category that can contain multiple achievement collections.
+    /// </summary>
     public class AchievementCategory : IHierarchyObject, IValidateable
     {
+        /// <inheritdoc/>
         public string Id { get; set; }
 
         /// <summary>
@@ -19,12 +23,15 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         public IEnumerable<AchievementCollection> AchievementCollections { get; set; }
 
+        /// <inheritdoc/>
         [JsonIgnore]
         public IHierarchyObject Parent { get; set; } = null;
 
+        /// <inheritdoc/>
         [JsonIgnore]
         public IHierarchyObject[] Children => AchievementCollections.ToArray();
 
+        /// <inheritdoc/>
         public bool IsValid()
         {
             return !string.IsNullOrWhiteSpace(Id)
@@ -35,9 +42,7 @@ namespace AchievementLib.Pack.V1.Models
                 && AchievementCollections.All(collection => collection.IsValid());
         }
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         /// <exception cref="PackFormatException"></exception>
         public void Validate()
         {
@@ -63,6 +68,7 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(AchievementCategory)}: {{ " +

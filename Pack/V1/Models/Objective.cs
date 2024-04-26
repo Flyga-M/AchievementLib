@@ -3,8 +3,12 @@ using System;
 
 namespace AchievementLib.Pack.V1.Models
 {
+    /// <summary>
+    /// An objective that is part of an achievement. Are named bits in the gw2 API V2.
+    /// </summary>
     public class Objective : IHierarchyObject, IValidateable
     {
+        /// <inheritdoc/>
         public string Id { get; set; }
         
         /// <summary>
@@ -29,12 +33,15 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         public Condition Condition { get; set; }
 
+        /// <inheritdoc/>
         [JsonIgnore]
         public IHierarchyObject Parent { get; set; } = null;
 
+        /// <inheritdoc/>
         [JsonIgnore]
         public IHierarchyObject[] Children => Array.Empty<IHierarchyObject>();
 
+        /// <inheritdoc/>
         public bool IsValid()
         {
             return !string.IsNullOrEmpty(Id)
@@ -47,9 +54,7 @@ namespace AchievementLib.Pack.V1.Models
                 && Condition.IsValid();
         }
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         /// <exception cref="PackFormatException"></exception>
         public void Validate()
         {
@@ -70,6 +75,7 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(Objective)}: {{ " +

@@ -6,8 +6,12 @@ using System.Threading.Tasks;
 
 namespace AchievementLib.Pack.V1.Models
 {
+    /// <summary>
+    /// An Achievement that can contain multiple objectives.
+    /// </summary>
     public class Achievement : IHierarchyObject, ILoadable, IValidateable
     {
+        /// <inheritdoc/>
         public string Id { get; set; }
 
         /// <summary>
@@ -70,15 +74,19 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         public ResetType ResetType { get; set; }
 
+        /// <inheritdoc/>
         [JsonIgnore]
         public bool IsLoaded => Icon?.IsLoaded ?? true;
 
+        /// <inheritdoc/>
         [JsonIgnore]
         public IHierarchyObject Parent { get; set; } = null;
 
+        /// <inheritdoc/>
         [JsonIgnore]
         public IHierarchyObject[] Children => Objectives.ToArray();
 
+        /// <inheritdoc/>
         public bool IsValid()
         {
             return !string.IsNullOrWhiteSpace(Id)
@@ -96,9 +104,7 @@ namespace AchievementLib.Pack.V1.Models
                 && Objectives.All(objective => objective.IsValid());
         }
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         /// <exception cref="PackFormatException"></exception>
         public void Validate()
         {
@@ -127,11 +133,13 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <inheritdoc/>
         public void Load(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice)
         {
             Icon?.Load(resourceManager, graphicsDevice);
         }
 
+        /// <inheritdoc/>
         public async Task LoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice)
         {
             await Icon?.LoadAsync(resourceManager, graphicsDevice);
@@ -167,6 +175,7 @@ namespace AchievementLib.Pack.V1.Models
             return await Icon.TryLoadAsync(resourceManager, graphicsDevice);
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             Icon?.Dispose();
@@ -174,6 +183,7 @@ namespace AchievementLib.Pack.V1.Models
             this.DisposeChildren();
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(Achievement)}: {{ " +

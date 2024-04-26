@@ -19,15 +19,14 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         public int MapId { get; set; }
 
+        /// <inheritdoc/>
         public override bool IsValid()
         {
             return Area != null
                 && MapId > 0;
         }
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         /// <exception cref="PackFormatException"></exception>
         public override void Validate()
         {
@@ -37,6 +36,7 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(PositionAreaAction)}: {{ " +

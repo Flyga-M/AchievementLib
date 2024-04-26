@@ -1,5 +1,8 @@
 ﻿namespace AchievementLib.Pack.V1.Models
 {
+    /// <summary>
+    /// A condition, that needs to be fulfilled for the objective to be considered completed.
+    /// </summary>
     public class Condition
     {
         /// <summary>
@@ -22,6 +25,7 @@
         /// </summary>
         public Action Action { get; set; }
 
+        /// <inheritdoc/>
         public bool IsValid()
         {
             return Action != null
@@ -30,9 +34,7 @@
                 && (AndCondition == null || AndCondition.IsValid());
         }
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         /// <exception cref="PackFormatException"></exception>
         public void Validate()
         {
@@ -53,6 +55,7 @@
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(Condition)}: {{ " +

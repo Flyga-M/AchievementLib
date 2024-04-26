@@ -25,6 +25,7 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         public float Tolerance { get; set; }
 
+        /// <inheritdoc/>
         public override bool IsValid()
         {
             return Position.HasValue
@@ -32,9 +33,7 @@ namespace AchievementLib.Pack.V1.Models
                 && Tolerance > 0;
         }
 
-        /// <summary>
         /// <inheritdoc/>
-        /// </summary>
         /// <exception cref="PackFormatException"></exception>
         public override void Validate()
         {
@@ -44,6 +43,7 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{{ {typeof(PositionAction)}: {{ " +
