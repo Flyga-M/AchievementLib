@@ -35,7 +35,7 @@ namespace AchievementLib.Pack
         ILocalizable Name { get; }
 
         /// <summary>
-        /// The file path of the <see cref="IManifest"/>.
+        /// The file path of the achievement pack.
         /// </summary>
         [JsonIgnore]
         string PackFilePath { get; set; }
