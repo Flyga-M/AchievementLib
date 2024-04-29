@@ -2,10 +2,12 @@
 using AchievementLib.Pack.Reader;
 using Newtonsoft.Json;
 using PositionEvents.Area.JSON;
+using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 
 namespace AchievementLib.Pack
 {
@@ -14,8 +16,6 @@ namespace AchievementLib.Pack
     /// </summary>
     public class AchievementPackInitiator : IDisposable
     {   
-        // TODO: maybe add option to delete pack here?
-        
         private readonly string _watchPath;
 
         private readonly SafeList<JsonConverter> _customConverters = new SafeList<JsonConverter>();
@@ -54,6 +54,29 @@ namespace AchievementLib.Pack
         }
 
         /// <summary>
+        /// Attempts to returns the registered pack with the given <paramref name="namespace"/>.
+        /// </summary>
+        /// <param name="namespace"></param>
+        /// <param name="exception"></param>
+        /// <param name="manager"></param>
+        /// <returns>True, if a pack with the <paramref name="namespace"/> exists and can be retrieved. 
+        /// Otherwise false.</returns>
+        public bool TryGetPack(string @namespace, out PackException exception, out IAchievementPackManager manager)
+        {
+            exception = null;
+
+            manager = _packs.Where(pack => pack.Manifest.Namespace == @namespace).FirstOrDefault();
+
+            if (manager == null)
+            {
+                exception = new PackException($"no pack with the given namespace \"{@namespace}\" was registered.");
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Registers Manifests and Achievement Packs from the 
         /// watch path.
         /// </summary>
@@ -70,6 +93,157 @@ namespace AchievementLib.Pack
             exceptions.AddRange(RegisterPacksFromLoadedManifests());
 
             return exceptions.ToArray();
+        }
+
+        /// <summary>
+        /// Attempts to manually add a pack to the <see cref="AchievementPackInitiator"/>.
+        /// </summary>
+        /// <param name="manager"></param>
+        /// <param name="exception"></param>
+        /// <returns>True, if the <paramref name="manager"/> was successfully registered. Otherwise false.</returns>
+        public bool TryRegisterPack(IAchievementPackManager manager, out PackException exception)
+        {
+            exception = null;
+
+            if (manager == null)
+            {
+                exception = new PackException("manager can't be null.", new ArgumentNullException(nameof(manager)));
+                return false;
+            }
+
+            if (_packs.Contains(manager))
+            {
+                exception = new PackException("can't register pack, that is already registered.");
+                return false;
+            }
+
+            if (_manifests.Contains(manager.Manifest))
+            {
+                exception = new PackException("can't register pack, whose manifest is already registered.");
+                return false;
+            }
+
+            _packs.Add(manager);
+            _manifests.Add(manager.Manifest);
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to manually add a pack to the <see cref="AchievementPackInitiator"/>.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="exception"></param>
+        /// <returns>True, if the pack was successfully registered from the <paramref name="filePath"/>. 
+        /// Otherwise false.</returns>
+        public bool TryRegisterPack(string filePath, out PackException exception)
+        {
+            exception = null;
+
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                exception = new PackException("filepath can't be empty.");
+                return false;
+            }
+
+            if (!File.Exists(filePath))
+            {
+                exception = new PackException($"Can't register pack from a file that does not exist: {filePath}", 
+                    new FileNotFoundException("File not found.", filePath));
+                return false;
+            }
+
+            IManifest manifest;
+
+            using (IDataReader reader = new ZipArchiveReader(filePath))
+            {
+                if (!TryLoadManifest(reader, out PackManifestException manifestException, out manifest))
+                {
+                    exception = new PackException("An exception occured while trying to load the manifest.",
+                        manifestException);
+                    return false;
+                }
+            }
+
+            if (!TryRegisterPackFromLoadedManifest(manifest, out PackException packException, out IAchievementPackManager manager))
+            {
+                exception = new PackException("An exception occured while trying to register the pack from the " +
+                    "loaded manifest.", packException);
+                return false;
+            }
+
+            return TryRegisterPack(manager, out exception);
+        }
+
+        /// <summary>
+        /// Attempts to delete the achievement pack with the <paramref name="namespace"/> from disk. Will also 
+        /// dispose the corresponding <see cref="IAchievementPackManager"/> if successfull, so be sure to remove 
+        /// any references to it.
+        /// </summary>
+        /// <param name="namespace"></param>
+        /// <param name="exception"></param>
+        /// <returns>True, if the pack was successfully deleted. Otherwise false.</returns>
+        public bool TryDeletePack(string @namespace, out PackException exception)
+        {
+            if (!TryGetPack(@namespace, out exception, out IAchievementPackManager manager))
+            {
+                return false;
+            }
+
+            return TryDeletePack(manager, out exception);
+        }
+
+        /// <summary>
+        /// Attempts to delete the achievement pack from disk. Will dispose of the <paramref name="manager"/> 
+        /// if the deletion was successfull, so be sure to remove any references to it.
+        /// </summary>
+        /// <param name="manager"></param>
+        /// <param name="exception"></param>
+        /// <returns>True, if the achievement pack was successfully deleted. Otherwise false.</returns>
+        public bool TryDeletePack(IAchievementPackManager manager, out PackException exception)
+        {
+            string filePath = manager.Manifest.PackFilePath;
+
+            if (!DeletePack(filePath, out exception))
+            {
+                return false;
+            }
+
+            _packs.Remove(manager);
+            _manifests.Remove(manager.Manifest);
+
+            manager.Dispose();
+            return true;
+        }
+
+        // is not prefixed with "Try" because of the public TryDeletePack with the same parameter types.
+        private bool DeletePack(string filePath, out PackException exception)
+        {
+            exception = null;
+
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                exception = new PackException("filepath can't be empty.");
+                return false;
+            }
+
+            if (!File.Exists(filePath))
+            {
+                exception = new PackException($"Can't delete pack for a file that does not exist: {filePath}",
+                    new FileNotFoundException("File not found.", filePath));
+                return false;
+            }
+
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch (Exception ex)
+            {
+                exception = new PackException("An exception occured while trying to delete pack.", ex);
+                return false;
+            }
+
+            return true;
         }
 
         private PackManifestException[] LoadManifestsFromWatchPath()
