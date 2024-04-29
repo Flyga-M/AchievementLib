@@ -77,6 +77,26 @@ namespace AchievementLib.Pack
         }
 
         /// <summary>
+        /// Determines whether a pack with the <paramref name="namespace"/> is already registered.
+        /// </summary>
+        /// <param name="namespace"></param>
+        /// <returns></returns>
+        public bool IsRegistered(string @namespace)
+        {
+            return _manifests.Any(manifest => manifest.Namespace == @namespace);
+        }
+
+        /// <summary>
+        /// Determines whether a pack with the same namespace as the <paramref name="manager"/> is already registered.
+        /// </summary>
+        /// <param name="manager"></param>
+        /// <returns></returns>
+        public bool IsRegistered(IAchievementPackManager manager)
+        {
+            return IsRegistered(manager.Manifest.Namespace);
+        }
+
+        /// <summary>
         /// Registers Manifests and Achievement Packs from the 
         /// watch path.
         /// </summary>
@@ -108,6 +128,15 @@ namespace AchievementLib.Pack
             if (manager == null)
             {
                 exception = new PackException("manager can't be null.", new ArgumentNullException(nameof(manager)));
+                return false;
+            }
+
+            if (IsRegistered(manager))
+            {
+                TryGetPack(manager.Manifest.Namespace, out PackException _, out IAchievementPackManager existingPack);
+                exception = new PackException($"can't register pack ({manager.Manifest.GetDetailedName()}), " +
+                    $"because a pack with the same namespace ({existingPack.Manifest.GetDetailedName()}) is " +
+                    "already registered.");
                 return false;
             }
 
