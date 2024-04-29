@@ -133,11 +133,13 @@ namespace AchievementLib.Pack
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="exception"></param>
+        /// <param name="manager"></param>
         /// <returns>True, if the pack was successfully registered from the <paramref name="filePath"/>. 
         /// Otherwise false.</returns>
-        public bool TryRegisterPack(string filePath, out PackException exception)
+        public bool TryRegisterPack(string filePath, out PackException exception, out IAchievementPackManager manager)
         {
             exception = null;
+            manager = null;
 
             if (string.IsNullOrWhiteSpace(filePath))
             {
@@ -164,7 +166,7 @@ namespace AchievementLib.Pack
                 }
             }
 
-            if (!TryRegisterPackFromLoadedManifest(manifest, out PackException packException, out IAchievementPackManager manager))
+            if (!TryRegisterPackFromLoadedManifest(manifest, out PackException packException, out manager))
             {
                 exception = new PackException("An exception occured while trying to register the pack from the " +
                     "loaded manifest.", packException);
