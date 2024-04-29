@@ -178,15 +178,16 @@ namespace AchievementLib.Pack
 
         /// <summary>
         /// Attempts to delete the achievement pack with the <paramref name="namespace"/> from disk. Disables the 
-        /// pack beforehand. Will also dispose the corresponding <see cref="IAchievementPackManager"/> if 
-        /// successfull, so be sure to remove any references to it.
+        /// pack beforehand. Will NOT dispose the corresponding <see cref="IAchievementPackManager"/>, that needs 
+        /// to be done manually.
         /// </summary>
         /// <param name="namespace"></param>
         /// <param name="exception"></param>
+        /// <param name="manager"></param>
         /// <returns>True, if the pack was successfully deleted. Otherwise false.</returns>
-        public bool TryDeletePack(string @namespace, out PackException exception)
+        public bool TryDeletePack(string @namespace, out PackException exception, out IAchievementPackManager manager)
         {
-            if (!TryGetPack(@namespace, out exception, out IAchievementPackManager manager))
+            if (!TryGetPack(@namespace, out exception, out manager))
             {
                 return false;
             }
@@ -196,8 +197,7 @@ namespace AchievementLib.Pack
 
         /// <summary>
         /// Attempts to delete the achievement pack from disk. Disables the pack beforehand. 
-        /// Will dispose of the <paramref name="manager"/> 
-        /// if the deletion was successfull, so be sure to remove any references to it.
+        /// Will NOT dispose of the <paramref name="manager"/>, that needs to be done manually.
         /// </summary>
         /// <param name="manager"></param>
         /// <param name="exception"></param>
@@ -222,7 +222,6 @@ namespace AchievementLib.Pack
 
             manager.Disable(true);
 
-            manager.Dispose();
             return true;
         }
 
