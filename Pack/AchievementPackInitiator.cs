@@ -177,9 +177,9 @@ namespace AchievementLib.Pack
         }
 
         /// <summary>
-        /// Attempts to delete the achievement pack with the <paramref name="namespace"/> from disk. Will also 
-        /// dispose the corresponding <see cref="IAchievementPackManager"/> if successfull, so be sure to remove 
-        /// any references to it.
+        /// Attempts to delete the achievement pack with the <paramref name="namespace"/> from disk. Disables the 
+        /// pack beforehand. Will also dispose the corresponding <see cref="IAchievementPackManager"/> if 
+        /// successfull, so be sure to remove any references to it.
         /// </summary>
         /// <param name="namespace"></param>
         /// <param name="exception"></param>
@@ -195,7 +195,8 @@ namespace AchievementLib.Pack
         }
 
         /// <summary>
-        /// Attempts to delete the achievement pack from disk. Will dispose of the <paramref name="manager"/> 
+        /// Attempts to delete the achievement pack from disk. Disables the pack beforehand. 
+        /// Will dispose of the <paramref name="manager"/> 
         /// if the deletion was successfull, so be sure to remove any references to it.
         /// </summary>
         /// <param name="manager"></param>
@@ -203,6 +204,12 @@ namespace AchievementLib.Pack
         /// <returns>True, if the achievement pack was successfully deleted. Otherwise false.</returns>
         public bool TryDeletePack(IAchievementPackManager manager, out PackException exception)
         {
+            if (manager == null)
+            {
+                exception = new PackException("manager can't be null.", new ArgumentNullException(nameof(manager)));
+                return false;
+            }
+            
             string filePath = manager.Manifest.PackFilePath;
 
             if (!DeletePack(filePath, out exception))
@@ -212,6 +219,8 @@ namespace AchievementLib.Pack
 
             _packs.Remove(manager);
             _manifests.Remove(manager.Manifest);
+
+            manager.Disable(true);
 
             manager.Dispose();
             return true;
