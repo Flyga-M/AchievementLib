@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 
 namespace AchievementLib.Pack.V1.Models
 {
@@ -13,6 +14,7 @@ namespace AchievementLib.Pack.V1.Models
         public ResolvableHierarchyReference Achievement { get; set; }
 
         /// <inheritdoc/>
+        [JsonIgnore]
         public bool IsResolved => Achievement?.IsResolved ?? false;
 
         /// <inheritdoc/>
@@ -49,12 +51,30 @@ namespace AchievementLib.Pack.V1.Models
         public void Resolve(IResolveContext context)
         {
             Achievement.Resolve(context);
+            if (!(Achievement.Reference is IAchievement referencedAchievement))
+            {
+                throw new PackReferenceException("Reference in AchievementAction must be to another IAchievement. " +
+                    $"Referenced type: {Achievement.Reference.GetType()}.");
+            }
         }
 
         /// <inheritdoc/>
         public bool TryResolve(IResolveContext context, out PackReferenceException exception)
         {
-            return Achievement.TryResolve(context, out exception);
+            if (!Achievement.TryResolve(context, out exception))
+            {
+                return false;
+            }
+
+            if (!(Achievement.Reference is IAchievement referencedAchievement))
+            {
+                exception = new PackReferenceException("Reference in AchievementAction must be to another IAchievement. " +
+                    $"Referenced type: {Achievement.Reference.GetType()}.");
+                return false;
+            }
+
+            exception = null;
+            return true;
         }
     }
 }

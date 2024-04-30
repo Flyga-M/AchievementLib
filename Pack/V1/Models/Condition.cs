@@ -38,6 +38,7 @@ namespace AchievementLib.Pack.V1.Models
         public bool IsFulfilled { get; private set; } = false;
 
         /// <inheritdoc/>
+        [JsonIgnore]
         public bool IsResolved
         {
             get

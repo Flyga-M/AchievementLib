@@ -69,10 +69,18 @@ namespace AchievementLib.Pack.V1.Models
 
         /// <summary>
         /// <inheritdoc/>
-        /// Will only be true, if all <see cref="Prerequesites"/> have been successfully resolved.
+        /// Will only be true, if all <see cref="Prerequesites"/> and <see cref="Objectives"/> 
+        /// have been successfully resolved.
         /// </summary>
         [JsonIgnore]
-        public bool IsResolved => !Prerequesites.Any() || Prerequesites.All(achievement => achievement.IsResolved);
+        public bool IsResolved
+        {
+            get
+            {
+                return (!Prerequesites.Any() || Prerequesites.All(achievement => achievement.IsResolved))
+                    && (!Objectives.Any() || Objectives.All(objective => objective.IsResolved));
+            }
+        }
 
         [JsonIgnore]
         ILocalizable IAchievement.Name => Name;
@@ -86,11 +94,8 @@ namespace AchievementLib.Pack.V1.Models
         [JsonIgnore]
         Texture2D IAchievement.Icon => Icon.LoadedTexture;
 
-        // TODO: there should be a better way.
-        // this way faulty prerequesites (valid hierarchy ids, but not for achievements) are just ignored instead of raised
-        // but maybe the verification step should be handled somewhere else
         [JsonIgnore]
-        IEnumerable<IAchievement> IAchievement.Prerequesites => Prerequesites.Select(resolvable => resolvable.Reference).Where(reference => reference is IAchievement).Select(reference => (IAchievement) reference);
+        IEnumerable<IAchievement> IAchievement.Prerequesites => Prerequesites.Select(resolvable => (IAchievement)resolvable.Reference);
 
         [JsonIgnore]
         IEnumerable<IObjective> IAchievement.Objectives => Objectives;
@@ -215,12 +220,23 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc/>
         /// </summary>
         /// <param name="context"></param>
+        /// <exception cref="PackReferenceException"></exception>
         /// <inheritdoc cref="ResolvableHierarchyReference.Resolve(IResolveContext)"/>
         public void Resolve(IResolveContext context)
         {
             foreach(ResolvableHierarchyReference achievement in Prerequesites)
             {
                 achievement.Resolve(context);
+                if (!(achievement.Reference is IAchievement referencedAchievement))
+                {
+                    throw new PackReferenceException("Reference in prerequesites must be to another IAchievement. " +
+                        $"Referenced type: {achievement.Reference.GetType()}.");
+                }
+            }
+
+            foreach (Objective objective in Objectives)
+            {
+                objective.Resolve(context);
             }
         }
 
@@ -229,16 +245,32 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         /// <param name="context"></param>
         /// <param name="exception"></param>
-        /// <returns><inheritdoc/> Will only return true, if all <see cref="Prerequesites"/> have been successfully resolved.</returns>
+        /// <returns><inheritdoc/> Will only return true, if all <see cref="Prerequesites"/> and <see cref="Objectives"/> 
+        /// have been successfully resolved.</returns>
         public bool TryResolve(IResolveContext context, out PackReferenceException exception)
         {
             List<PackReferenceException> exceptions = new List<PackReferenceException>();
 
             foreach (ResolvableHierarchyReference achievement in Prerequesites)
             {
-                if (achievement.TryResolve(context, out PackReferenceException ex))
+                if (!achievement.TryResolve(context, out PackReferenceException achievementException))
                 {
-                    exceptions.Add(ex);
+                    exceptions.Add(achievementException);
+                    continue;
+                }
+
+                if (!(achievement.Reference is IAchievement))
+                {
+                    exceptions.Add(new PackReferenceException("Reference in prerequesites must be to another IAchievement. " +
+                        $"Referenced type: {achievement.Reference.GetType()}."));
+                }
+            }
+
+            foreach (Objective objective in Objectives)
+            {
+                if (!objective.TryResolve(context, out PackReferenceException objectiveException))
+                {
+                    exceptions.Add(objectiveException);
                 }
             }
 

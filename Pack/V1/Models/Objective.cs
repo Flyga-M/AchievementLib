@@ -7,7 +7,7 @@ namespace AchievementLib.Pack.V1.Models
     /// <inheritdoc cref="IObjective"/>
     /// This is the V1 implementation.
     /// </summary>
-    public class Objective : IObjective
+    public class Objective : IObjective, IResolvable
     {
         /// <inheritdoc/>
         public string Id { get; set; }
@@ -50,6 +50,10 @@ namespace AchievementLib.Pack.V1.Models
 
         [JsonIgnore]
         ICondition IObjective.Condition => Condition;
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public bool IsResolved => Condition.IsResolved;
 
         /// <inheritdoc/>
         public bool IsValid()
@@ -95,6 +99,18 @@ namespace AchievementLib.Pack.V1.Models
                 $"\"MaxAmount\": {MaxAmount}, " +
                 $"\"Condition\": {Condition}, " +
                 $" }}, Valid?: {IsValid()} }}";
+        }
+
+        /// <inheritdoc cref="Condition.Resolve(IResolveContext)"/>
+        public void Resolve(IResolveContext context)
+        {
+            Condition.Resolve(context);
+        }
+
+        /// <inheritdoc/>
+        public bool TryResolve(IResolveContext context, out PackReferenceException exception)
+        {
+            return Condition.TryResolve(context, out exception);
         }
     }
 }
