@@ -7,7 +7,7 @@ namespace AchievementLib.Pack.V1.Models
     /// <summary>
     /// Checks whether a <see cref="Achievement"/> is completed.
     /// </summary>
-    public class AchievementAction : Action, IResolvable
+    public class AchievementAction : Action, IResolvable, IDisposable
     {
         /// <inheritdoc/>
         public event EventHandler Resolved;
@@ -20,6 +20,42 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc/>
         [JsonIgnore]
         public bool IsResolved => Achievement?.IsResolved ?? false;
+
+        /// <summary>
+        /// Instantiates an <see cref="AchievementAction"/>.
+        /// </summary>
+        /// <param name="achievement"></param>
+        [JsonConstructor]
+        public AchievementAction(ResolvableHierarchyReference achievement)
+        {
+            Achievement = achievement;
+
+            if (Achievement != null)
+            {
+                if (Achievement.IsResolved)
+                {
+                    OnAchievementResolved(achievement, null);
+                }
+
+                achievement.Resolved += OnAchievementResolved;
+            }
+        }
+
+        private void OnAchievementResolved(object sender, EventArgs _)
+        {
+            if (!(sender is IAchievement achievement))
+            {
+                throw new AchievementLibInternalException("OnAchievementResolved sender could not be unboxed to " +
+                    $"IAchievement. Given type: {sender.GetType()}.");
+            }
+
+            achievement.FulfilledChanged += OnAchievementFulfilledChanged;
+        }
+
+        private void OnAchievementFulfilledChanged(object _, bool isFulfilled)
+        {
+            IsFulfilled = isFulfilled;
+        }
 
         /// <inheritdoc/>
         public override bool IsValid()
@@ -83,6 +119,22 @@ namespace AchievementLib.Pack.V1.Models
 
             exception = null;
             return true;
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            if (Achievement != null)
+            {
+                Achievement.Resolved -= OnAchievementResolved;
+
+                if (Achievement.Reference is IAchievement achievement)
+                {
+                    achievement.FulfilledChanged -= OnAchievementFulfilledChanged;
+                }
+            }
+
+            Resolved = null;
         }
     }
 }
