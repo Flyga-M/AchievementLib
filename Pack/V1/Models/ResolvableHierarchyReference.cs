@@ -7,7 +7,7 @@ namespace AchievementLib.Pack.V1.Models
     /// <inheritdoc cref="IResolvableHierarchyReference"/>
     /// This is the V1 implementation.
     /// </summary>
-    public class ResolvableHierarchyReference : IResolvableHierarchyReference
+    public class ResolvableHierarchyReference : IResolvableHierarchyReference, IValidateable
     {
         /// <inheritdoc/>
         public string ReferenceId {get; set;}
@@ -96,6 +96,30 @@ namespace AchievementLib.Pack.V1.Models
 
             exception = null;
             return IsResolved;
+        }
+
+        /// <inheritdoc/>
+        public bool IsValid()
+        {
+            return !string.IsNullOrWhiteSpace(ReferenceId);
+        }
+
+        /// <inheritdoc/>
+        /// <exception cref="PackFormatException"></exception>
+        public void Validate()
+        {
+            if (!IsValid())
+            {
+                throw new PackFormatException($"ResolvableHierarchyReference {this} is invalid.", this.GetType());
+            }
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"{{ {typeof(ResolvableHierarchyReference)}: {{ " +
+                $"\"ReferenceId\": {ReferenceId}, " +
+                $" }}, Valid?: {IsValid()} }}";
         }
     }
 }

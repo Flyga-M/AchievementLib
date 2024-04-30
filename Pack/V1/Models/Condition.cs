@@ -7,7 +7,7 @@ namespace AchievementLib.Pack.V1.Models
     /// <inheritdoc cref="ICondition"/>
     /// This is the V1 implementation.
     /// </summary>
-    public class Condition : ICondition
+    public class Condition : ICondition, IResolvable
     {
         /// <summary>
         /// If not null, an alternative <see cref="Condition"/> that may be satisfied 
@@ -36,6 +36,22 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc/>
         [JsonIgnore]
         public bool IsFulfilled { get; private set; } = false;
+
+        /// <inheritdoc/>
+        public bool IsResolved
+        {
+            get
+            {
+                if (Action is IResolvable resolvable)
+                {
+                    return resolvable.IsResolved;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
 
         /// <inheritdoc/>
         public bool IsValid()
@@ -131,6 +147,27 @@ namespace AchievementLib.Pack.V1.Models
             }
 
             isFulfilled = IsFulfilled;
+            exception = null;
+            return true;
+        }
+
+        /// <inheritdoc/>
+        public void Resolve(IResolveContext context)
+        {
+            if (Action is IResolvable resolvable)
+            {
+                resolvable.Resolve(context);
+            }
+        }
+
+        /// <inheritdoc/>
+        public bool TryResolve(IResolveContext context, out PackReferenceException exception)
+        {
+            if (Action is IResolvable resolvable)
+            {
+                return resolvable.TryResolve(context, out exception);
+            }
+
             exception = null;
             return true;
         }
