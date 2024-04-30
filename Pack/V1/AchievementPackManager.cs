@@ -37,7 +37,7 @@ namespace AchievementLib.Pack.V1
 
         /// <summary>
         /// Fires, once the pack was successfully enabled and loaded via 
-        /// <see cref="Enable(GraphicsDevice, out Task)"/>.
+        /// <see cref="Enable(GraphicsDevice, IResolveContext, out Task)"/>.
         /// </summary>
         public event EventHandler PackLoaded;
 
@@ -53,7 +53,7 @@ namespace AchievementLib.Pack.V1
         public event EventHandler<PackLoadState> PackLoadStateChanged;
 
         /// <summary>
-        /// Fires, if an error occurs during <see cref="Enable(GraphicsDevice, out Task)"/>.
+        /// Fires, if an error occurs during <see cref="Enable(GraphicsDevice, IResolveContext, out Task)"/>.
         /// </summary>
         public event EventHandler<AchievementLibException> PackError;
 
@@ -201,7 +201,7 @@ namespace AchievementLib.Pack.V1
         /// <summary>
         /// Attempts to enable the Achievement Pack and load it's data into 
         /// <see cref="Data"/>. The data is loaded asynchronously and is not available 
-        /// directly after <see cref="Enable(GraphicsDevice, out Task)"/> was called. Listen to 
+        /// directly after <see cref="Enable(GraphicsDevice, IResolveContext, out Task)"/> was called. Listen to 
         /// <see cref="PackLoaded"/> and <see cref="PackError"/> to make sure, the 
         /// data is available.
         /// </summary>
@@ -211,9 +211,10 @@ namespace AchievementLib.Pack.V1
         /// </remarks>
         /// <param name="graphicsDevice"></param>
         /// <param name="loadingTask"></param>
+        /// <param name="resolveContext"></param>
         /// <returns>True, if the Achievement Pack is eligible to be enabled. 
         /// Otherwise false.</returns>
-        public bool Enable(GraphicsDevice graphicsDevice, out Task loadingTask)
+        public bool Enable(GraphicsDevice graphicsDevice, IResolveContext resolveContext, out Task loadingTask)
         {
             loadingTask = null;
             if (State != PackLoadState.Unloaded)
@@ -223,7 +224,7 @@ namespace AchievementLib.Pack.V1
 
             State = PackLoadState.Loading;
 
-            loadingTask = Load(graphicsDevice, _cancellationSourceEnable.Token);
+            loadingTask = Load(graphicsDevice, resolveContext, _cancellationSourceEnable.Token);
             
             return true;
         }
@@ -234,7 +235,7 @@ namespace AchievementLib.Pack.V1
         }
 
         /// <exception cref="OperationCanceledException"></exception>
-        private async Task Load(GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
+        private async Task Load(GraphicsDevice graphicsDevice, IResolveContext resolveContext, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
             {
@@ -279,6 +280,24 @@ namespace AchievementLib.Pack.V1
                 return;
             }
 
+            if (!TryResolveReferences(resolveContext, out PackReferenceException referenceException))
+            {
+                _report.FaultyReferences = true;
+                _report.Exception = referenceException;
+                State = PackLoadState.FatalError;
+
+                OnPackError(referenceException);
+                return;
+            }
+
+            _report.FaultyReferences = false;
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                OnLoadCancelled();
+                return;
+            }
+
             bool resourceSuccess;
             PackResourceException[] exceptions;
 
@@ -304,13 +323,60 @@ namespace AchievementLib.Pack.V1
                 _report.FaultyResources = false;
             }
 
-            State = PackLoadState.Loaded;
-
             if (cancellationToken.IsCancellationRequested)
             {
                 OnLoadCancelled();
                 return;
             }
+            else
+            {
+                State = PackLoadState.Loaded;
+            }
+        }
+
+        /// <exception cref="PackReferenceException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        private void ResolveReferences(IResolveContext context)
+        {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+            
+            if (!this.TryResolveChildren(context, out PackReferenceException[] packExceptions))
+            {
+                throw new PackReferenceException($"Unable to resolve references for pack " +
+                    $"{this.Manifest.GetDetailedName()}", new AchievementLibAggregateException(packExceptions));
+            }
+        }
+
+        private bool TryResolveReferences(IResolveContext context, out PackReferenceException exception)
+        {
+            try
+            {
+                ResolveReferences(context);
+            }
+            catch (PackReferenceException ex)
+            {
+                exception = ex;
+                return false;
+            }
+            catch (ArgumentNullException ex)
+            {
+                exception = new PackReferenceException($"Resolving of references failed for pack " +
+                    $"{this.Manifest.GetDetailedName()}. An internal exception occured.",
+                    new AchievementLibInternalException("context must be set to a valid object.", ex));
+                return false;
+            }
+            catch (Exception ex)
+            {
+                exception = new PackReferenceException($"Resolving of references failed for pack " +
+                    $"{this.Manifest.GetDetailedName()}.", ex);
+                return false;
+            }
+
+            exception = null;
+            return true;
         }
 
         /// <exception cref="InvalidOperationException"></exception>
@@ -461,6 +527,7 @@ namespace AchievementLib.Pack.V1
 
             _data = null;
             _report.FaultyData = null;
+            _report.FaultyReferences = null;
             _report.FaultyResources = null;
             _report.Exception = null;
 

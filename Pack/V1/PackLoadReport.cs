@@ -10,10 +10,14 @@
         public bool? FaultyData { get; internal set; }
 
         /// <inheritdoc/>
+        public bool? FaultyReferences { get; internal set; }
+
+        /// <inheritdoc/>
         public bool? FaultyResources { get; internal set; }
 
         /// <inheritdoc/>
-        public bool Success => FaultyData.HasValue && !FaultyData.Value;
+        public bool Success => FaultyData.HasValue && !FaultyData.Value
+            && FaultyReferences.HasValue && !FaultyReferences.Value;
 
         /// <inheritdoc/>
         public AchievementLibException Exception { get; internal set; }
@@ -21,7 +25,7 @@
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"FaultyData?: {FaultyData}, FaultyResources?: {FaultyResources}, " +
+            return $"FaultyData?: {FaultyData}, FaultyReferences?: {FaultyReferences}, FaultyResources?: {FaultyResources}, " +
                 $"Success: {Success}, Exception: {Exception}";
         }
     }

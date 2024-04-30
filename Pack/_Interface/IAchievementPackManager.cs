@@ -17,7 +17,7 @@ namespace AchievementLib.Pack
 
         /// <summary>
         /// Fires, once the pack was successfully enabled and loaded via 
-        /// <see cref="Enable(GraphicsDevice, out Task)"/>.
+        /// <see cref="Enable(GraphicsDevice, IResolveContext, out Task)"/>.
         /// </summary>
         event EventHandler PackLoaded;
 
@@ -51,7 +51,7 @@ namespace AchievementLib.Pack
         /// <summary>
         /// Attempts to enable the <see cref="IAchievementPackManager"/> and load it's data. 
         /// The data is loaded asynchronously and is not available 
-        /// directly after <see cref="Enable(GraphicsDevice, out Task)"/> was called. Listen to 
+        /// directly after <see cref="Enable(GraphicsDevice, IResolveContext, out Task)"/> was called. Listen to 
         /// <see cref="PackLoaded"/> and <see cref="PackError"/> to make sure, the 
         /// data is available.
         /// </summary>
@@ -61,9 +61,10 @@ namespace AchievementLib.Pack
         /// </remarks>
         /// <param name="graphicsDevice"></param>
         /// <param name="loadingTask"></param>
+        /// <param name="resolveContext"></param>
         /// <returns>True, if the <see cref="IAchievementPackManager"/> is eligible to be enabled. 
         /// Otherwise false.</returns>
-        bool Enable(GraphicsDevice graphicsDevice, out Task loadingTask);
+        bool Enable(GraphicsDevice graphicsDevice, IResolveContext resolveContext, out Task loadingTask);
 
         /// <summary>
         /// Attempts to disable the <see cref="IAchievementPackManager"/> and free it's resources by 

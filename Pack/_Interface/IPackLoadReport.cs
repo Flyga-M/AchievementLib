@@ -11,7 +11,12 @@
         bool? FaultyData { get; }
 
         /// <summary>
-        /// Might be null, if the data was not yet loaded, or faulty. Does not determine 
+        /// Might be null, if the data was not yet loaded or faulty.
+        /// </summary>
+        bool? FaultyReferences { get; }
+
+        /// <summary>
+        /// Might be null, if the data or references were not yet loaded, or faulty. Does not determine 
         /// <see cref="Success"/>.
         /// </summary>
         bool? FaultyResources { get; }
