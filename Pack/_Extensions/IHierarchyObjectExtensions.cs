@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -300,6 +301,57 @@ namespace AchievementLib.Pack
             cancellationToken.ThrowIfCancellationRequested();
 
             return (eval, allExceptions.ToArray());
+        }
+
+        /// <summary>
+        /// Attempts to resolve all references of all children of the <see cref="IHierarchyObject"/>. 
+        /// Might contain information on failed attempts. Will continue through all 
+        /// children, even if one child fails.
+        /// </summary>
+        /// <remarks>
+        /// Make sure that <see cref="AssertHierarchy(IHierarchyObject, IHierarchyObject)"/> 
+        /// was called beforehand, or children and parents have been manually set. Otherwise this 
+        /// won't do anything.
+        /// </remarks>
+        /// <param name="hierarchyObject"></param>
+        /// <param name="context"></param>
+        /// <param name="exceptions"></param>
+        /// <returns>True, if all childrens references were successfully resolved. False, if at least one 
+        /// child failed to resolve a reference.</returns>
+        public static bool TryResolveChildren(this IHierarchyObject hierarchyObject, IResolveContext context, out PackReferenceException[] exceptions)
+        {
+            exceptions = Array.Empty<PackReferenceException>();
+
+            if (hierarchyObject.Children == null)
+            {
+                return true;
+            }
+
+            bool eval = true;
+
+            List<PackReferenceException> allExceptions = new List<PackReferenceException>();
+
+            foreach (IHierarchyObject child in hierarchyObject.Children)
+            {
+                if (!child.TryResolveChildren(context, out PackReferenceException[] grandChildrenExceptions))
+                {
+                    eval = false;
+                    allExceptions.AddRange(grandChildrenExceptions);
+                }
+
+                if (child is IResolvable resolvable)
+                {
+                    if (!resolvable.TryResolve(context, out PackReferenceException childException))
+                    {
+                        eval = false;
+                        allExceptions.Add(childException);
+                    }
+                }
+            }
+
+            exceptions = allExceptions.ToArray();
+
+            return eval;
         }
 
         /// <summary>
