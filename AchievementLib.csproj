@@ -62,7 +62,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Pack\AchievementPackInitiator.cs" />
-    <Compile Include="Pack\ActionCheckContext.cs" />
     <Compile Include="Pack\Constants.cs" />
     <Compile Include="Pack\MinimalManifest.cs" />
     <Compile Include="Pack\Reader\AchievementPackReader.cs" />
@@ -100,7 +99,6 @@
     <Compile Include="Pack\_Interface\IAchievementCollection.cs" />
     <Compile Include="Pack\_Interface\IAchievementData.cs" />
     <Compile Include="Pack\_Interface\IAction.cs" />
-    <Compile Include="Pack\_Interface\IActionCheckContext.cs" />
     <Compile Include="Pack\_Interface\ICondition.cs" />
     <Compile Include="Pack\_Interface\IHierarchyObject.cs" />
     <Compile Include="Pack\V1\Models\Localizable.cs" />

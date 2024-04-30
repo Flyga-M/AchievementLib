@@ -94,64 +94,6 @@ namespace AchievementLib.Pack.V1.Models
                 $" }}, Valid?: {IsValid()} }}";
         }
 
-        /// <summary>
-        /// <inheritdoc/>
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns><inheritdoc/></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <inheritdoc cref="Action.Check(IActionCheckContext)"/>
-        public bool Check(IActionCheckContext context)
-        {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (!Action.Check(context)) // this (internal) condition is not met
-            {
-                if (OrCondition == null) // no or conditions exist
-                {
-                    IsFulfilled = false;
-                    return IsFulfilled;
-                }
-
-                // or conditions exist
-                IsFulfilled = OrCondition.Check(context);
-                return IsFulfilled;
-            }
-
-            // this (internal) condition is met
-            if (AndCondition == null) // no and conditions exist
-            {
-                IsFulfilled = true;
-                return IsFulfilled;
-            }
-
-            // and conditions exists
-            IsFulfilled = AndCondition.Check(context);
-            return IsFulfilled;
-        }
-
-        /// <inheritdoc/>
-        public bool TryCheck(IActionCheckContext context, out bool isFulfilled, out PackSolveException exception)
-        {
-            try
-            {
-                Check(context);
-            }
-            catch (Exception ex)
-            {
-                exception = new PackSolveException($"Unable to solve condition.", ex);
-                isFulfilled = false;
-                return false;
-            }
-
-            isFulfilled = IsFulfilled;
-            exception = null;
-            return true;
-        }
-
         /// <inheritdoc/>
         public void Resolve(IResolveContext context)
         {

@@ -18,21 +18,5 @@ namespace AchievementLib.Pack
         /// </summary>
         [JsonIgnore]
         bool IsFulfilled { get; }
-
-        /// <summary>
-        /// Determines whether the <see cref="ICondition"/> is fulfilled. Might throw Exceptions.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns>True, if the <see cref="ICondition"/> is fulfilled. Otherwise false.</returns>
-        bool Check(IActionCheckContext context);
-
-        /// <summary>
-        /// Attempts to determine, whether the <see cref="ICondition"/> is fulfilled.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="isFulfilled"></param>
-        /// <param name="exception"></param>
-        /// <returns>True, if the <see cref="ICondition"/> is eligible to be checked. Otherwise false.</returns>
-        bool TryCheck(IActionCheckContext context, out bool isFulfilled, out PackSolveException exception);
     }
 }
