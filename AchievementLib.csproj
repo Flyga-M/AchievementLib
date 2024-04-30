@@ -78,7 +78,7 @@
     <Compile Include="Pack\Content\AsyncSafeZipArchive.cs" />
     <Compile Include="Pack\Content\IDataReader.cs" />
     <Compile Include="Pack\Content\ZipArchiveReader.cs" />
-    <Compile Include="Pack\IAchievementPackResourceManager.cs" />
+    <Compile Include="Pack\_Interface\IAchievementPackResourceManager.cs" />
     <Compile Include="Pack\V1\Models\AchievementAction.cs" />
     <Compile Include="Pack\V1\Models\Action.cs" />
     <Compile Include="Pack\V1\Models\Achievement.cs" />
