@@ -109,6 +109,11 @@ namespace AchievementLib.Pack.V1.Models
             {
                 foreach(ResolvableHierarchyReference prerequesite in Prerequesites)
                 {
+                    if (prerequesite.IsResolved)
+                    {
+                        OnPrerequesiteResolved(prerequesite, null);
+                    }
+
                     prerequesite.Resolved += OnPrerequesiteResolved;
                 }
             }
