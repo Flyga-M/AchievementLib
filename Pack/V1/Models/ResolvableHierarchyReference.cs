@@ -10,6 +10,9 @@ namespace AchievementLib.Pack.V1.Models
     public class ResolvableHierarchyReference : IResolvableHierarchyReference, IValidateable
     {
         /// <inheritdoc/>
+        public event EventHandler Resolved;
+        
+        /// <inheritdoc/>
         public string ReferenceId {get; set;}
 
         /// <inheritdoc/>
@@ -66,6 +69,7 @@ namespace AchievementLib.Pack.V1.Models
             }
 
             Reference = resolved;
+            Resolved?.Invoke(this, null);
         }
 
         /// <inheritdoc/>

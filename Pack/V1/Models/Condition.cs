@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using MonoGame.Extended.Collections;
+using Newtonsoft.Json;
+using SharpDX.DirectWrite;
 using System;
 
 namespace AchievementLib.Pack.V1.Models
@@ -7,35 +9,87 @@ namespace AchievementLib.Pack.V1.Models
     /// <inheritdoc cref="ICondition"/>
     /// This is the V1 implementation.
     /// </summary>
-    public class Condition : ICondition, IResolvable
+    public class Condition : ICondition, IResolvable, IDisposable
     {
+        private bool _isFulfilled = false;
+        private bool _freezeUpdates = false;
+
+        /// <inheritdoc/>
+        public event EventHandler Resolved;
+
+        /// <inheritdoc/>
+        public event EventHandler<bool> FulfilledChanged;
+
         /// <summary>
         /// If not null, an alternative <see cref="Condition"/> that may be satisfied 
         /// instead of this <see cref="Condition"/> to be true. Functions as an 
         /// OR-condition. [Optional]
         /// </summary>
-        public Condition OrCondition { get; set; }
+        public Condition OrCondition { get; internal set; }
 
         /// <summary>
         /// If not null, an additional <see cref="Condition"/> that must be satisfied 
         /// with this <see cref="Condition"/> to be true. Functions as an 
         /// AND-condition. [Optional]
         /// </summary>
-        public Condition AndCondition { get; set; }
+        public Condition AndCondition { get; internal set; }
 
         /// <summary>
         /// The <see cref="Action"/> carrying the data associated with the 
         /// <see cref="Condition"/>.
         /// </summary>
-        public Action Action { get; set; }
+        public Action Action { get; internal set; }
 
         /// <inheritdoc/>
         [JsonIgnore]
         IAction ICondition.Action => Action;
 
+        private void OnIsFulfilledChanged(bool isFulfilled)
+        {
+            if (!FreezeUpdates)
+            {
+                FulfilledChanged?.Invoke(this, isFulfilled);
+            }
+        }
+
         /// <inheritdoc/>
         [JsonIgnore]
-        public bool IsFulfilled { get; private set; } = false;
+        public bool IsFulfilled
+        {
+            get => _isFulfilled;
+            set
+            {
+                if (_isFulfilled != value)
+                {
+                    OnIsFulfilledChanged(value);
+                }
+
+                _isFulfilled = value;
+            }
+        }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public bool FreezeUpdates
+        {
+            get => _freezeUpdates;
+            set
+            {
+                _freezeUpdates = value;
+                Action.FreezeUpdates = value;
+            }
+        }
+
+        private void OnChildFulfillmentStatusChanged(object _, bool _1)
+        {
+            RecalculateIsFulfilled();
+        }
+
+        private void RecalculateIsFulfilled()
+        {
+            IsFulfilled = (Action.IsFulfilled && (AndCondition == null || AndCondition.IsFulfilled))
+                || (OrCondition != null && OrCondition.IsFulfilled);
+        }
 
         /// <inheritdoc/>
         [JsonIgnore]
@@ -51,6 +105,33 @@ namespace AchievementLib.Pack.V1.Models
                 {
                     return true;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Instantiates a <see cref="Condition"/>.
+        /// </summary>
+        /// <param name="orCondition"></param>
+        /// <param name="andCondition"></param>
+        /// <param name="action"></param>
+        [JsonConstructor]
+        public Condition(Condition orCondition, Condition andCondition, Action action)
+        {
+            OrCondition = orCondition;
+            AndCondition = andCondition;
+            Action = action;
+
+            if (Action != null)
+            {
+                Action.FulfilledChanged += OnChildFulfillmentStatusChanged;
+            }
+            if (OrCondition != null)
+            {
+                OrCondition.FulfilledChanged += OnChildFulfillmentStatusChanged;
+            }
+            if (AndCondition != null)
+            {
+                AndCondition.FulfilledChanged += OnChildFulfillmentStatusChanged;
             }
         }
 
@@ -101,6 +182,8 @@ namespace AchievementLib.Pack.V1.Models
             {
                 resolvable.Resolve(context);
             }
+
+            Resolved?.Invoke(this, null);
         }
 
         /// <inheritdoc/>
@@ -111,8 +194,36 @@ namespace AchievementLib.Pack.V1.Models
                 return resolvable.TryResolve(context, out exception);
             }
 
+            Resolved?.Invoke(this, null);
+
             exception = null;
             return true;
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// Also disposes <see cref="OrCondition"/>, <see cref="AndCondition"/> and <see cref="Action"/> (if applicable).
+        /// </summary>
+        public void Dispose()
+        {
+            if (Action != null)
+            {
+                Action.FulfilledChanged -= OnChildFulfillmentStatusChanged;
+                if (Action is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+            }
+            if (OrCondition != null)
+            {
+                OrCondition.FulfilledChanged -= OnChildFulfillmentStatusChanged;
+                OrCondition.Dispose();
+            }
+            if (AndCondition != null)
+            {
+                AndCondition.FulfilledChanged -= OnChildFulfillmentStatusChanged;
+                AndCondition.Dispose();
+            }
         }
     }
 }

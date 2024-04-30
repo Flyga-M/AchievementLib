@@ -8,9 +8,37 @@ namespace AchievementLib.Pack.V1.Models
     /// </summary>
     public abstract class Action : IAction
     {
+        private bool _isFulfilled = false;
+        
+        /// <inheritdoc/>
+        public event EventHandler<bool> FulfilledChanged;
+        
+        private void OnIsFulFilledChanged(bool isFulfilled)
+        {
+            if (!FreezeUpdates)
+            {
+                FulfilledChanged?.Invoke(this, isFulfilled);
+            }
+        }
+
         /// <inheritdoc/>
         [JsonIgnore]
-        public bool IsFulfilled { get; set; } = false;
+        public bool IsFulfilled
+        {
+            get => _isFulfilled;
+            set
+            {
+                if (_isFulfilled != value)
+                {
+                    OnIsFulFilledChanged(value);
+                }
+                _isFulfilled = value;
+            }
+        }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public bool FreezeUpdates { get; set; } = false;
 
         /// <inheritdoc/>
         public abstract bool IsValid();

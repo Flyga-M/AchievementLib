@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace AchievementLib.Pack
 {
@@ -7,6 +8,11 @@ namespace AchievementLib.Pack
     /// </summary>
     public interface IResolvable
     {
+        /// <summary>
+        /// Triggers, when the the <see cref="IResolvable"/> was resolved;
+        /// </summary>
+        event EventHandler Resolved;
+        
         /// <summary>
         /// True, if the <see cref="IResolvable"/> was successfully resolved. 
         /// Otherwise false.

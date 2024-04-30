@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using System;
 
 namespace AchievementLib.Pack.V1.Models
 {
@@ -8,6 +9,9 @@ namespace AchievementLib.Pack.V1.Models
     /// </summary>
     public class AchievementAction : Action, IResolvable
     {
+        /// <inheritdoc/>
+        public event EventHandler Resolved;
+        
         /// <summary>
         /// The full name (id) of the <see cref="Models.Achievement"/> in the hierarchy tree.
         /// </summary>
@@ -56,6 +60,8 @@ namespace AchievementLib.Pack.V1.Models
                 throw new PackReferenceException("Reference in AchievementAction must be to another IAchievement. " +
                     $"Referenced type: {Achievement.Reference.GetType()}.");
             }
+
+            Resolved?.Invoke(this, null);
         }
 
         /// <inheritdoc/>
@@ -72,6 +78,8 @@ namespace AchievementLib.Pack.V1.Models
                     $"Referenced type: {Achievement.Reference.GetType()}.");
                 return false;
             }
+
+            Resolved?.Invoke(this, null);
 
             exception = null;
             return true;

@@ -14,6 +14,19 @@ namespace AchievementLib.Pack.V1.Models
     /// </summary>
     public class Achievement : IAchievement, ILoadable, IResolvable
     {
+        private bool _isFulfilled = false;
+        private bool _freezeUpdates = false;
+
+        private int _currentTier = 1;
+        private int _currentObjectives = 0;
+        private bool _isUnlocked = false;
+
+        /// <inheritdoc/>
+        public event EventHandler Resolved;
+
+        /// <inheritdoc/>
+        public event EventHandler<bool> FulfilledChanged;
+
         /// <inheritdoc/>
         public string Id { get; set; }
 
@@ -54,6 +67,157 @@ namespace AchievementLib.Pack.V1.Models
 
         /// <inheritdoc cref="IAchievement.ResetType"/>
         public ResetType ResetType { get; set; }
+
+        /// <summary>
+        /// Instantiates an <see cref="Achievement"/>.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <param name="description"></param>
+        /// <param name="lockedDescription"></param>
+        /// <param name="icon"></param>
+        /// <param name="prerequesites"></param>
+        /// <param name="tiers"></param>
+        /// <param name="objectives"></param>
+        /// <param name="isRepeatable"></param>
+        /// <param name="isHidden"></param>
+        /// <param name="resetType"></param>
+        [JsonConstructor]
+        public Achievement (string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableTexture icon, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, bool isRepeatable, bool isHidden, ResetType resetType)
+        {
+            Id = id;
+            Name = name;
+            Description = description;
+            LockedDescription = lockedDescription;
+            Icon = icon;
+            Prerequesites = prerequesites;
+            Tiers = tiers;
+            Objectives = objectives;
+            IsRepeatable = isRepeatable;
+            IsHidden = isHidden;
+            ResetType = resetType;
+
+            if (Objectives != null)
+            {
+                foreach (Objective objective in Objectives)
+                {
+                    objective.FulfilledChanged += OnObjectiveFulfillmentStatusChanged;
+                }
+            }
+
+            if (Prerequesites != null)
+            {
+                foreach(ResolvableHierarchyReference prerequesite in Prerequesites)
+                {
+                    prerequesite.Resolved += OnPrerequesiteResolved;
+                }
+            }
+        }
+
+        private void OnPrerequesiteResolved(object prerequesite, EventArgs _)
+        {
+            if (!(prerequesite is ResolvableHierarchyReference reference))
+            {
+                throw new AchievementLibInternalException("OnPrerequesiteResolved called with a sender, that can't " +
+                    $"be unboxed as ResolvableHierarchyReference. Given type: {prerequesite.GetType()}.");
+            }
+
+            if (!(reference.Reference is IAchievement achievement))
+            {
+                throw new AchievementLibInternalException("OnPrerequesiteResolved called with a sender, that can't " +
+                    $"be resolved as IAchievement. Given type: {reference.Reference.GetType()}.");
+            }
+
+            achievement.FulfilledChanged += OnPrerequesiteFulfillmentStatusChanged;
+        }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public int CurrentTier
+        {
+            get => _currentTier;
+            private set
+            {
+                _currentTier = value;
+            }
+        }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public int CurrentObjectives
+        {
+            get => _currentObjectives;
+            private set
+            {
+                _currentObjectives = value;
+                RecalculateCurrentTier();
+            }
+        }
+
+        private void RecalculateCurrentTier()
+        {
+            for (int i=0; i < Tiers.Count(); i++)
+            {
+                int upperBound = Tiers.ElementAt(i);
+
+                if (CurrentObjectives < upperBound)
+                {
+                    CurrentTier = i + 1;
+                    return;
+                }
+            }
+
+            CurrentTier = this.GetMaxTier();
+        }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public bool IsUnlocked
+        {
+            get
+            {
+                if (Prerequesites == null || !Prerequesites.Any())
+                {
+                    return true;
+                }
+                return _isUnlocked;
+            }
+            private set
+            {
+                _isUnlocked = value;
+            }
+        }
+
+        private void OnPrerequesiteFulfillmentStatusChanged(object _, bool _1)
+        {
+            RecalculateLockedStatus();
+        }
+
+        private void RecalculateLockedStatus()
+        {
+            if (Prerequesites == null || !Prerequesites.Any())
+            {
+                IsUnlocked = true;
+                return;
+            }
+
+            IsUnlocked = ((IAchievement)this).Prerequesites.All(achievement => achievement.IsFulfilled);
+        }
+
+        private void OnObjectiveFulfillmentStatusChanged(object _, bool _1)
+        {
+            RecalculateCurrentObjectives();
+        }
+
+        private void RecalculateCurrentObjectives()
+        {
+            int currentObjectives = 0;
+            foreach (Objective objective in Objectives)
+            {
+                currentObjectives += objective.CurrentAmount;
+            }
+            CurrentObjectives = currentObjectives;
+        }
 
         /// <inheritdoc/>
         [JsonIgnore]
@@ -99,6 +263,45 @@ namespace AchievementLib.Pack.V1.Models
 
         [JsonIgnore]
         IEnumerable<IObjective> IAchievement.Objectives => Objectives;
+
+        private void OnIsFulfilledChanged(bool isFulfilled)
+        {
+            if (!FreezeUpdates)
+            {
+                FulfilledChanged?.Invoke(this, isFulfilled);
+            }
+        }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public bool IsFulfilled
+        {
+            get => _isFulfilled;
+            set
+            {
+                if (_isFulfilled != value)
+                {
+                    OnIsFulfilledChanged(value);
+                }
+
+                _isFulfilled = value;
+            }
+        }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public bool FreezeUpdates
+        {
+            get => _freezeUpdates;
+            set
+            {
+                _freezeUpdates = value;
+                foreach (Objective objective in Objectives)
+                {
+                    objective.FreezeUpdates = value;
+                }
+            }
+        }
 
         /// <inheritdoc/>
         public bool IsValid()
@@ -193,6 +396,29 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc/>
         public void Dispose()
         {
+            if (Objectives != null)
+            {
+                foreach (Objective objective in Objectives)
+                {
+                    objective.FulfilledChanged -= OnObjectiveFulfillmentStatusChanged;
+                }
+            }
+
+            if (Prerequesites != null)
+            {
+                foreach (ResolvableHierarchyReference prerequesite in Prerequesites)
+                {
+                    prerequesite.Resolved -= OnPrerequesiteResolved;
+                }
+                foreach (IAchievement achievement in ((IAchievement)this).Prerequesites)
+                {
+                    achievement.FulfilledChanged -= OnPrerequesiteFulfillmentStatusChanged;
+                }
+            }
+
+            Resolved = null;
+            FulfilledChanged = null;
+
             Icon?.Dispose();
 
             this.DisposeChildren();
@@ -238,6 +464,8 @@ namespace AchievementLib.Pack.V1.Models
             {
                 objective.Resolve(context);
             }
+
+            Resolved?.Invoke(this, null);
         }
 
         /// <summary>
@@ -280,6 +508,11 @@ namespace AchievementLib.Pack.V1.Models
             {
                 exception = new PackReferenceException("Multiple exceptions occured when attempting to " +
                     "resolve the Prerequesites.", new AchievementLibAggregateException(exceptions));
+            }
+
+            if (!exceptions.Any())
+            {
+                Resolved?.Invoke(this, null);
             }
 
             return !exceptions.Any();

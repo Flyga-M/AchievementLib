@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace AchievementLib.Pack
@@ -6,7 +7,7 @@ namespace AchievementLib.Pack
     /// <summary>
     /// An Achievement that can contain multiple <see cref="IObjective">IObjectives</see>.
     /// </summary>
-    public interface IAchievement : IHierarchyObject, IValidateable
+    public interface IAchievement : IHierarchyObject, IValidateable, IFulfillable
     {
         /// <summary>
         /// The name of the <see cref="IAchievement"/>.
@@ -67,5 +68,23 @@ namespace AchievementLib.Pack
         /// [Optional]
         /// </summary>
         ResetType ResetType { get; }
+
+        /// <summary>
+        /// The current tier, that the <see cref="IAchievement"/> is completing. 1-indexed.
+        /// </summary>
+        [JsonIgnore]
+        int CurrentTier { get; }
+
+        /// <summary>
+        /// The current achievement progress.
+        /// </summary>
+        [JsonIgnore]
+        int CurrentObjectives { get; }
+
+        /// <summary>
+        /// Determines whether the <see cref="Prerequesites"/> are met, if there are any.
+        /// </summary>
+        [JsonIgnore]
+        bool IsUnlocked { get; }
     }
 }

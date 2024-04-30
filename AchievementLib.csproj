@@ -77,6 +77,7 @@
     <Compile Include="Pack\Content\AsyncSafeZipArchive.cs" />
     <Compile Include="Pack\Content\IDataReader.cs" />
     <Compile Include="Pack\Content\ZipArchiveReader.cs" />
+    <Compile Include="Pack\_Extensions\IAchievementExtensions.cs" />
     <Compile Include="Pack\_Interface\IAchievementPackResourceManager.cs" />
     <Compile Include="Pack\V1\Models\AchievementAction.cs" />
     <Compile Include="Pack\V1\Models\Action.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="Pack\_Interface\IAchievementData.cs" />
     <Compile Include="Pack\_Interface\IAction.cs" />
     <Compile Include="Pack\_Interface\ICondition.cs" />
+    <Compile Include="Pack\_Interface\IFulfillable.cs" />
     <Compile Include="Pack\_Interface\IHierarchyObject.cs" />
     <Compile Include="Pack\V1\Models\Localizable.cs" />
     <Compile Include="Pack\V1\Models\LookingAtAction.cs" />
