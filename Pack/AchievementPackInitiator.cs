@@ -2,12 +2,10 @@
 using AchievementLib.Pack.Reader;
 using Newtonsoft.Json;
 using PositionEvents.Area.JSON;
-using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Mail;
 
 namespace AchievementLib.Pack
 {

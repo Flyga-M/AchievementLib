@@ -9,29 +9,31 @@ using System;
 namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
-    /// A collection of multiple achievements.
+    /// <inheritdoc cref="IAchievementCollection"/>
+    /// This is the V1 implementation.
     /// </summary>
-    public class AchievementCollection : IHierarchyObject, ILoadable
+    public class AchievementCollection : IAchievementCollection, ILoadable
     {
         /// <inheritdoc/>
         public string Id { get; set; }
 
-        /// <summary>
-        /// The name of the <see cref="AchievementCollection"/>.
-        /// </summary>
+        /// <inheritdoc cref="IAchievementCollection.Name"/>
         public Localizable Name { get; set; }
 
-        /// <summary>
-        /// The <see cref="Achievement">Achievements</see> in the 
-        /// <see cref="AchievementCollection"/>.
-        /// </summary>
+        /// <inheritdoc/>
+        ILocalizable IAchievementCollection.Name => Name;
+
+        /// <inheritdoc cref="IAchievementCollection.Achievements"/>
         public IEnumerable<Achievement> Achievements { get; set; }
 
-        /// <summary>
-        /// The <see cref="LoadableTexture"/> to the icon that is displayed for 
-        /// the <see cref="AchievementCollection"/>. [Optional]
-        /// </summary>
+        /// <inheritdoc/>
+        IEnumerable<IAchievement> IAchievementCollection.Achievements => Achievements;
+
+        /// <inheritdoc cref="IAchievementCollection.Icon"/>
         public LoadableTexture Icon { get; set; }
+
+        /// <inheritdoc/>
+        Texture2D IAchievementCollection.Icon => Icon.LoadedTexture;
 
         /// <inheritdoc/>
         [JsonIgnore]

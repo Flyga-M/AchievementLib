@@ -1,9 +1,13 @@
-﻿namespace AchievementLib.Pack.V1.Models
+﻿using Newtonsoft.Json;
+using System;
+
+namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
-    /// A condition, that needs to be fulfilled for the objective to be considered completed.
+    /// <inheritdoc cref="ICondition"/>
+    /// This is the V1 implementation.
     /// </summary>
-    public class Condition
+    public class Condition : ICondition
     {
         /// <summary>
         /// If not null, an alternative <see cref="Condition"/> that may be satisfied 
@@ -24,6 +28,14 @@
         /// <see cref="Condition"/>.
         /// </summary>
         public Action Action { get; set; }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        IAction ICondition.Action => Action;
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public bool IsFulfilled { get; private set; } = false;
 
         /// <inheritdoc/>
         public bool IsValid()
@@ -63,6 +75,64 @@
                 $"\"AndCondition\": {AndCondition}, " +
                 $"\"Action\": {Action}, " +
                 $" }}, Valid?: {IsValid()} }}";
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns><inheritdoc/></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <inheritdoc cref="Action.Check(IActionCheckContext)"/>
+        public bool Check(IActionCheckContext context)
+        {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (!Action.Check(context)) // this (internal) condition is not met
+            {
+                if (OrCondition == null) // no or conditions exist
+                {
+                    IsFulfilled = false;
+                    return IsFulfilled;
+                }
+
+                // or conditions exist
+                IsFulfilled = OrCondition.Check(context);
+                return IsFulfilled;
+            }
+
+            // this (internal) condition is met
+            if (AndCondition == null) // no and conditions exist
+            {
+                IsFulfilled = true;
+                return IsFulfilled;
+            }
+
+            // and conditions exists
+            IsFulfilled = AndCondition.Check(context);
+            return IsFulfilled;
+        }
+
+        /// <inheritdoc/>
+        public bool TryCheck(IActionCheckContext context, out bool isFulfilled, out PackSolveException exception)
+        {
+            try
+            {
+                Check(context);
+            }
+            catch (Exception ex)
+            {
+                exception = new PackSolveException($"Unable to solve condition.", ex);
+                isFulfilled = false;
+                return false;
+            }
+
+            isFulfilled = IsFulfilled;
+            exception = null;
+            return true;
         }
     }
 }

@@ -62,12 +62,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Pack\AchievementPackInitiator.cs" />
+    <Compile Include="Pack\ActionCheckContext.cs" />
     <Compile Include="Pack\Constants.cs" />
     <Compile Include="Pack\MinimalManifest.cs" />
     <Compile Include="Pack\Reader\AchievementPackReader.cs" />
     <Compile Include="Pack\Reader\ManifestReader.cs" />
     <Compile Include="Pack\V1\AchievementPackManager.cs" />
+    <Compile Include="Pack\HierarchyResolveContext.cs" />
     <Compile Include="Pack\V1\Models\PositionAreaAction.cs" />
+    <Compile Include="Pack\V1\Models\ResolvableHierarchyReference.cs" />
     <Compile Include="Pack\V1\V1Constants.cs" />
     <Compile Include="Pack\V1\JSON\ActionConverter.cs" />
     <Compile Include="Pack\SafeList[T].cs" />
@@ -92,7 +95,13 @@
     <Compile Include="Pack\V1\Models\LoadableTexture.cs" />
     <Compile Include="Pack\Writer\AchievementPackWriter.cs" />
     <Compile Include="Pack\Writer\ManifestWriter.cs" />
+    <Compile Include="Pack\_Interface\IAchievement.cs" />
+    <Compile Include="Pack\_Interface\IAchievementCategory.cs" />
+    <Compile Include="Pack\_Interface\IAchievementCollection.cs" />
     <Compile Include="Pack\_Interface\IAchievementData.cs" />
+    <Compile Include="Pack\_Interface\IAction.cs" />
+    <Compile Include="Pack\_Interface\IActionCheckContext.cs" />
+    <Compile Include="Pack\_Interface\ICondition.cs" />
     <Compile Include="Pack\_Interface\IHierarchyObject.cs" />
     <Compile Include="Pack\V1\Models\Localizable.cs" />
     <Compile Include="Pack\V1\Models\LookingAtAction.cs" />
@@ -100,12 +109,17 @@
     <Compile Include="Pack\V1\Models\Objective.cs" />
     <Compile Include="Pack\V1\Models\PositionAction.cs" />
     <Compile Include="Pack\V1\Models\Restraint.cs" />
+    <Compile Include="Pack\_Interface\IHierarchyResolveContext.cs" />
+    <Compile Include="Pack\_Interface\IObjective.cs" />
+    <Compile Include="Pack\_Interface\IResolvableHierarchyReference.cs" />
     <Compile Include="Pack\_Interface\ILoadable.cs" />
     <Compile Include="Pack\_Interface\ILoadableResource.cs" />
     <Compile Include="Pack\V1\Models\_Type\Comparison.cs" />
     <Compile Include="Pack\V1\PackLoadReport.cs" />
     <Compile Include="Pack\_Interface\ILocalizable.cs" />
     <Compile Include="Pack\_Interface\IPackLoadReport.cs" />
+    <Compile Include="Pack\_Interface\IResolvable.cs" />
+    <Compile Include="Pack\_Interface\IResolveContext.cs" />
     <Compile Include="Pack\_Type\PackLoadState.cs" />
     <Compile Include="Pack\_Extensions\IManifestExtensions.cs" />
     <Compile Include="Pack\_Interface\IAchievementPackManager.cs" />
@@ -119,8 +133,10 @@
     <Compile Include="_Exceptions\PackException.cs" />
     <Compile Include="_Exceptions\PackFormatException.cs" />
     <Compile Include="_Exceptions\PackManifestException.cs" />
+    <Compile Include="_Exceptions\PackReferenceException.cs" />
     <Compile Include="_Exceptions\PackResourceException.cs" />
     <Compile Include="Pack\_Extensions\IHierarchyObjectExtensions.cs" />
+    <Compile Include="_Exceptions\PackSolveException.cs" />
     <Compile Include="_Type\ResetType.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -290,10 +306,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="_Extensions\" />
-    <Folder Include="_Interface\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="LICENSE.txt" />
   </ItemGroup>

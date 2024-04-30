@@ -9,27 +9,21 @@ using System;
 namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
-    /// An Achievement that can contain multiple objectives.
+    /// <inheritdoc cref="IAchievement"/>
+    /// This is the V1 implementation.
     /// </summary>
-    public class Achievement : IHierarchyObject, ILoadable, IValidateable
+    public class Achievement : IAchievement, ILoadable, IResolvable
     {
         /// <inheritdoc/>
         public string Id { get; set; }
 
-        /// <summary>
-        /// The name of the <see cref="Achievement"/>.
-        /// </summary>
+        /// <inheritdoc cref="IAchievement.Name"/>
         public Localizable Name { get; set; }
 
-        /// <summary>
-        /// The description for this <see cref="Achievement"/>.
-        /// </summary>
+        /// <inheritdoc cref="IAchievement.Description"/>
         public Localizable Description { get; set; }
 
-        /// <summary>
-        /// The description for this <see cref="Achievement"/> before it is unlocked. 
-        /// [Optional] if <see cref="Prerequesites"/> are empty or null.
-        /// </summary>
+        /// <inheritdoc cref="IAchievement.LockedDescription"/>
         public Localizable LockedDescription { get; set; }
 
         /// <summary>
@@ -39,41 +33,26 @@ namespace AchievementLib.Pack.V1.Models
         public LoadableTexture Icon { get; set; }
 
         /// <summary>
-        /// The IDs of the<see cref="Achievement">Achievements</see> that need to be 
+        /// The <see cref="ResolvableHierarchyReference">ResolvableHierarchyReferences</see> of the 
+        /// <see cref="Achievement">Achievements</see> that need to be 
         /// completed, before this <see cref="Achievement"/> is available. 
         /// [Optional]
         /// </summary>
-        public IEnumerable<string> Prerequesites { get; set; }
+        public IEnumerable<ResolvableHierarchyReference> Prerequesites { get; set; }
 
-        /// <summary>
-        /// The tiers in which this <see cref="Achievement"/> can be completed. 
-        /// The values describe how many objectives are needed to complete 
-        /// the tier.
-        /// </summary>
+        /// <inheritdoc cref="IAchievement.Tiers"/>
         public IEnumerable<int> Tiers { get; set; }
 
-        /// <summary>
-        /// All <see cref="Objective">Objectives</see> that are part of this 
-        /// <see cref="Achievement"/>.
-        /// </summary>
+        /// <inheritdoc cref="IAchievement.Objectives"/>
         public IEnumerable<Objective> Objectives { get; set; }
 
-        /// <summary>
-        /// Determines whether the <see cref="Achievement"/> can be repeated 
-        /// multiple times. [Optional]
-        /// </summary>
+        /// <inheritdoc cref="IAchievement.IsRepeatable"/>
         public bool IsRepeatable { get; set; }
 
-        /// <summary>
-        /// Determines whether an <see cref="Achievement"/> is not visible, until its 
-        /// <see cref="Prerequesites"/> are completed. [Optional]
-        /// </summary>
+        /// <inheritdoc cref="IAchievement.IsHidden"/>
         public bool IsHidden { get; set; }
 
-        /// <summary>
-        /// Determines at which rate the <see cref="Achievement"/> resets, if at all. 
-        /// [Optional]
-        /// </summary>
+        /// <inheritdoc cref="IAchievement.ResetType"/>
         public ResetType ResetType { get; set; }
 
         /// <inheritdoc/>
@@ -87,6 +66,34 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc/>
         [JsonIgnore]
         public IHierarchyObject[] Children => Objectives.ToArray();
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// Will only be true, if all <see cref="Prerequesites"/> have been successfully resolved.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsResolved => !Prerequesites.Any() || Prerequesites.All(achievement => achievement.IsResolved);
+
+        [JsonIgnore]
+        ILocalizable IAchievement.Name => Name;
+
+        [JsonIgnore]
+        ILocalizable IAchievement.Description => Description;
+
+        [JsonIgnore]
+        ILocalizable IAchievement.LockedDescription => LockedDescription;
+
+        [JsonIgnore]
+        Texture2D IAchievement.Icon => Icon.LoadedTexture;
+
+        // TODO: there should be a better way.
+        // this way faulty prerequesites (valid hierarchy ids, but not for achievements) are just ignored instead of raised
+        // but maybe the verification step should be handled somewhere else
+        [JsonIgnore]
+        IEnumerable<IAchievement> IAchievement.Prerequesites => Prerequesites.Select(resolvable => resolvable.Reference).Where(reference => reference is IAchievement).Select(reference => (IAchievement) reference);
+
+        [JsonIgnore]
+        IEnumerable<IObjective> IAchievement.Objectives => Objectives;
 
         /// <inheritdoc/>
         public bool IsValid()
@@ -202,6 +209,48 @@ namespace AchievementLib.Pack.V1.Models
                 $"\"IsHidden\": {IsHidden}, " +
                 $"\"ResetType\": {ResetType}, " +
                 $" }}, Valid?: {IsValid()} }}";
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        /// <param name="context"></param>
+        /// <inheritdoc cref="ResolvableHierarchyReference.Resolve(IResolveContext)"/>
+        public void Resolve(IResolveContext context)
+        {
+            foreach(ResolvableHierarchyReference achievement in Prerequesites)
+            {
+                achievement.Resolve(context);
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="exception"></param>
+        /// <returns><inheritdoc/> Will only return true, if all <see cref="Prerequesites"/> have been successfully resolved.</returns>
+        public bool TryResolve(IResolveContext context, out PackReferenceException exception)
+        {
+            List<PackReferenceException> exceptions = new List<PackReferenceException>();
+
+            foreach (ResolvableHierarchyReference achievement in Prerequesites)
+            {
+                if (achievement.TryResolve(context, out PackReferenceException ex))
+                {
+                    exceptions.Add(ex);
+                }
+            }
+
+            exception = exceptions.FirstOrDefault();
+
+            if (exceptions.Count > 1)
+            {
+                exception = new PackReferenceException("Multiple exceptions occured when attempting to " +
+                    "resolve the Prerequesites.", new AchievementLibAggregateException(exceptions));
+            }
+
+            return !exceptions.Any();
         }
     }
 }

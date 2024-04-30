@@ -4,9 +4,10 @@ using System;
 namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
-    /// An objective that is part of an achievement. Are named bits in the gw2 API V2.
+    /// <inheritdoc cref="IObjective"/>
+    /// This is the V1 implementation.
     /// </summary>
-    public class Objective : IHierarchyObject, IValidateable
+    public class Objective : IObjective
     {
         /// <inheritdoc/>
         public string Id { get; set; }
@@ -40,6 +41,15 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc/>
         [JsonIgnore]
         public IHierarchyObject[] Children => Array.Empty<IHierarchyObject>();
+
+        [JsonIgnore]
+        ILocalizable IObjective.Name => Name;
+
+        [JsonIgnore]
+        ILocalizable IObjective.Description => Description;
+
+        [JsonIgnore]
+        ICondition IObjective.Condition => Condition;
 
         /// <inheritdoc/>
         public bool IsValid()

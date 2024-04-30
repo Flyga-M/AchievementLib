@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace AchievementLib.Pack
 {
@@ -11,6 +7,10 @@ namespace AchievementLib.Pack
     /// </summary>
     public interface IAchievementData : IHierarchyObject, IValidateable
     {
-
+        /// <summary>
+        /// The <see cref="IAchievementCategory">IAchievementCategories</see> in 
+        /// the <see cref="IAchievementData"/>.
+        /// </summary>
+        IEnumerable<IAchievementCategory> AchievementCategories { get; }
     }
 }

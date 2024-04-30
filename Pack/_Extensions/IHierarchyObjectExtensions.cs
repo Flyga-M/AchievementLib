@@ -101,6 +101,21 @@ namespace AchievementLib.Pack
         }
 
         /// <summary>
+        /// Determines whether the <see cref="IHierarchyObject"/> is a parent (according to the namespace) of 
+        /// the <see cref="IHierarchyObject"/> with the given <paramref name="fullName"/>.
+        /// </summary>
+        /// <param name="hierarchyObject"></param>
+        /// <param name="fullName"></param>
+        /// <returns>True, if the <paramref name="fullName"/> starts with the fullName of the 
+        /// <see cref="IHierarchyObject"/>. Otherwise false.</returns>
+        public static bool IsNamespaceParentOf(this IHierarchyObject hierarchyObject, string fullName)
+        {
+            string @namespace = hierarchyObject.GetFullName();
+
+            return fullName.StartsWith(@namespace);
+        }
+
+        /// <summary>
         /// Checks whether the <see cref="IHierarchyObject"/> could be a part of the same 
         /// namespace as the given <paramref name="fullName"/>.
         /// </summary>

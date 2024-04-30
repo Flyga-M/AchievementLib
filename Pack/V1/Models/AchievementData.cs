@@ -13,11 +13,11 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc/>
         public string Id { get; set; }
 
-        /// <summary>
-        /// The <see cref="AchievementCategory">IAchievementCategories</see> in 
-        /// the <see cref="AchievementData"/>.
-        /// </summary>
+        /// <inheritdoc cref="IAchievementData.AchievementCategories"/>
         public IEnumerable<AchievementCategory> AchievementCategories { get; set; }
+
+        /// <inheritdoc/>
+        IEnumerable<IAchievementCategory> IAchievementData.AchievementCategories => AchievementCategories;
 
         /// <inheritdoc/>
         [JsonIgnore]

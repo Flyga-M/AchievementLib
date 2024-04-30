@@ -5,23 +5,27 @@ using System.Linq;
 namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
-    /// A category that can contain multiple achievement collections.
+    /// <inheritdoc cref="IAchievementCategory"/>
+    /// This is the V1 implementation.
     /// </summary>
-    public class AchievementCategory : IHierarchyObject, IValidateable
+    public class AchievementCategory : IAchievementCategory
     {
         /// <inheritdoc/>
         public string Id { get; set; }
 
-        /// <summary>
-        /// The name of the <see cref="AchievementCategory"/>.
-        /// </summary>
+        /// <inheritdoc cref="IAchievementCategory.Name"/>
         public Localizable Name { get; set; }
 
+        /// <inheritdoc/>
+        ILocalizable IAchievementCategory.Name => Name;
+
         /// <summary>
-        /// The <see cref="AchievementCollection">AchievementCollections</see> in 
-        /// the <see cref="AchievementCategory"/>.
+        /// <inheritdoc cref="IAchievementCategory.AchievementCollections"/>
         /// </summary>
         public IEnumerable<AchievementCollection> AchievementCollections { get; set; }
+
+        /// <inheritdoc/>
+        IEnumerable<IAchievementCollection> IAchievementCategory.AchievementCollections => AchievementCollections;
 
         /// <inheritdoc/>
         [JsonIgnore]
