@@ -9,7 +9,11 @@ namespace AchievementLib.Pack.V1.Models
     public abstract class Action : IAction
     {
         private bool _isFulfilled = false;
-        
+        private bool _freezeUpdates = false;
+
+        /// <inheritdoc/>
+        public event EventHandler<bool> FreezeUpdatesChanged;
+
         /// <inheritdoc/>
         public event EventHandler<bool> FulfilledChanged;
         
@@ -38,7 +42,18 @@ namespace AchievementLib.Pack.V1.Models
 
         /// <inheritdoc/>
         [JsonIgnore]
-        public bool FreezeUpdates { get; set; } = false;
+        public bool FreezeUpdates
+        {
+            get => _freezeUpdates;
+            set
+            {
+                if (_freezeUpdates != value)
+                {
+                    FreezeUpdatesChanged?.Invoke(this, value);
+                }
+                _freezeUpdates = value;
+            }
+        }
 
         /// <inheritdoc/>
         public abstract bool IsValid();

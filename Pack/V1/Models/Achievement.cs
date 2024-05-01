@@ -25,6 +25,9 @@ namespace AchievementLib.Pack.V1.Models
         public event EventHandler Resolved;
 
         /// <inheritdoc/>
+        public event EventHandler<bool> FreezeUpdatesChanged;
+
+        /// <inheritdoc/>
         public event EventHandler<bool> FulfilledChanged;
 
         /// <inheritdoc/>
@@ -300,6 +303,10 @@ namespace AchievementLib.Pack.V1.Models
             get => _freezeUpdates;
             set
             {
+                if (_freezeUpdates != value)
+                {
+                    FreezeUpdatesChanged?.Invoke(this, value);
+                }
                 _freezeUpdates = value;
                 foreach (Objective objective in Objectives)
                 {

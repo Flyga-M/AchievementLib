@@ -14,6 +14,11 @@ namespace AchievementLib.Pack
         event EventHandler<bool> FulfilledChanged;
 
         /// <summary>
+        /// Triggers, when <see cref="FreezeUpdates"/> changes.
+        /// </summary>
+        event EventHandler<bool> FreezeUpdatesChanged;
+
+        /// <summary>
         /// Determines whether the <see cref="IFulfillable"/> is fulfilled.
         /// </summary>
         [JsonIgnore]
