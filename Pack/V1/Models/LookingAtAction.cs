@@ -20,17 +20,19 @@ namespace AchievementLib.Pack.V1.Models
         public int MapId { get; set; } = -1;
 
         /// <summary>
-        /// The angle that the viewing vector may deviate from the target to still be 
-        /// considered looking at the target.
+        /// The cosine similarity that the viewing vector and the <see cref="Target"/>  must at least have 
+        /// to still be considered looking at the target. Must be bigger than -1 (player can be looking in any 
+        /// direction) and less than 1 (player must look exactly at the <see cref="Target"/>).
         /// </summary>
-        public float ToleranceAngle { get; set; }
+        public float CosineSimilarityTolerance { get; set; } = 1;
 
         /// <inheritdoc/>
         public override bool IsValid()
         {
             return Target.HasValue
                 && MapId > 0
-                && ToleranceAngle > 0;
+                && CosineSimilarityTolerance > -1
+                && CosineSimilarityTolerance < 1;
         }
 
         /// <summary>
@@ -51,7 +53,7 @@ namespace AchievementLib.Pack.V1.Models
             return $"{{ {typeof(LookingAtAction)}: {{ " +
                 $"\"Target\": {Target}, " +
                 $"\"MapId\": {MapId}, " +
-                $"\"ToleranceAngle\": {ToleranceAngle}, " +
+                $"\"CosineSimilarityTolerance\": {CosineSimilarityTolerance}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

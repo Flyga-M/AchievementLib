@@ -139,6 +139,7 @@
     <Compile Include="Pack\_Extensions\IHierarchyObjectExtensions.cs" />
     <Compile Include="_Exceptions\PackSolveException.cs" />
     <Compile Include="_Type\ResetType.cs" />
+    <Compile Include="_Util\CosineSimilarityUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Win32.Primitives">
