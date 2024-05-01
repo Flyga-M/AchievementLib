@@ -47,6 +47,12 @@ namespace AchievementLib.Pack.V1.Models
         [JsonIgnore]
         IAction ICondition.Action => Action;
 
+        /// <summary>
+        /// Determines whether this condition and it's additional conditions are fulfilled, regardless of 
+        /// the <see cref="OrCondition"/>.
+        /// </summary>
+        private bool LocalIsFulfilled => Action.IsFulfilled && (AndCondition == null || AndCondition.IsFulfilled);
+
         private void OnIsFulfilledChanged(bool isFulfilled)
         {
             if (!FreezeUpdates)
@@ -83,18 +89,69 @@ namespace AchievementLib.Pack.V1.Models
                     FreezeUpdatesChanged?.Invoke(this, value);
                 }
                 _freezeUpdates = value;
-                Action.FreezeUpdates = value;
+
+                if (value)
+                {
+                    OnConditionFreeze();
+                }
+                else
+                {
+                    OnConditionUnFreeze();
+                }
+            }
+        }
+
+        private void OnConditionFreeze()
+        {
+            Action?.FreezeUpdates();
+            OrCondition?.FreezeUpdates();
+            AndCondition?.FreezeUpdates();
+        }
+
+        private void OnConditionUnFreeze()
+        {
+            Action?.UnfreezeUpdates();
+
+            RecalculateChildFreeze();
+            RecalculateIsFulfilled();
+        }
+
+        private void RecalculateChildFreeze()
+        {
+            if (FreezeUpdates)
+            {
+                OnConditionFreeze();
+                return;
+            }
+            
+            if (LocalIsFulfilled)
+            {
+                OrCondition?.FreezeUpdates();
+            }
+            else
+            {
+                OrCondition?.UnfreezeUpdates();
+            }
+
+            if (!Action.IsFulfilled)
+            {
+                AndCondition?.FreezeUpdates();
+            }
+            else
+            {
+                AndCondition?.UnfreezeUpdates();
             }
         }
 
         private void OnChildFulfillmentStatusChanged(object _, bool _1)
         {
+            RecalculateChildFreeze();
             RecalculateIsFulfilled();
         }
 
         private void RecalculateIsFulfilled()
         {
-            IsFulfilled = (Action.IsFulfilled && (AndCondition == null || AndCondition.IsFulfilled))
+            IsFulfilled = LocalIsFulfilled
                 || (OrCondition != null && OrCondition.IsFulfilled);
         }
 
