@@ -31,7 +31,9 @@ namespace AchievementLib.Pack
 
         /// <summary>
         /// The amount of how much this <see cref="IObjective"/> currently contributes 
-        /// to the <see cref="IAchievement"/>.
+        /// to the <see cref="IAchievement"/>. Should only be used by objectives that grant partial 
+        /// completion progress. If an objective <see cref="IFulfillable.IsFulfilled">IsFulfilled</see>, 
+        /// <see cref="CurrentAmount"/> == <see cref="MaxAmount"/>.
         /// </summary>
         [JsonIgnore]
         int CurrentAmount { get; set; }
