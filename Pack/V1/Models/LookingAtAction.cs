@@ -20,9 +20,10 @@ namespace AchievementLib.Pack.V1.Models
         public int MapId { get; set; } = -1;
 
         /// <summary>
-        /// The cosine similarity that the viewing vector and the <see cref="Target"/>  must at least have 
-        /// to still be considered looking at the target. Must be bigger than -1 (player can be looking in any 
-        /// direction) and less than 1 (player must look exactly at the <see cref="Target"/>).
+        /// The cosine similarity that the viewing vector and the vector pointing to the <see cref="Target"/> 
+        /// must at least have to still be considered looking at the target. Must be bigger 
+        /// than -1 (player can be looking in any direction) and less than 1 (player must 
+        /// look exactly at the <see cref="Target"/>).
         /// </summary>
         public float CosineSimilarityTolerance { get; set; } = 1;
 
