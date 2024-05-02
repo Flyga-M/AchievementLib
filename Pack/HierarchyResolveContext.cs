@@ -12,6 +12,14 @@ namespace AchievementLib.Pack
         private readonly SafeList<IHierarchyObject> _roots = new SafeList<IHierarchyObject>();
 
         /// <summary>
+        /// Initializes a <see cref="HierarchyResolveContext"/> without any roots.
+        /// </summary>
+        public HierarchyResolveContext() : this(Array.Empty<IHierarchyObject>()) 
+        {
+            
+        }
+
+        /// <summary>
         /// Initializes a <see cref="HierarchyResolveContext"/> with the given <paramref name="roots"/>.
         /// </summary>
         /// <param name="roots"></param>
