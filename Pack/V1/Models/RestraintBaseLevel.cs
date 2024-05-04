@@ -10,6 +10,11 @@
         /// </summary>
         public string Value { get; set; }
 
+        /// <summary>
+        /// The <see cref="Comparison"/> that evaluates the values. [Optional]
+        /// </summary>
+        public Comparison Comparison { get; set; }
+
         /// <inheritdoc/>
         public override bool IsValid()
         {

@@ -1,7 +1,5 @@
 ﻿namespace AchievementLib.Pack.V1.Models
 {
-    // TODO: maybe implement ComparisonType, so not only "equals" can be supported
-    
     /// <summary>
     /// A restraint that is imposed on an <see cref="ApiAction"/>, to filter it's response.
     /// </summary>
