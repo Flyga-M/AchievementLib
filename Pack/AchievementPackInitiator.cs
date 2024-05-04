@@ -16,7 +16,7 @@ namespace AchievementLib.Pack
     {   
         private readonly string _watchPath;
 
-        private readonly SafeList<JsonConverter> _customConverters = new SafeList<JsonConverter>();
+        private readonly IEnumerable<JsonConverter> _customConverters;
 
         private readonly SafeList<IManifest> _manifests = new SafeList<IManifest>();
         private readonly SafeList<IAchievementPackManager> _packs = new SafeList<IAchievementPackManager>();
@@ -28,9 +28,7 @@ namespace AchievementLib.Pack
         public IAchievementPackManager[] Packs => _packs.ToArray();
 
         /// <summary>
-        /// <paramref name="customConverters"/> currently only respects custom 
-        /// <see cref="V1.JSON.ActionConverter">ActionConverters</see> and custom 
-        /// <see cref="BoundingObjectConverter">BoundingObjectConverters</see>.
+        /// 
         /// </summary>
         /// <param name="watchPath"></param>
         /// <param name="customConverters"></param>
@@ -38,17 +36,7 @@ namespace AchievementLib.Pack
         {
             _watchPath = watchPath;
 
-            if (customConverters == null)
-            {
-                customConverters = Array.Empty<JsonConverter>();
-            }
-
-            _customConverters = new SafeList<JsonConverter>(customConverters);
-        }
-
-        private TConverter TryGetCustomConverter<TConverter>() where TConverter : JsonConverter
-        {
-            return (TConverter)_customConverters.Where(converter => converter.GetType() == typeof(TConverter)).FirstOrDefault();
+            _customConverters = customConverters;
         }
 
         /// <summary>
@@ -502,7 +490,7 @@ namespace AchievementLib.Pack
                         
                         try
                         {
-                            newPack = V1.AchievementPackManager.FromArchivedPack(v1Manifest.PackFilePath, v1Manifest, TryGetCustomConverter<V1.JSON.ActionConverter>(), TryGetCustomConverter<BoundingObjectConverter>());
+                            newPack = V1.AchievementPackManager.FromArchivedPack(v1Manifest.PackFilePath, v1Manifest, _customConverters);
                         }
                         catch (FileNotFoundException ex)
                         {

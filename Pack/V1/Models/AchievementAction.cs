@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 
 namespace AchievementLib.Pack.V1.Models

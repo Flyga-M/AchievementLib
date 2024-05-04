@@ -2,6 +2,9 @@
 using System;
 using System.IO;
 using PositionEvents.Area.JSON;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AchievementLib.Pack.Reader
 {
@@ -54,18 +57,13 @@ namespace AchievementLib.Pack.Reader
         /// <see cref="V1.Models.AchievementData"/> object.
         /// </summary>
         /// <param name="jsonStream"></param>
-        /// <param name="actionConverter"></param>
-        /// <param name="areaConverter"></param>
+        /// <param name="customConverters"></param>
         /// <returns>The deserialized <see cref="V1.Models.AchievementData"/>.</returns>
-        public static V1.Models.AchievementData DeserializeV1FromJson(Stream jsonStream, V1.JSON.ActionConverter actionConverter = null, BoundingObjectConverter areaConverter = null)
+        public static V1.Models.AchievementData DeserializeV1FromJson(Stream jsonStream, IEnumerable<JsonConverter> customConverters = null)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {
-                Converters =
-                {
-                    actionConverter ?? V1.JSON.ActionConverter.Default,
-                    areaConverter ?? BoundingObjectConverter.Default
-                }
+                Converters = V1.JSON.ConverterUtil.AddDefaultConvertersIfNecessary(customConverters)
             };
 
             return DeserializeFromJson<V1.Models.AchievementData>(jsonStream, settings);
@@ -76,18 +74,13 @@ namespace AchievementLib.Pack.Reader
         /// <see cref="V1.Models.AchievementData"/> object.
         /// </summary>
         /// <param name="jsonContents"></param>
-        /// <param name="actionConverter"></param>
-        /// <param name="areaConverter"></param>
+        /// <param name="customConverters"></param>
         /// <returns>The deserialized <see cref="V1.Models.AchievementData"/>.</returns>
-        public static V1.Models.AchievementData DeserializeV1FromJson(string jsonContents, V1.JSON.ActionConverter actionConverter = null, BoundingObjectConverter areaConverter = null)
+        public static V1.Models.AchievementData DeserializeV1FromJson(string jsonContents, IEnumerable<JsonConverter> customConverters = null)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {
-                Converters =
-                {
-                    actionConverter ?? V1.JSON.ActionConverter.Default,
-                    areaConverter ?? BoundingObjectConverter.Default
-                }
+                Converters = V1.JSON.ConverterUtil.AddDefaultConvertersIfNecessary(customConverters)
             };
 
             return DeserializeFromJson<V1.Models.AchievementData>(jsonContents, settings);

@@ -5,7 +5,7 @@
     /// <summary>
     /// A restraint that is imposed on an <see cref="ApiAction"/>, to filter it's response.
     /// </summary>
-    public class Restraint : IValidateable
+    public abstract class Restraint : IValidateable
     {
         /// <summary>
         /// If not null, an alternative <see cref="Restraint"/> that may be satisfied 
@@ -26,23 +26,17 @@
         /// </summary>
         public string Key { get; set; }
 
-        /// <summary>
-        /// The value of the <see cref="Restraint"/>.
-        /// </summary>
-        public string Value { get; set; }
-
         /// <inheritdoc/>
-        public bool IsValid()
+        public virtual bool IsValid()
         {
             return !string.IsNullOrEmpty(Key)
-                && !string.IsNullOrEmpty(Value)
                 && (OrRestraint == null || OrRestraint.IsValid())
                 && (AndRestraint == null || AndRestraint.IsValid());
         }
 
         /// <inheritdoc/>
         /// <exception cref="PackFormatException"></exception>
-        public void Validate()
+        public virtual void Validate()
         {
             if (!IsValid())
             {
@@ -58,17 +52,6 @@
                 
                 throw new PackFormatException($"Restraint {this} is invalid.", this.GetType());
             }
-        }
-
-        /// <inheritdoc/>
-        public override string ToString()
-        {
-            return $"{{ {typeof(Restraint)}: {{ " +
-                $"\"OrRestraint\": {OrRestraint}, " +
-                $"\"AndRestraint\": {AndRestraint}, " +
-                $"\"Key\": {Key}, " +
-                $"\"Value\": {Value}" +
-                $" }}, Valid?: {IsValid()} }}";
         }
     }
 }

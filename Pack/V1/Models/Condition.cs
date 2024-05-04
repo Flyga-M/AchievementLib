@@ -1,6 +1,4 @@
-﻿using MonoGame.Extended.Collections;
-using Newtonsoft.Json;
-using SharpDX.DirectWrite;
+﻿using Newtonsoft.Json;
 using System;
 
 namespace AchievementLib.Pack.V1.Models

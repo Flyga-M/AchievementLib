@@ -10,6 +10,7 @@ using AchievementLib.Pack.V1.JSON;
 using Newtonsoft.Json;
 using PositionEvents.Area.JSON;
 using System.Threading;
+using System.Linq;
 
 namespace AchievementLib.Pack.V1
 {
@@ -23,8 +24,7 @@ namespace AchievementLib.Pack.V1
 
         private Manifest _manifest;
 
-        private ActionConverter _actionConverter;
-        private BoundingObjectConverter _areaConverter;
+        private IEnumerable<JsonConverter> _customConverters;
 
         private AchievementData[] _data;
 
@@ -170,16 +170,14 @@ namespace AchievementLib.Pack.V1
         /// </summary>
         /// <param name="dataReader"></param>
         /// <param name="manifest"></param>
-        /// <param name="actionConverter"></param>
-        /// <param name="areaConverter"></param>
+        /// <param name="customConverters"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public AchievementPackManager(IDataReader dataReader, Manifest manifest, ActionConverter actionConverter = null, BoundingObjectConverter areaConverter = null)
+        public AchievementPackManager(IDataReader dataReader, Manifest manifest, IEnumerable<JsonConverter> customConverters)
         {   
             _dataReader = dataReader ?? throw new ArgumentNullException(nameof(dataReader));
             _manifest = manifest ?? throw new ArgumentNullException(nameof(manifest));
 
-            _actionConverter = actionConverter;
-            _areaConverter = areaConverter;
+            _customConverters = customConverters;
 
             ResourceManager = new AchievementPackResourceManager(dataReader);
 
@@ -193,10 +191,9 @@ namespace AchievementLib.Pack.V1
         /// </summary>
         /// <param name="archivePath"></param>
         /// <param name="manifest"></param>
-        /// <param name="actionConverter"></param>
-        /// <param name="areaConverter"></param>
+        /// <param name="customConverters"></param>
         /// <returns>The corresponding <see cref="AchievementPackManager"/>.</returns>
-        public static AchievementPackManager FromArchivedPack(string archivePath, Manifest manifest, ActionConverter actionConverter = null, BoundingObjectConverter areaConverter = null) => new AchievementPackManager(new ZipArchiveReader(archivePath), manifest, actionConverter, areaConverter);
+        public static AchievementPackManager FromArchivedPack(string archivePath, Manifest manifest, IEnumerable<JsonConverter> customConverters) => new AchievementPackManager(new ZipArchiveReader(archivePath), manifest, customConverters);
 
         /// <summary>
         /// Attempts to enable the Achievement Pack and load it's data into 
@@ -579,7 +576,7 @@ namespace AchievementLib.Pack.V1
                 try
                 {
                     achievementData = AchievementPackReader.
-                    DeserializeV1FromJson(fileStream, _actionConverter, _areaConverter);
+                    DeserializeV1FromJson(fileStream, _customConverters);
                 }
                 catch (JsonSerializationException ex)
                 {
@@ -658,8 +655,7 @@ namespace AchievementLib.Pack.V1
             
             _manifest = null;
 
-            _actionConverter = null;
-            _areaConverter = null;
+            _customConverters = null;
 
             _data = null;
 

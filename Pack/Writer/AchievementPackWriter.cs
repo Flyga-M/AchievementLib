@@ -2,6 +2,8 @@
 using System;
 using System.IO;
 using PositionEvents.Area.JSON;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AchievementLib.Pack.Writer
 {
@@ -52,18 +54,13 @@ namespace AchievementLib.Pack.Writer
         /// Serializes the given <paramref name="data"/> to json.
         /// </summary>
         /// <param name="data"></param>
-        /// <param name="actionConverter"></param>
-        /// <param name="areaConverter"></param>
+        /// <param name="customConverters"></param>
         /// <returns>The json representation of the given <paramref name="data"/>.</returns>
-        public static string SerializeV1ToJson(V1.Models.AchievementData data, V1.JSON.ActionConverter actionConverter = null, BoundingObjectConverter areaConverter = null)
+        public static string SerializeV1ToJson(V1.Models.AchievementData data, IEnumerable<JsonConverter> customConverters = null)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {
-                Converters =
-                {
-                    actionConverter ?? V1.JSON.ActionConverter.Default,
-                    areaConverter ?? BoundingObjectConverter.Default
-                }
+                Converters = V1.JSON.ConverterUtil.AddDefaultConvertersIfNecessary(customConverters)
             };
 
             return SerializeToJson(data, settings);
@@ -75,17 +72,12 @@ namespace AchievementLib.Pack.Writer
         /// </summary>
         /// <param name="data"></param>
         /// <param name="target"></param>
-        /// <param name="actionConverter"></param>
-        /// <param name="areaConverter"></param>
-        public static void SerializeV1ToJson(V1.Models.AchievementData data, Stream target, V1.JSON.ActionConverter actionConverter = null, BoundingObjectConverter areaConverter = null)
+        /// <param name="customConverters"></param>
+        public static void SerializeV1ToJson(V1.Models.AchievementData data, Stream target, IEnumerable<JsonConverter> customConverters = null)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings()
             {
-                Converters =
-                {
-                    actionConverter ?? V1.JSON.ActionConverter.Default,
-                    areaConverter ?? BoundingObjectConverter.Default
-                }
+                Converters = V1.JSON.ConverterUtil.AddDefaultConvertersIfNecessary(customConverters)
             };
 
             SerializeToJson(data, target, settings);
