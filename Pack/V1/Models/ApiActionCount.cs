@@ -1,11 +1,18 @@
 ﻿namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
-    /// Counts the amount of element in the api response at the <see cref="ApiAction.ResultLayer"/>, 
+    /// Counts the amount of elements of the element determined by 
+    /// <see cref="ChooseOption"/> in the api response at the <see cref="ApiAction.ResultLayer"/>, 
     /// after the <see cref="ApiAction.Filter"/> is applied.
     /// </summary>
     public class ApiActionCount : ApiAction
     {
+        /// <summary>
+        /// The element that will be chosen, if the api response contains more than 1 element. 
+        /// [Optional]
+        /// </summary>
+        public ChooseOption ChooseOption { get; set; }
+
         /// <inheritdoc/>
         public override bool IsValid()
         {
@@ -34,10 +41,11 @@
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{{ {typeof(ApiActionCount)}: {{ " +
+            return $"{{ {this.GetType()}: {{ " +
                 $"\"Endpoint\": {Endpoint}, " +
                 $"\"ResultLayer\": {ResultLayer}, " +
                 $"\"Filter\": {Filter}, " +
+                $"\"ChooseOption\": {ChooseOption}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

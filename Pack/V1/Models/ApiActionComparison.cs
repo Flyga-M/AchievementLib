@@ -1,11 +1,9 @@
 ﻿namespace AchievementLib.Pack.V1.Models
 {
-    // TODO: maybe support choice between ALL and ANY mode.
-    
     /// <summary>
-    /// Compares the value from the given <see cref="Key"/> of all elements in 
-    /// the api response at the <see cref="ApiAction.ResultLayer"/>, after the 
-    /// <see cref="ApiAction.Filter"/> is applied, to the <see cref="Value"/>.
+    /// Compares the value from the given <see cref="Key"/> of the elements depending on 
+    /// the <see cref="ComparisonTarget"/> in the api response at the <see cref="ApiAction.ResultLayer"/>, 
+    /// after the <see cref="ApiAction.Filter"/> is applied, to the <see cref="Value"/>.
     /// </summary>
     public class ApiActionComparison : ApiAction
     {
@@ -23,6 +21,11 @@
         /// The <see cref="Comparison"/> that evaluates the values. [Optional]
         /// </summary>
         public Comparison Comparison { get; set; }
+
+        /// <summary>
+        /// Determines how many elements need to be compared against. [Optional]
+        /// </summary>
+        public ComparisonTarget ComparisonTarget { get; set; }
 
         /// <inheritdoc/>
         public override bool IsValid()
@@ -61,6 +64,7 @@
                 $"\"Key\": {Key}, " +
                 $"\"Value\": {Value}, " +
                 $"\"Comparison\": {Comparison}, " +
+                $"\"ComparisonTarget\": {ComparisonTarget}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

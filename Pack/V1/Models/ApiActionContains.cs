@@ -1,7 +1,8 @@
 ﻿namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
-    /// Checks, whether the <see cref="Value"/> exists in the api response at the <see cref="ApiAction.ResultLayer"/>, 
+    /// Checks, whether the <see cref="Value"/> of the element determined by 
+    /// <see cref="ChooseOption"/> exists in the api response at the <see cref="ApiAction.ResultLayer"/>, 
     /// after the <see cref="ApiAction.Filter"/> is applied.
     /// </summary>
     public class ApiActionContains : ApiAction
@@ -10,6 +11,12 @@
         /// The value, that the response from the Api should contain.
         /// </summary>
         public string Value { get; set; }
+
+        /// <summary>
+        /// The element that will be chosen, if the api response contains more than 1 element. 
+        /// [Optional]
+        /// </summary>
+        public ChooseOption ChooseOption { get; set; }
 
         /// <inheritdoc/>
         public override bool IsValid()
@@ -45,6 +52,7 @@
                 $"\"ResultLayer\": {ResultLayer}, " +
                 $"\"Filter\": {Filter}, " +
                 $"\"Value\": {Value}, " +
+                $"\"ChooseOption\": {ChooseOption}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

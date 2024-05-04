@@ -1,7 +1,8 @@
 ﻿namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
-    /// Compares the amount of elements in the api response to the <see cref="Value"/> 
+    /// Compares the amount of elements of the element determined by 
+    /// <see cref="ChooseOption"/> in the api response to the <see cref="Value"/> 
     /// at the <see cref="ApiAction.ResultLayer"/>, after the <see cref="ApiAction.Filter"/> is applied.
     /// </summary>
     public class ApiActionCountComparison : ApiAction
@@ -15,6 +16,12 @@
         /// The <see cref="Comparison"/> that evaluates the count. [Optional]
         /// </summary>
         public Comparison Comparison { get; set; }
+
+        /// <summary>
+        /// The element that will be chosen, if the api response contains more than 1 element. 
+        /// [Optional]
+        /// </summary>
+        public ChooseOption ChooseOption { get; set; }
 
         /// <inheritdoc/>
         public override bool IsValid()
@@ -53,6 +60,7 @@
                 $"\"Filter\": {Filter}, " +
                 $"\"Value\": {Value}, " +
                 $"\"Comparison\": {Comparison}, " +
+                $"\"ChooseOption\": {ChooseOption}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

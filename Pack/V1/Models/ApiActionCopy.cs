@@ -1,8 +1,8 @@
 ﻿namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
-    /// Copies the value from the given <see cref="Key"/> of the first element in 
-    /// the api response at the <see cref="ApiAction.ResultLayer"/>, 
+    /// Copies the value from the given <see cref="Key"/> of the element determined by 
+    /// <see cref="ChooseOption"/> in the api response at the <see cref="ApiAction.ResultLayer"/>, 
     /// after the <see cref="ApiAction.Filter"/> is applied.
     /// </summary>
     public class ApiActionCopy : ApiAction
@@ -11,6 +11,12 @@
         /// The key whose value should be copied.
         /// </summary>
         public string Key { get; set; }
+
+        /// <summary>
+        /// The element that will be chosen, if the api response contains more than 1 element. 
+        /// [Optional]
+        /// </summary>
+        public ChooseOption ChooseOption { get; set; }
 
         /// <inheritdoc/>
         public override bool IsValid()
@@ -46,6 +52,7 @@
                 $"\"ResultLayer\": {ResultLayer}, " +
                 $"\"Filter\": {Filter}, " +
                 $"\"Key\": {Key}, " +
+                $"\"ChooseOption\": {ChooseOption}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

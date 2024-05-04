@@ -75,6 +75,8 @@
     <Compile Include="Pack\V1\Models\PositionAreaAction.cs" />
     <Compile Include="Pack\V1\Models\ResolvableHierarchyReference.cs" />
     <Compile Include="Pack\V1\Models\RestraintSubLevel.cs" />
+    <Compile Include="Pack\V1\Models\_Type\ChooseOption.cs" />
+    <Compile Include="Pack\V1\Models\_Type\ComparisonTarget.cs" />
     <Compile Include="Pack\V1\V1Constants.cs" />
     <Compile Include="Pack\V1\JSON\ActionConverter.cs" />
     <Compile Include="Pack\SafeList[T].cs" />
