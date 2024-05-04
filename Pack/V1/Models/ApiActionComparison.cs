@@ -1,9 +1,11 @@
 ﻿namespace AchievementLib.Pack.V1.Models
 {
+    // TODO: maybe support choice between ALL and ANY mode.
+    
     /// <summary>
     /// Compares the value from the given <see cref="Key"/> of all elements in 
-    /// the api response, after the <see cref="Filter"/> is applied to the 
-    /// <see cref="Value"/>.
+    /// the api response at the <see cref="ApiAction.ResultLayer"/>, after the 
+    /// <see cref="ApiAction.Filter"/> is applied, to the <see cref="Value"/>.
     /// </summary>
     public class ApiActionComparison : ApiAction
     {
@@ -22,18 +24,11 @@
         /// </summary>
         public Comparison Comparison { get; set; }
 
-        /// <summary>
-        /// The <see cref="Restraint"/> that is applied to the api call before comparison. 
-        /// [Optional]
-        /// </summary>
-        public Restraint Filter { get; set; }
-
         /// <inheritdoc/>
         public override bool IsValid()
         {
             return !string.IsNullOrWhiteSpace(Key)
                 && !string.IsNullOrWhiteSpace(Value)
-                && (Filter == null || Filter.IsValid())
                 && base.IsValid();
         }
 
@@ -45,26 +40,27 @@
             {
                 try
                 {
-                    Filter?.Validate();
+                    base.Validate();
                 }
                 catch (PackFormatException ex)
                 {
-                    throw new PackFormatException($"ApiActionComparison {this} is invalid.", this.GetType(), ex);
+                    throw new PackFormatException($"{this.GetType()} {this} is invalid.", this.GetType(), ex);
                 }
 
-                throw new PackFormatException($"ApiActionComparison {this} is invalid.", this.GetType());
+                throw new PackFormatException($"{this.GetType()} {this} is invalid.", this.GetType());
             }
         }
 
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{{ {typeof(ApiActionComparison)}: {{ " +
+            return $"{{ {this.GetType()}: {{ " +
                 $"\"Endpoint\": {Endpoint}, " +
+                $"\"ResultLayer\": {ResultLayer}, " +
+                $"\"Filter\": {Filter}, " +
                 $"\"Key\": {Key}, " +
                 $"\"Value\": {Value}, " +
                 $"\"Comparison\": {Comparison}, " +
-                $"\"Filter\": {Filter}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

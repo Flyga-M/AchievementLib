@@ -1,26 +1,36 @@
 ﻿namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
-    /// Counts the amount of element in the api response at the <see cref="ApiAction.ResultLayer"/>, 
-    /// after the <see cref="ApiAction.Filter"/> is applied.
+    /// The response layer, that the <see cref="ApiAction"/> uses for the output.
     /// </summary>
-    public class ApiActionCount : ApiAction
+    public class Layer : IValidateable
     {
+        /// <summary>
+        /// The Key that is used on the <see cref="Layer"/>.
+        /// </summary>
+        public string Key { get; set; }
+
+        /// <summary>
+        /// The sublayer of the <see cref="Layer"/>. [Optional]
+        /// </summary>
+        public Layer SubLayer { get; set; }
+
         /// <inheritdoc/>
-        public override bool IsValid()
+        public bool IsValid()
         {
-            return base.IsValid();
+            return !string.IsNullOrWhiteSpace(Key)
+                && (SubLayer == null || SubLayer.IsValid());
         }
 
         /// <inheritdoc/>
         /// <exception cref="PackFormatException"></exception>
-        public override void Validate()
+        public void Validate()
         {
             if (!IsValid())
             {
                 try
                 {
-                    base.Validate();
+                    SubLayer?.Validate();
                 }
                 catch (PackFormatException ex)
                 {
@@ -34,10 +44,9 @@
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{{ {typeof(ApiActionCount)}: {{ " +
-                $"\"Endpoint\": {Endpoint}, " +
-                $"\"ResultLayer\": {ResultLayer}, " +
-                $"\"Filter\": {Filter}, " +
+            return $"{{ {this.GetType()}: {{ " +
+                $"\"Key\": {Key}, " +
+                $"\"SubLayer\": {SubLayer}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

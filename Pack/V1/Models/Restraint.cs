@@ -45,10 +45,10 @@
                 }
                 catch (PackFormatException ex)
                 {
-                    throw new PackFormatException($"Filter {this} is invalid.", this.GetType(), ex);
+                    throw new PackFormatException($"{this.GetType()} {this} is invalid.", this.GetType(), ex);
                 }
                 
-                throw new PackFormatException($"Filter {this} is invalid.", this.GetType());
+                throw new PackFormatException($"{this.GetType()} {this} is invalid.", this.GetType());
             }
         }
     }

@@ -2,15 +2,11 @@
 {
     /// <summary>
     /// Copies the value from the given <see cref="Key"/> of the first element in 
-    /// the api response, after the <see cref="Filter"/> is applied.
+    /// the api response at the <see cref="ApiAction.ResultLayer"/>, 
+    /// after the <see cref="ApiAction.Filter"/> is applied.
     /// </summary>
     public class ApiActionCopy : ApiAction
     {
-        /// <summary>
-        /// The <see cref="Restraint"/> that is applied to the api call. [Optional]
-        /// </summary>
-        public Restraint Filter { get; set; }
-
         /// <summary>
         /// The key whose value should be copied.
         /// </summary>
@@ -19,8 +15,7 @@
         /// <inheritdoc/>
         public override bool IsValid()
         {
-            return (Filter == null || Filter.IsValid())
-                && !string.IsNullOrWhiteSpace(Key)
+            return !string.IsNullOrWhiteSpace(Key)
                 && base.IsValid();
         }
 
@@ -32,24 +27,25 @@
             {
                 try
                 {
-                    Filter?.Validate();
+                    base.Validate();
                 }
                 catch (PackFormatException ex)
                 {
-                    throw new PackFormatException($"ApiActionCopy {this} is invalid.", this.GetType(), ex);
+                    throw new PackFormatException($"{this.GetType()} {this} is invalid.", this.GetType(), ex);
                 }
 
-                throw new PackFormatException($"ApiActionCopy {this} is invalid.", this.GetType());
+                throw new PackFormatException($"{this.GetType()} {this} is invalid.", this.GetType());
             }
         }
 
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{{ {typeof(ApiActionCopy)}: {{ " +
+            return $"{{ {this.GetType()}: {{ " +
                 $"\"Endpoint\": {Endpoint}, " +
-                $"\"Key\": {Key}, " +
+                $"\"ResultLayer\": {ResultLayer}, " +
                 $"\"Filter\": {Filter}, " +
+                $"\"Key\": {Key}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

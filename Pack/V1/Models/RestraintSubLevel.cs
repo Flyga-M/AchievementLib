@@ -46,7 +46,7 @@
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{{ {typeof(Restraint)}: {{ " +
+            return $"{{ {this.GetType()}: {{ " +
                 $"\"OrRestraint\": {OrRestraint}, " +
                 $"\"AndRestraint\": {AndRestraint}, " +
                 $"\"Key\": {Key}, " +

@@ -1,8 +1,8 @@
 ﻿namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
-    /// Compares the amount of elements in the api response to the <see cref="Value"/>, 
-    /// after the <see cref="Filter"/> is applied.
+    /// Compares the amount of elements in the api response to the <see cref="Value"/> 
+    /// at the <see cref="ApiAction.ResultLayer"/>, after the <see cref="ApiAction.Filter"/> is applied.
     /// </summary>
     public class ApiActionCountComparison : ApiAction
     {
@@ -15,12 +15,6 @@
         /// The <see cref="Comparison"/> that evaluates the count. [Optional]
         /// </summary>
         public Comparison Comparison { get; set; }
-
-        /// <summary>
-        /// The <see cref="Restraint"/> that is applied to the api call before counting. 
-        /// [Optional]
-        /// </summary>
-        public Restraint Filter { get; set; }
 
         /// <inheritdoc/>
         public override bool IsValid()
@@ -39,14 +33,14 @@
             {
                 try
                 {
-                    Filter?.Validate();
+                    base.Validate();
                 }
                 catch (PackFormatException ex)
                 {
-                    throw new PackFormatException($"ApiActionCountComparison {this} is invalid.", this.GetType(), ex);
+                    throw new PackFormatException($"{this.GetType()} {this} is invalid.", this.GetType(), ex);
                 }
 
-                throw new PackFormatException($"ApiActionCountComparison {this} is invalid.", this.GetType());
+                throw new PackFormatException($"{this.GetType()} {this} is invalid.", this.GetType());
             }
         }
 
@@ -55,9 +49,10 @@
         {
             return $"{{ {typeof(ApiActionCountComparison)}: {{ " +
                 $"\"Endpoint\": {Endpoint}, " +
+                $"\"ResultLayer\": {ResultLayer}, " +
+                $"\"Filter\": {Filter}, " +
                 $"\"Value\": {Value}, " +
                 $"\"Comparison\": {Comparison}, " +
-                $"\"Filter\": {Filter}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

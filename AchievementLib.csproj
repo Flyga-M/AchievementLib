@@ -70,6 +70,7 @@
     <Compile Include="Pack\HierarchyResolveContext.cs" />
     <Compile Include="Pack\V1\JSON\RestraintConverter.cs" />
     <Compile Include="Pack\V1\JSON\_Util\ConverterUtil.cs" />
+    <Compile Include="Pack\V1\Models\Layer.cs" />
     <Compile Include="Pack\V1\Models\RestraintBaseLevel.cs" />
     <Compile Include="Pack\V1\Models\PositionAreaAction.cs" />
     <Compile Include="Pack\V1\Models\ResolvableHierarchyReference.cs" />

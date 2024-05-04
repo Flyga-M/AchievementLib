@@ -1,7 +1,8 @@
 ﻿namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
-    /// Checks, whether the <see cref="Value"/> exists in the api response.
+    /// Checks, whether the <see cref="Value"/> exists in the api response at the <see cref="ApiAction.ResultLayer"/>, 
+    /// after the <see cref="ApiAction.Filter"/> is applied.
     /// </summary>
     public class ApiActionContains : ApiAction
     {
@@ -23,15 +24,26 @@
         {
             if (!IsValid())
             {
-                throw new PackFormatException($"ApiActionContains {this} is invalid.", this.GetType());
+                try
+                {
+                    base.Validate();
+                }
+                catch (PackFormatException ex)
+                {
+                    throw new PackFormatException($"{this.GetType()} {this} is invalid.", this.GetType(), ex);
+                }
+
+                throw new PackFormatException($"{this.GetType()} {this} is invalid.", this.GetType());
             }
         }
 
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{{ {typeof(ApiActionContains)}: {{ " +
+            return $"{{ {this.GetType()}: {{ " +
                 $"\"Endpoint\": {Endpoint}, " +
+                $"\"ResultLayer\": {ResultLayer}, " +
+                $"\"Filter\": {Filter}, " +
                 $"\"Value\": {Value}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
