@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// Counts the amount of element in the api response, after the 
-    /// <see cref="Restraint"/> is applied.
+    /// <see cref="Filter"/> is applied.
     /// </summary>
     public class ApiActionCount : ApiAction
     {
@@ -10,12 +10,12 @@
         /// The <see cref="Restraint"/> that is applied to the api call before counting. 
         /// [Optional]
         /// </summary>
-        public Restraint Restraint { get; set; }
+        public Restraint Filter { get; set; }
 
         /// <inheritdoc/>
         public override bool IsValid()
         {
-            return (Restraint == null || Restraint.IsValid())
+            return (Filter == null || Filter.IsValid())
                 && base.IsValid();
         }
 
@@ -27,7 +27,7 @@
             {
                 try
                 {
-                    Restraint?.Validate();
+                    Filter?.Validate();
                 }
                 catch (PackFormatException ex)
                 {
@@ -43,7 +43,7 @@
         {
             return $"{{ {typeof(ApiActionCount)}: {{ " +
                 $"\"Endpoint\": {Endpoint}, " +
-                $"\"Restraint\": {Restraint}, " +
+                $"\"Filter\": {Filter}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

@@ -50,7 +50,7 @@
                 $"\"OrRestraint\": {OrRestraint}, " +
                 $"\"AndRestraint\": {AndRestraint}, " +
                 $"\"Key\": {Key}, " +
-                $"\"Restraint\": {Restraint}, " +
+                $"\"Filter\": {Restraint}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

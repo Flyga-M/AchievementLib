@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// Compares the amount of elements in the api response to the <see cref="Value"/>, 
-    /// after the <see cref="Restraint"/> is applied.
+    /// after the <see cref="Filter"/> is applied.
     /// </summary>
     public class ApiActionCountComparison : ApiAction
     {
@@ -20,14 +20,14 @@
         /// The <see cref="Restraint"/> that is applied to the api call before counting. 
         /// [Optional]
         /// </summary>
-        public Restraint Restraint { get; set; }
+        public Restraint Filter { get; set; }
 
         /// <inheritdoc/>
         public override bool IsValid()
         {
             return Value.HasValue
                 && Value >= 0
-                && (Restraint == null || Restraint.IsValid())
+                && (Filter == null || Filter.IsValid())
                 && base.IsValid();
         }
 
@@ -39,7 +39,7 @@
             {
                 try
                 {
-                    Restraint?.Validate();
+                    Filter?.Validate();
                 }
                 catch (PackFormatException ex)
                 {
@@ -57,7 +57,7 @@
                 $"\"Endpoint\": {Endpoint}, " +
                 $"\"Value\": {Value}, " +
                 $"\"Comparison\": {Comparison}, " +
-                $"\"Restraint\": {Restraint}, " +
+                $"\"Filter\": {Filter}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// Compares the value from the given <see cref="Key"/> of all elements in 
-    /// the api response, after the <see cref="Restraint"/> is applied to the 
+    /// the api response, after the <see cref="Filter"/> is applied to the 
     /// <see cref="Value"/>.
     /// </summary>
     public class ApiActionComparison : ApiAction
@@ -26,14 +26,14 @@
         /// The <see cref="Restraint"/> that is applied to the api call before comparison. 
         /// [Optional]
         /// </summary>
-        public Restraint Restraint { get; set; }
+        public Restraint Filter { get; set; }
 
         /// <inheritdoc/>
         public override bool IsValid()
         {
             return !string.IsNullOrWhiteSpace(Key)
                 && !string.IsNullOrWhiteSpace(Value)
-                && (Restraint == null || Restraint.IsValid())
+                && (Filter == null || Filter.IsValid())
                 && base.IsValid();
         }
 
@@ -45,7 +45,7 @@
             {
                 try
                 {
-                    Restraint?.Validate();
+                    Filter?.Validate();
                 }
                 catch (PackFormatException ex)
                 {
@@ -64,7 +64,7 @@
                 $"\"Key\": {Key}, " +
                 $"\"Value\": {Value}, " +
                 $"\"Comparison\": {Comparison}, " +
-                $"\"Restraint\": {Restraint}, " +
+                $"\"Filter\": {Filter}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }

@@ -2,14 +2,14 @@
 {
     /// <summary>
     /// Copies the value from the given <see cref="Key"/> of the first element in 
-    /// the api response, after the <see cref="Restraint"/> is applied.
+    /// the api response, after the <see cref="Filter"/> is applied.
     /// </summary>
     public class ApiActionCopy : ApiAction
     {
         /// <summary>
         /// The <see cref="Restraint"/> that is applied to the api call. [Optional]
         /// </summary>
-        public Restraint Restraint { get; set; }
+        public Restraint Filter { get; set; }
 
         /// <summary>
         /// The key whose value should be copied.
@@ -19,7 +19,7 @@
         /// <inheritdoc/>
         public override bool IsValid()
         {
-            return (Restraint == null || Restraint.IsValid())
+            return (Filter == null || Filter.IsValid())
                 && !string.IsNullOrWhiteSpace(Key)
                 && base.IsValid();
         }
@@ -32,7 +32,7 @@
             {
                 try
                 {
-                    Restraint?.Validate();
+                    Filter?.Validate();
                 }
                 catch (PackFormatException ex)
                 {
@@ -49,7 +49,7 @@
             return $"{{ {typeof(ApiActionCopy)}: {{ " +
                 $"\"Endpoint\": {Endpoint}, " +
                 $"\"Key\": {Key}, " +
-                $"\"Restraint\": {Restraint}, " +
+                $"\"Filter\": {Filter}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
     }
