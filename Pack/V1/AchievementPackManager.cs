@@ -516,6 +516,7 @@ namespace AchievementLib.Pack.V1
             if (forceDisable)
             {
                 _cancellationSourceEnable.Cancel();
+                _cancellationSourceEnable = new CancellationTokenSource();
             }
 
             State = PackLoadState.Unloading;
