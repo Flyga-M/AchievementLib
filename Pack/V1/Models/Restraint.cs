@@ -24,6 +24,18 @@
         /// </summary>
         public string Key { get; set; }
 
+        /// <summary>
+        /// Returns the value associated with the <see cref="Restraint"/>.
+        /// </summary>
+        /// <returns></returns>
+        public abstract string GetValue();
+
+        /// <summary>
+        /// Returns the <see cref="Comparison"/> associated with the <see cref="Restraint"/>.
+        /// </summary>
+        /// <returns></returns>
+        public abstract Comparison GetComparison();
+
         /// <inheritdoc/>
         public virtual bool IsValid()
         {

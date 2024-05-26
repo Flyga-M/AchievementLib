@@ -63,6 +63,18 @@ namespace AchievementLib.Pack.V1.Models
         }
 
         /// <inheritdoc/>
+        public override string GetValue()
+        {
+            return Value;
+        }
+
+        /// <inheritdoc/>
+        public override Comparison GetComparison()
+        {
+            return Comparison;
+        }
+
+        /// <inheritdoc/>
         public override bool IsValid()
         {
             if (!base.IsValid())
