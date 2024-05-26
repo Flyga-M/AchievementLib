@@ -8,7 +8,9 @@
     public class RestraintSubLevel : Restraint
     {
         /// <summary>
-        /// The inner <see cref="Restraint"/> that filters the api response.
+        /// The inner <see cref="Models.Restraint"/> that filters the api response. The <see cref="Restraint.AndRestraint"/> and 
+        /// <see cref="Restraint.OrRestraint"/> of the <see cref="Restraint"/> will be ignored. Use top level 
+        /// <see cref="Restraint.AndRestraint"/> and <see cref="Restraint.OrRestraint"/> instead.
         /// </summary>
         public Restraint Restraint { get; set; }
 
