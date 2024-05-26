@@ -48,5 +48,15 @@
                 throw new PackFormatException($"{this.GetType()} {this} is invalid.", this.GetType());
             }
         }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"{{ {this.GetType()}: {{ " +
+                $"\"Endpoint\": {Endpoint}, " +
+                $"\"ResultLayer\": {ResultLayer}, " +
+                $"\"Filter\": {Filter}, " +
+                $" }}, Valid?: {IsValid()} }}";
+        }
     }
 }
