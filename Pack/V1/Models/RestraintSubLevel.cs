@@ -1,4 +1,7 @@
-﻿namespace AchievementLib.Pack.V1.Models
+﻿using Newtonsoft.Json;
+using System;
+
+namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
     /// <inheritdoc/>
@@ -13,6 +16,51 @@
         /// <see cref="Restraint.AndRestraint"/> and <see cref="Restraint.OrRestraint"/> instead.
         /// </summary>
         public Restraint Restraint { get; set; }
+
+        /// <summary>
+        /// The value of the last <see cref="RestraintBaseLevel"/> in the inner <see cref="Restraint"/> chain.
+        /// </summary>
+        [JsonIgnore]
+        public string Value
+        {
+            get
+            {
+                if (Restraint is RestraintBaseLevel restraintBase)
+                {
+                    return restraintBase.Value;
+                }
+
+                if (Restraint is RestraintSubLevel restraintSub)
+                {
+                    return restraintSub.Value;
+                }
+
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// The <see cref="Comparison"/> of the last <see cref="RestraintBaseLevel"/> in the inner 
+        /// <see cref="Restraint"/> chain.
+        /// </summary>
+        [JsonIgnore]
+        public Comparison Comparison
+        {
+            get
+            {
+                if (Restraint is RestraintBaseLevel restraintBase)
+                {
+                    return restraintBase.Comparison;
+                }
+
+                if (Restraint is RestraintSubLevel restraintSub)
+                {
+                    return restraintSub.Comparison;
+                }
+
+                throw new NotImplementedException();
+            }
+        }
 
         /// <inheritdoc/>
         public override bool IsValid()
