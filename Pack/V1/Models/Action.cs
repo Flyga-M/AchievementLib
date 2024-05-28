@@ -25,6 +25,12 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <summary>
+        /// A reference to the <see cref="Condition"/> that is holding this <see cref="Action"/>.
+        /// </summary>
+        [JsonIgnore]
+        public Condition Parent { get; internal set; }
+
         /// <inheritdoc/>
         [JsonIgnore]
         public bool IsFulfilled

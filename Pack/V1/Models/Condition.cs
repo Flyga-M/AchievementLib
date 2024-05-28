@@ -9,6 +9,12 @@ namespace AchievementLib.Pack.V1.Models
     /// </summary>
     public class Condition : ICondition, IResolvable, IDisposable
     {
+        private Condition _orCondition;
+        private Condition _andCondition;
+        private Action _action;
+
+        private Objective _parent;
+
         private bool _isFulfilled = false;
         private bool _freezeUpdates = false;
 
@@ -26,24 +32,71 @@ namespace AchievementLib.Pack.V1.Models
         /// instead of this <see cref="Condition"/> to be true. Functions as an 
         /// OR-condition. [Optional]
         /// </summary>
-        public Condition OrCondition { get; internal set; }
+        public Condition OrCondition
+        {
+            get => _orCondition;
+            set
+            {
+                _orCondition = value;
+                _orCondition.ParentCondition = this;
+            }
+        }
 
         /// <summary>
         /// If not null, an additional <see cref="Condition"/> that must be satisfied 
         /// with this <see cref="Condition"/> to be true. Functions as an 
         /// AND-condition. [Optional]
         /// </summary>
-        public Condition AndCondition { get; internal set; }
+        public Condition AndCondition
+        {
+            get => _andCondition;
+            set
+            {
+                _andCondition = value;
+                _andCondition.ParentCondition = this;
+            }
+        }
 
         /// <summary>
         /// The <see cref="Action"/> carrying the data associated with the 
         /// <see cref="Condition"/>.
         /// </summary>
-        public Action Action { get; internal set; }
+        public Action Action
+        {
+            get => _action;
+            set
+            {
+                _action = value;
+                _action.Parent = this;
+            }
+        }
 
         /// <inheritdoc/>
         [JsonIgnore]
         IAction ICondition.Action => Action;
+
+        /// <summary>
+        /// A reference to the <see cref="Objective"/> that is holding this <see cref="Condition"/>.
+        /// </summary>
+        [JsonIgnore]
+        public Objective Parent
+        {
+            get
+            {
+                if (ParentCondition != null)
+                {
+                    return ParentCondition.Parent;
+                }
+                return _parent;
+            }
+            internal set => _parent = value;
+        }
+
+        /// <summary>
+        /// A reference to the <see cref="Condition"/> that may be holding this <see cref="Condition"/>.
+        /// </summary>
+        [JsonIgnore]
+        public Condition ParentCondition { get; internal set; }
 
         /// <summary>
         /// Determines whether this condition and it's additional conditions are fulfilled, regardless of 

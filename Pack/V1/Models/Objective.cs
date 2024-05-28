@@ -9,6 +9,8 @@ namespace AchievementLib.Pack.V1.Models
     /// </summary>
     public class Objective : IObjective, IResolvable, IDisposable
     {
+        private Condition _condition;
+        
         private bool _isFulfilled = false;
         private bool _freezeUpdates = false;
         private int _currentAmount = 0;
@@ -45,7 +47,15 @@ namespace AchievementLib.Pack.V1.Models
         /// The <see cref="Condition"/> that needs to be satified for the 
         /// <see cref="Objective"/> to be complete.
         /// </summary>
-        public Condition Condition { get; set; }
+        public Condition Condition
+        {
+            get => _condition;
+            set
+            {
+                _condition = value;
+                _condition.Parent = this;
+            }
+        }
 
         /// <summary>
         /// Instantiates an <see cref="Objective"/>.
