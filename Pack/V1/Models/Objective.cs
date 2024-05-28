@@ -163,9 +163,11 @@ namespace AchievementLib.Pack.V1.Models
                 if (value >= MaxAmount)
                 {
                     _currentAmount = MaxAmount;
+                    IsFulfilled = true;
                     return;
                 }
                 _currentAmount = value;
+                IsFulfilled = false;
             }
         }
 
