@@ -135,6 +135,12 @@
     <Compile Include="Pack\_Interface\IValidateable.cs" />
     <Compile Include="Pack\_Type\SupportedPackVersions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reset\Default\Gw2Resets.cs" />
+    <Compile Include="Reset\ResetData.cs" />
+    <Compile Include="Reset\ResetDataFixed.cs" />
+    <Compile Include="Reset\ResetManager.cs" />
+    <Compile Include="Reset\_Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Reset\_Util\DateTimeUtil.cs" />
     <Compile Include="_Exceptions\AchievementLibAggregateException.cs" />
     <Compile Include="_Exceptions\AchievementLibException.cs" />
     <Compile Include="_Exceptions\AchievementLibInternalException.cs" />
