@@ -1,7 +1,6 @@
 ﻿using AchievementLib.Pack.Content;
 using AchievementLib.Pack.Reader;
 using Newtonsoft.Json;
-using PositionEvents.Area.JSON;
 using System;
 using System.Collections.Generic;
 using System.IO;

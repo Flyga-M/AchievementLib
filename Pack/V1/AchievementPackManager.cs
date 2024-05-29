@@ -6,11 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using AchievementLib.Pack.V1.JSON;
 using Newtonsoft.Json;
-using PositionEvents.Area.JSON;
 using System.Threading;
-using System.Linq;
 
 namespace AchievementLib.Pack.V1
 {

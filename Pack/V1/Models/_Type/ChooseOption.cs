@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AchievementLib.Pack.V1.Models
+﻿namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
     /// Determines which element in a range of api responses will be used by the <see cref="ApiAction"/>.
