@@ -35,6 +35,30 @@ namespace AchievementLib.Pack.V1.Models
         [JsonIgnore]
         public IHierarchyObject[] Children => AchievementCollections.ToArray();
 
+        /// <summary>
+        /// Instantiates an <see cref="AchievementCategory"/>.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <param name="achievementCollections"></param>
+        [JsonConstructor]
+        public AchievementCategory(string id, Localizable name, IEnumerable<AchievementCollection> achievementCollections)
+        {
+            Id = id;
+            Name = name;
+            AchievementCollections = achievementCollections;
+
+            if (AchievementCollections != null)
+            {
+                foreach (AchievementCollection collection in AchievementCollections)
+                {
+                    collection.Parent = this;
+                }
+            }
+        }
+
+
+
         /// <inheritdoc/>
         public bool IsValid()
         {

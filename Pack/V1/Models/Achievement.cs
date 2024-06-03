@@ -105,6 +105,7 @@ namespace AchievementLib.Pack.V1.Models
                 foreach (Objective objective in Objectives)
                 {
                     objective.FulfilledChanged += OnObjectiveFulfillmentStatusChanged;
+                    objective.Parent = this;
                 }
             }
 

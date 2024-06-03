@@ -610,7 +610,7 @@ namespace AchievementLib.Pack.V1
                     "appears to be malformed.", ex);
                 }
 
-                achievementData.AssertHierarchy(this);
+                achievementData.Parent = this;
 
                 data.Add(achievementData);
             }

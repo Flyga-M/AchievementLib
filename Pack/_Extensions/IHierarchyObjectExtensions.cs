@@ -16,11 +16,6 @@ namespace AchievementLib.Pack
         /// Returns the full name of the <see cref="IHierarchyObject"/> inside 
         /// it's hierarchy tree.
         /// </summary>
-        /// <remarks>
-        /// Make sure that <see cref="AssertHierarchy(IHierarchyObject, IHierarchyObject)"/> 
-        /// was called beforehand, or children and parents have been manually set. Otherwise this 
-        /// won't do anything.
-        /// </remarks>
         /// <param name="hierarchyObject"></param>
         /// <returns>The full name of the <see cref="IHierarchyObject"/> inside 
         /// it's hierarchy tree.</returns>
@@ -39,11 +34,6 @@ namespace AchievementLib.Pack
         /// <paramref name="relativeId"/> in the hierarchy tree below the 
         /// <see cref="IHierarchyObject"/>, or null if none was found.
         /// </summary>
-        /// <remarks>
-        /// Make sure that <see cref="AssertHierarchy(IHierarchyObject, IHierarchyObject)"/> 
-        /// was called beforehand, or children and parents have been manually set. Otherwise this 
-        /// won't do anything.
-        /// </remarks>
         /// <param name="hierarchyObject"></param>
         /// <param name="relativeId"></param>
         /// <returns>The child with the given 
@@ -84,11 +74,6 @@ namespace AchievementLib.Pack
         /// Checks whether the <see cref="IHierarchyObject"/> is part of the given
         /// <paramref name="namespace"/>.
         /// </summary>
-        /// <remarks>
-        /// Make sure that <see cref="AssertHierarchy(IHierarchyObject, IHierarchyObject)"/> 
-        /// was called beforehand, or children and parents have been manually set. Otherwise this 
-        /// won't be able to get the full name of the <see cref="IHierarchyObject"/>.
-        /// </remarks>
         /// <param name="hierarchyObject"></param>
         /// <param name="namespace"></param>
         /// <returns>True, if the full name of the <see cref="IHierarchyObject"/> 
@@ -119,11 +104,6 @@ namespace AchievementLib.Pack
         /// Checks whether the <see cref="IHierarchyObject"/> could be a part of the same 
         /// namespace as the given <paramref name="fullName"/>.
         /// </summary>
-        /// <remarks>
-        /// Make sure that <see cref="AssertHierarchy(IHierarchyObject, IHierarchyObject)"/> 
-        /// was called beforehand, or children and parents have been manually set. Otherwise this 
-        /// won't be able to get the full name of the <see cref="IHierarchyObject"/>.
-        /// </remarks>
         /// <param name="hierarchyObject"></param>
         /// <param name="fullName"></param>
         /// <returns>True, if the first part of the full name of the 
@@ -142,11 +122,6 @@ namespace AchievementLib.Pack
         /// <summary>
         /// Disposes all the disposable children of the <see cref="IHierarchyObject"/>.
         /// </summary>
-        /// <remarks>
-        /// Make sure that <see cref="AssertHierarchy(IHierarchyObject, IHierarchyObject)"/> 
-        /// was called beforehand, or children and parents have been manually set. Otherwise this 
-        /// won't do anything.
-        /// </remarks>
         /// <param name="hierarchyObject"></param>
         public static void DisposeChildren(this IHierarchyObject hierarchyObject)
         {
@@ -171,11 +146,6 @@ namespace AchievementLib.Pack
         /// attempts in <paramref name="exceptions"/>. Will continue through all 
         /// children, even if one child fails.
         /// </summary>
-        /// <remarks>
-        /// Make sure that <see cref="AssertHierarchy(IHierarchyObject, IHierarchyObject)"/> 
-        /// was called beforehand, or children and parents have been manually set. Otherwise this 
-        /// won't do anything.
-        /// </remarks>
         /// <param name="hierarchyObject"></param>
         /// <param name="resourceManager"></param>
         /// <param name="graphicsDevice"></param>
@@ -224,11 +194,6 @@ namespace AchievementLib.Pack
         /// <see cref="IHierarchyObject"/> asynchronously. Might contain information on failed 
         /// attempts. Will continue through all children, even if one child fails.
         /// </summary>
-        /// <remarks>
-        /// Make sure that <see cref="AssertHierarchy(IHierarchyObject, IHierarchyObject)"/> 
-        /// was called beforehand, or children and parents have been manually set. Otherwise this 
-        /// won't do anything.
-        /// </remarks>
         /// <param name="hierarchyObject"></param>
         /// <param name="resourceManager"></param>
         /// <param name="graphicsDevice"></param>
@@ -307,11 +272,6 @@ namespace AchievementLib.Pack
         /// Might contain information on failed attempts. Will continue through all 
         /// children, even if one child fails.
         /// </summary>
-        /// <remarks>
-        /// Make sure that <see cref="AssertHierarchy(IHierarchyObject, IHierarchyObject)"/> 
-        /// was called beforehand, or children and parents have been manually set. Otherwise this 
-        /// won't do anything.
-        /// </remarks>
         /// <param name="hierarchyObject"></param>
         /// <param name="context"></param>
         /// <param name="exceptions"></param>
@@ -351,26 +311,6 @@ namespace AchievementLib.Pack
             exceptions = allExceptions.ToArray();
 
             return eval;
-        }
-
-        /// <summary>
-        /// Asserts the hierarchy for the <see cref="IHierarchyObject"/> and all it's children.
-        /// </summary>
-        /// <param name="hierarchyObject"></param>
-        /// <param name="parent"></param>
-        public static void AssertHierarchy(this IHierarchyObject hierarchyObject, IHierarchyObject parent)
-        {
-            hierarchyObject.Parent = parent;
-            
-            if (hierarchyObject.Children == null || !hierarchyObject.Children.Any())
-            {
-                return;
-            }
-
-            foreach (IHierarchyObject child in hierarchyObject.Children)
-            {
-                child.AssertHierarchy(hierarchyObject);
-            }
         }
     }
 }
