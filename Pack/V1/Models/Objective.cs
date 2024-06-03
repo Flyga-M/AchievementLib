@@ -127,6 +127,11 @@ namespace AchievementLib.Pack.V1.Models
                 }
 
                 _isFulfilled = value;
+
+                if (value)
+                {
+                    FreezeUpdates = true;
+                }
             }
         }
 
