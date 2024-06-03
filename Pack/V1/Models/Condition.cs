@@ -27,11 +27,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc/>
         public event EventHandler<bool> FulfilledChanged;
 
-        /// <summary>
-        /// If not null, an alternative <see cref="Condition"/> that may be satisfied 
-        /// instead of this <see cref="Condition"/> to be true. Functions as an 
-        /// OR-condition. [Optional]
-        /// </summary>
+        /// <inheritdoc cref="ICondition.OrCondition"/>
         public Condition OrCondition
         {
             get => _orCondition;
@@ -42,11 +38,7 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
-        /// <summary>
-        /// If not null, an additional <see cref="Condition"/> that must be satisfied 
-        /// with this <see cref="Condition"/> to be true. Functions as an 
-        /// AND-condition. [Optional]
-        /// </summary>
+        /// <inheritdoc cref="ICondition.AndCondition"/>
         public Condition AndCondition
         {
             get => _andCondition;
@@ -57,10 +49,7 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
-        /// <summary>
-        /// The <see cref="Action"/> carrying the data associated with the 
-        /// <see cref="Condition"/>.
-        /// </summary>
+        /// <inheritdoc cref="ICondition.Action"/>
         public Action Action
         {
             get => _action;
@@ -74,6 +63,14 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc/>
         [JsonIgnore]
         IAction ICondition.Action => Action;
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        ICondition ICondition.OrCondition => OrCondition;
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        ICondition ICondition.AndCondition => AndCondition;
 
         /// <summary>
         /// A reference to the <see cref="Objective"/> that is holding this <see cref="Condition"/>.
