@@ -136,6 +136,11 @@ namespace AchievementLib.Pack.V1.Models
                     $"be resolved as IAchievement. Given type: {reference.Reference.GetType()}.");
             }
 
+            if (!achievement.IsFulfilled)
+            {
+                FreezeUpdates = true;
+            }
+
             achievement.FulfilledChanged += OnPrerequesiteFulfillmentStatusChanged;
         }
 
@@ -192,6 +197,16 @@ namespace AchievementLib.Pack.V1.Models
             }
             private set
             {
+                if (value && !_isUnlocked)
+                {
+                    FreezeUpdates = false;
+                }
+
+                if (!value && _isUnlocked)
+                {
+                    FreezeUpdates = true;
+                }
+
                 _isUnlocked = value;
             }
         }
