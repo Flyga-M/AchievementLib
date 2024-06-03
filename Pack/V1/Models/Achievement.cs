@@ -196,6 +196,26 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public bool IsVisible
+        {
+            get
+            {
+                if (!IsHidden)
+                {
+                    return true;
+                }
+                
+                if (Prerequesites == null || !Prerequesites.Any())
+                {
+                    return true;
+                }
+
+                return IsUnlocked;
+            }
+        }
+
         private void OnPrerequesiteFulfillmentStatusChanged(object _, bool _1)
         {
             RecalculateLockedStatus();

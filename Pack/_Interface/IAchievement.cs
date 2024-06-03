@@ -86,5 +86,12 @@ namespace AchievementLib.Pack
         /// </summary>
         [JsonIgnore]
         bool IsUnlocked { get; }
+
+        /// <summary>
+        /// Determines whether the <see cref="IAchievement"/> is currently hidden (<see cref="IsHidden"/> is 
+        /// <see langword="true"/> and the <see cref="Prerequesites"/> are not met), or visible.
+        /// </summary>
+        [JsonIgnore]
+        bool IsVisible { get; }
     }
 }
