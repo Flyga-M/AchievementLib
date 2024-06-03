@@ -1,4 +1,7 @@
-﻿namespace AchievementLib.Pack.V1.Models
+﻿using System.Collections.Generic;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
+
+namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
     /// Compares the value from the given <see cref="Key"/> of the elements depending on 
@@ -55,17 +58,16 @@
         }
 
         /// <inheritdoc/>
-        public override string ToString()
+        protected override Dictionary<string, object> InnerToString()
         {
-            return $"{{ {this.GetType()}: {{ " +
-                $"\"Endpoint\": {Endpoint}, " +
-                $"\"ResultLayer\": {ResultLayer}, " +
-                $"\"Filter\": {Filter}, " +
-                $"\"Key\": {Key}, " +
-                $"\"Value\": {Value}, " +
-                $"\"Comparison\": {Comparison}, " +
-                $"\"ComparisonTarget\": {ComparisonTarget}, " +
-                $" }}, Valid?: {IsValid()} }}";
+            Dictionary<string, object> inner = base.InnerToString();
+
+            inner.Add($"{nameof(Key)}", Key);
+            inner.Add($"{nameof(Value)}", Value);
+            inner.Add($"{nameof(Comparison)}", Comparison);
+            inner.Add($"{nameof(ComparisonTarget)}", ComparisonTarget);
+
+            return inner;
         }
     }
 }

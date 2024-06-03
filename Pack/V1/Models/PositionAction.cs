@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace AchievementLib.Pack.V1.Models
 {
@@ -44,13 +45,15 @@ namespace AchievementLib.Pack.V1.Models
         }
 
         /// <inheritdoc/>
-        public override string ToString()
+        protected override Dictionary<string, object> InnerToString()
         {
-            return $"{{ {typeof(PositionAction)}: {{ " +
-                $"\"Position\": {Position}, " +
-                $"\"MapId\": {MapId}, " +
-                $"\"Tolerance\": {Tolerance}, " +
-                $" }}, Valid?: {IsValid()} }}";
+            Dictionary<string, object> inner = base.InnerToString();
+
+            inner.Add($"{nameof(Position)}", Position);
+            inner.Add($"{nameof(MapId)}", MapId);
+            inner.Add($"{nameof(Tolerance)}", Tolerance);
+
+            return inner;
         }
     }
 }

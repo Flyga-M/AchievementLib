@@ -1,4 +1,6 @@
-﻿namespace AchievementLib.Pack.V1.Models
+﻿using System.Collections.Generic;
+
+namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
     /// Copies the value from the given <see cref="Key"/> of the element determined by 
@@ -45,15 +47,14 @@
         }
 
         /// <inheritdoc/>
-        public override string ToString()
+        protected override Dictionary<string, object> InnerToString()
         {
-            return $"{{ {this.GetType()}: {{ " +
-                $"\"Endpoint\": {Endpoint}, " +
-                $"\"ResultLayer\": {ResultLayer}, " +
-                $"\"Filter\": {Filter}, " +
-                $"\"Key\": {Key}, " +
-                $"\"ChooseOption\": {ChooseOption}, " +
-                $" }}, Valid?: {IsValid()} }}";
+            Dictionary<string, object> inner = base.InnerToString();
+
+            inner.Add($"{nameof(Key)}", Key);
+            inner.Add($"{nameof(ChooseOption)}", ChooseOption);
+
+            return inner;
         }
     }
 }

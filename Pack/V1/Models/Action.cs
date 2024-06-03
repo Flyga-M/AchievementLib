@@ -1,5 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 
 namespace AchievementLib.Pack.V1.Models
 {
@@ -66,5 +69,38 @@ namespace AchievementLib.Pack.V1.Models
 
         /// <inheritdoc/>
         public abstract void Validate();
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"{{ {this.GetType()}: {{ " +
+                $"{FormatInnerToString()}" +
+                $" }}, Valid?: {IsValid()} }}";
+        }
+
+        private string FormatInnerToString()
+        {
+            Dictionary<string, object> inner = InnerToString();
+
+            if (inner == null || !inner.Any())
+            {
+                return string.Empty;
+            }
+
+            return string.Join(", ", inner.Select(kvp => $"\"{kvp.Key}\": {kvp.Value}"));
+        }
+
+        /// <summary>
+        /// Adds additional information to the <see cref="ToString"/> method.
+        /// </summary>
+        protected virtual Dictionary<string, object> InnerToString()
+        {
+            Dictionary<string, object> inner = new Dictionary<string, object>()
+            {
+                { "Parent Objective", Parent.Parent.GetFullName() }
+            };
+
+            return inner;
+        }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
+using System.Collections.Generic;
+using System.Net;
 
 namespace AchievementLib.Pack.V1.Models
 {
@@ -49,13 +51,15 @@ namespace AchievementLib.Pack.V1.Models
         }
 
         /// <inheritdoc/>
-        public override string ToString()
+        protected override Dictionary<string, object> InnerToString()
         {
-            return $"{{ {typeof(LookingAtAction)}: {{ " +
-                $"\"Target\": {Target}, " +
-                $"\"MapId\": {MapId}, " +
-                $"\"CosineSimilarityTolerance\": {CosineSimilarityTolerance}, " +
-                $" }}, Valid?: {IsValid()} }}";
+            Dictionary<string, object> inner = base.InnerToString();
+
+            inner.Add($"{nameof(Target)}", Target);
+            inner.Add($"{nameof(MapId)}", MapId);
+            inner.Add($"{nameof(CosineSimilarityTolerance)}", CosineSimilarityTolerance);
+
+            return inner;
         }
     }
 }

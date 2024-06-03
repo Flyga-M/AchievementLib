@@ -1,4 +1,6 @@
-﻿namespace AchievementLib.Pack.V1.Models
+﻿using System.Collections.Generic;
+
+namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
     /// Counts the amount of elements of the element determined by 
@@ -39,14 +41,13 @@
         }
 
         /// <inheritdoc/>
-        public override string ToString()
+        protected override Dictionary<string, object> InnerToString()
         {
-            return $"{{ {this.GetType()}: {{ " +
-                $"\"Endpoint\": {Endpoint}, " +
-                $"\"ResultLayer\": {ResultLayer}, " +
-                $"\"Filter\": {Filter}, " +
-                $"\"ChooseOption\": {ChooseOption}, " +
-                $" }}, Valid?: {IsValid()} }}";
+            Dictionary<string, object> inner = base.InnerToString();
+
+            inner.Add($"{nameof(ChooseOption)}", ChooseOption);
+
+            return inner;
         }
     }
 }

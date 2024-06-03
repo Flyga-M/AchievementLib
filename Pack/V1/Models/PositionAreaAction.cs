@@ -1,4 +1,5 @@
 ﻿using PositionEvents.Area;
+using System.Collections.Generic;
 
 namespace AchievementLib.Pack.V1.Models
 {
@@ -37,12 +38,14 @@ namespace AchievementLib.Pack.V1.Models
         }
 
         /// <inheritdoc/>
-        public override string ToString()
+        protected override Dictionary<string, object> InnerToString()
         {
-            return $"{{ {typeof(PositionAreaAction)}: {{ " +
-                $"\"Area\": {Area}, " +
-                $"\"MapId\": {MapId}, " +
-                $" }}, Valid?: {IsValid()} }}";
+            Dictionary<string, object> inner = base.InnerToString();
+
+            inner.Add($"{nameof(Area)}", Area);
+            inner.Add($"{nameof(MapId)}", MapId);
+
+            return inner;
         }
     }
 }

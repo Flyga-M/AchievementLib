@@ -1,4 +1,6 @@
-﻿namespace AchievementLib.Pack.V1.Models
+﻿using System.Collections.Generic;
+
+namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
     /// Checks, whether the <see cref="Value"/> of the element determined by 
@@ -45,15 +47,14 @@
         }
 
         /// <inheritdoc/>
-        public override string ToString()
+        protected override Dictionary<string, object> InnerToString()
         {
-            return $"{{ {this.GetType()}: {{ " +
-                $"\"Endpoint\": {Endpoint}, " +
-                $"\"ResultLayer\": {ResultLayer}, " +
-                $"\"Filter\": {Filter}, " +
-                $"\"Value\": {Value}, " +
-                $"\"ChooseOption\": {ChooseOption}, " +
-                $" }}, Valid?: {IsValid()} }}";
+            Dictionary<string, object> inner = base.InnerToString();
+
+            inner.Add($"{nameof(Value)}", Value);
+            inner.Add($"{nameof(ChooseOption)}", ChooseOption);
+
+            return inner;
         }
     }
 }

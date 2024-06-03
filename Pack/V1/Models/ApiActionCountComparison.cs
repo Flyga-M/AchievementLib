@@ -1,4 +1,6 @@
-﻿namespace AchievementLib.Pack.V1.Models
+﻿using System.Collections.Generic;
+
+namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
     /// Compares the amount of elements of the element determined by 
@@ -52,16 +54,15 @@
         }
 
         /// <inheritdoc/>
-        public override string ToString()
+        protected override Dictionary<string, object> InnerToString()
         {
-            return $"{{ {typeof(ApiActionCountComparison)}: {{ " +
-                $"\"Endpoint\": {Endpoint}, " +
-                $"\"ResultLayer\": {ResultLayer}, " +
-                $"\"Filter\": {Filter}, " +
-                $"\"Value\": {Value}, " +
-                $"\"Comparison\": {Comparison}, " +
-                $"\"ChooseOption\": {ChooseOption}, " +
-                $" }}, Valid?: {IsValid()} }}";
+            Dictionary<string, object> inner = base.InnerToString();
+
+            inner.Add($"{nameof(Value)}", Value);
+            inner.Add($"{nameof(Comparison)}", Comparison);
+            inner.Add($"{nameof(ChooseOption)}", ChooseOption);
+
+            return inner;
         }
     }
 }

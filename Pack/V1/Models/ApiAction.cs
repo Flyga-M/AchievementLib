@@ -1,4 +1,6 @@
-﻿namespace AchievementLib.Pack.V1.Models
+﻿using System.Collections.Generic;
+
+namespace AchievementLib.Pack.V1.Models
 {
     /// <summary>
     /// Represents an <see cref="Action"/>, that uses the GW2 API to evaluates it's status.
@@ -50,13 +52,15 @@
         }
 
         /// <inheritdoc/>
-        public override string ToString()
+        protected override Dictionary<string, object> InnerToString()
         {
-            return $"{{ {this.GetType()}: {{ " +
-                $"\"Endpoint\": {Endpoint}, " +
-                $"\"ResultLayer\": {ResultLayer}, " +
-                $"\"Filter\": {Filter}, " +
-                $" }}, Valid?: {IsValid()} }}";
+            Dictionary<string, object> inner = base.InnerToString();
+
+            inner.Add($"{nameof(Endpoint)}", Endpoint);
+            inner.Add($"{nameof(ResultLayer)}", ResultLayer);
+            inner.Add($"{nameof(Filter)}", Filter);
+
+            return inner;
         }
     }
 }
