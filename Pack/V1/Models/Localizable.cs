@@ -45,6 +45,44 @@ namespace AchievementLib.Pack.V1.Models
         }
 
         /// <inheritdoc/>
+        public string GetLocalized(string locale, IEnumerable<ILocalizable> references)
+        {
+            return GetLocalized(locale, references, locale);
+        }
+
+        /// <inheritdoc/>
+        public string GetLocalized(string locale, IEnumerable<ILocalizable> references, string fallbackLocale)
+        {
+            if (HasLocale(locale))
+            {
+                return GetLocalized(locale);
+            }
+
+            foreach (ILocalizable reference in references)
+            {
+                if (!reference.HasLocale(locale))
+                {
+                    continue;
+                }
+
+                foreach (KeyValuePair<string, string> valueBylocale in ByLocale)
+                {
+                    if (!reference.HasLocale(valueBylocale.Key))
+                    {
+                        continue;
+                    }
+
+                    if (reference.GetLocalized(valueBylocale.Key) == GetLocalized(valueBylocale.Key))
+                    {
+                        return reference.GetLocalized(locale);
+                    }
+                }
+            }
+
+            return GetLocalized(fallbackLocale);
+        }
+
+        /// <inheritdoc/>
         public bool IsValid()
         {
             return ByLocale != null && ByLocale.Any();
