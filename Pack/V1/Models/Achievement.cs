@@ -245,6 +245,11 @@ namespace AchievementLib.Pack.V1.Models
                 currentObjectives += objective.CurrentAmount;
             }
             CurrentObjectives = currentObjectives;
+
+            if (CurrentObjectives >= MaxObjectives)
+            {
+                IsFulfilled = true;
+            }
         }
 
         /// <inheritdoc/>
@@ -291,6 +296,23 @@ namespace AchievementLib.Pack.V1.Models
 
         [JsonIgnore]
         IEnumerable<IObjective> IAchievement.Objectives => Objectives;
+
+        /// <summary>
+        /// The maximum the <see cref="CurrentObjectives"/> can reach.
+        /// </summary>
+        [JsonIgnore]
+        public int MaxObjectives
+        {
+            get
+            {
+                if (Tiers == null || !Tiers.Any())
+                {
+                    return 0;
+                }
+
+                return Tiers.Last();
+            }
+        }
 
         private void OnIsFulfilledChanged(bool isFulfilled)
         {
