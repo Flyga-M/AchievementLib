@@ -24,5 +24,13 @@ namespace AchievementLib.Pack
         /// </summary>
         [JsonIgnore]
         IHierarchyObject[] Children { get; }
+
+        /// <summary>
+        /// Attempts to add the <paramref name="child"/> to the <see cref="IHierarchyObject"/>.
+        /// </summary>
+        /// <param name="child"></param>
+        /// <returns><see langword="true"/>, if the <paramref name="child"/> can be added to the 
+        /// <see cref="IHierarchyObject"/>. Otherwise <see langword="false"/>.</returns>
+        bool TryAddChild(IHierarchyObject child);
     }
 }

@@ -31,22 +31,22 @@ namespace AchievementLib.Pack.V1.Models
         public event EventHandler<bool> FulfilledChanged;
 
         /// <inheritdoc/>
-        public string Id { get; set; }
+        public string Id { get; }
 
         /// <inheritdoc cref="IAchievement.Name"/>
-        public Localizable Name { get; set; }
+        public Localizable Name { get; }
 
         /// <inheritdoc cref="IAchievement.Description"/>
-        public Localizable Description { get; set; }
+        public Localizable Description { get; }
 
         /// <inheritdoc cref="IAchievement.LockedDescription"/>
-        public Localizable LockedDescription { get; set; }
+        public Localizable LockedDescription { get; }
 
         /// <summary>
         /// The <see cref="LoadableTexture"/> to the icon that is displayed for 
         /// the <see cref="Achievement"/>. [Optional]
         /// </summary>
-        public LoadableTexture Icon { get; set; }
+        public LoadableTexture Icon { get; }
 
         /// <summary>
         /// The <see cref="ResolvableHierarchyReference">ResolvableHierarchyReferences</see> of the 
@@ -54,22 +54,22 @@ namespace AchievementLib.Pack.V1.Models
         /// completed, before this <see cref="Achievement"/> is available. 
         /// [Optional]
         /// </summary>
-        public IEnumerable<ResolvableHierarchyReference> Prerequesites { get; set; }
+        public IEnumerable<ResolvableHierarchyReference> Prerequesites { get; }
 
         /// <inheritdoc cref="IAchievement.Tiers"/>
-        public IEnumerable<int> Tiers { get; set; }
+        public IEnumerable<int> Tiers { get; }
 
         /// <inheritdoc cref="IAchievement.Objectives"/>
-        public IEnumerable<Objective> Objectives { get; set; }
+        public List<Objective> Objectives { get; }
 
         /// <inheritdoc cref="IAchievement.IsRepeatable"/>
-        public bool IsRepeatable { get; set; }
+        public bool IsRepeatable { get; }
 
         /// <inheritdoc cref="IAchievement.IsHidden"/>
-        public bool IsHidden { get; set; }
+        public bool IsHidden { get; }
 
         /// <inheritdoc cref="IAchievement.ResetType"/>
-        public ResetType ResetType { get; set; }
+        public ResetType ResetType { get; }
 
         /// <summary>
         /// Instantiates an <see cref="Achievement"/>.
@@ -95,18 +95,15 @@ namespace AchievementLib.Pack.V1.Models
             Icon = icon;
             Prerequesites = prerequesites;
             Tiers = tiers;
-            Objectives = objectives;
+            Objectives = new List<Objective>();
             IsRepeatable = isRepeatable;
             IsHidden = isHidden;
             ResetType = resetType;
 
-            if (Objectives != null)
+            if (objectives != null)
             {
-                foreach (Objective objective in Objectives)
-                {
-                    objective.FulfilledChanged += OnObjectiveFulfillmentStatusChanged;
-                    objective.Parent = this;
-                }
+                // TODO: should throw if this returns false
+                TryAddObjectives(objectives);
             }
 
             if (Prerequesites != null)
@@ -121,6 +118,37 @@ namespace AchievementLib.Pack.V1.Models
                     prerequesite.Resolved += OnPrerequesiteResolved;
                 }
             }
+        }
+
+        private bool TryAddObjective(Objective objective)
+        {
+            if (objective == null)
+            {
+                return false;
+            }
+
+            if (Objectives.Contains(objective))
+            {
+                return false;
+            }
+
+            objective.FulfilledChanged += OnObjectiveFulfillmentStatusChanged;
+            objective.Parent = this;
+
+            Objectives.Add(objective);
+
+            RecalculateCurrentObjectives();
+            return true;
+        }
+
+        private bool TryAddObjectives(IEnumerable<Objective> objectives)
+        {
+            if (objectives == null)
+            {
+                return false;
+            }
+
+            return objectives.All(objective => TryAddObjective(objective));
         }
 
         private void OnPrerequesiteResolved(object prerequesite, EventArgs _)
@@ -163,8 +191,14 @@ namespace AchievementLib.Pack.V1.Models
             get => _currentObjectives;
             private set
             {
+                int oldValue = _currentObjectives;
+                
                 _currentObjectives = value;
-                RecalculateCurrentTier();
+
+                if (_currentObjectives != oldValue)
+                {
+                    RecalculateCurrentTier();
+                }
             }
         }
 
@@ -614,6 +648,17 @@ namespace AchievementLib.Pack.V1.Models
             }
 
             return !exceptions.Any();
+        }
+
+        /// <inheritdoc/>
+        public bool TryAddChild(IHierarchyObject child)
+        {
+            if (!(child is Objective objective))
+            {
+                return false;
+            }
+
+            return TryAddObjective(objective);
         }
     }
 }

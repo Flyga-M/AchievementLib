@@ -11,10 +11,10 @@ namespace AchievementLib.Pack.V1.Models
     public class AchievementCategory : IAchievementCategory
     {
         /// <inheritdoc/>
-        public string Id { get; set; }
+        public string Id { get; }
 
         /// <inheritdoc cref="IAchievementCategory.Name"/>
-        public Localizable Name { get; set; }
+        public Localizable Name { get; }
 
         /// <inheritdoc/>
         ILocalizable IAchievementCategory.Name => Name;
@@ -22,7 +22,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <summary>
         /// <inheritdoc cref="IAchievementCategory.AchievementCollections"/>
         /// </summary>
-        public IEnumerable<AchievementCollection> AchievementCollections { get; set; }
+        public List<AchievementCollection> AchievementCollections { get; }
 
         /// <inheritdoc/>
         IEnumerable<IAchievementCollection> IAchievementCategory.AchievementCollections => AchievementCollections;
@@ -46,17 +46,42 @@ namespace AchievementLib.Pack.V1.Models
         {
             Id = id;
             Name = name;
-            AchievementCollections = achievementCollections;
+            AchievementCollections = new List<AchievementCollection>();
 
-            if (AchievementCollections != null)
+            if (achievementCollections != null)
             {
-                foreach (AchievementCollection collection in AchievementCollections)
-                {
-                    collection.Parent = this;
-                }
+                // TODO: should throw if this returns false
+                TryAddAchievementCollections(achievementCollections);
             }
         }
 
+        private bool TryAddAchievementCollection(AchievementCollection collection)
+        {
+            if (collection == null)
+            {
+                return false;
+            }
+
+            if (AchievementCollections.Contains(collection))
+            {
+                return false;
+            }
+
+            collection.Parent = this;
+
+            AchievementCollections.Add(collection);
+            return true;
+        }
+
+        private bool TryAddAchievementCollections(IEnumerable<AchievementCollection> collections)
+        {
+            if (collections == null)
+            {
+                return false;
+            }
+
+            return collections.All(collection => TryAddAchievementCollection(collection));
+        }
 
 
         /// <inheritdoc/>
@@ -104,6 +129,17 @@ namespace AchievementLib.Pack.V1.Models
                 $"\"Name\": {Name}, " +
                 $"\"AchievementCollections\": {{ {(AchievementCollections == null ? "" : string.Join(", ", AchievementCollections))} }}, " +
                 $" }}, Valid?: {IsValid()} }}";
+        }
+
+        /// <inheritdoc/>
+        public bool TryAddChild(IHierarchyObject child)
+        {
+            if (!(child is AchievementCollection collection))
+            {
+                return false;
+            }
+
+            return TryAddAchievementCollection(collection);
         }
     }
 }

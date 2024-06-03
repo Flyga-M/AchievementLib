@@ -49,6 +49,12 @@ namespace AchievementLib.Pack
         IPackLoadReport Report { get; }
 
         /// <summary>
+        /// The <see cref="IAchievementCategory"/>ies of the Achievement Pack. The seperate files are combined where 
+        /// namespaces overlap.
+        /// </summary>
+        IAchievementCategory[] Categories { get; }
+
+        /// <summary>
         /// Attempts to enable the <see cref="IAchievementPackManager"/> and load it's data. 
         /// The data is loaded asynchronously and is not available 
         /// directly after <see cref="Enable(GraphicsDevice, IResolveContext, out Task)"/> was called. Listen to 

@@ -11,10 +11,10 @@ namespace AchievementLib.Pack.V1.Models
     public class AchievementData : IAchievementData
     {
         /// <inheritdoc/>
-        public string Id { get; set; }
+        public string Id { get; }
 
         /// <inheritdoc cref="IAchievementData.AchievementCategories"/>
-        public IEnumerable<AchievementCategory> AchievementCategories { get; set; }
+        public List<AchievementCategory> AchievementCategories { get; }
 
         /// <inheritdoc/>
         IEnumerable<IAchievementCategory> IAchievementData.AchievementCategories => AchievementCategories;
@@ -36,18 +36,42 @@ namespace AchievementLib.Pack.V1.Models
         public AchievementData(string id, IEnumerable<AchievementCategory> achievementCategories)
         {
             Id = id;
-            AchievementCategories = achievementCategories;
+            AchievementCategories = new List<AchievementCategory>();
 
-            if (AchievementCategories != null)
+            if (achievementCategories != null)
             {
-                foreach (AchievementCategory category in AchievementCategories)
-                {
-                    category.Parent = this;
-                }
+                // TODO: should throw if this returns false
+                TryAddAchievementCategories(achievementCategories);
             }
         }
 
+        private bool TryAddAchievementCategory(AchievementCategory category)
+        {
+            if (category == null)
+            {
+                return false;
+            }
 
+            if (AchievementCategories.Contains(category))
+            {
+                return false;
+            }
+
+            category.Parent = this;
+
+            AchievementCategories.Add(category);
+            return true;
+        }
+
+        private bool TryAddAchievementCategories(IEnumerable<AchievementCategory> categories)
+        {
+            if (categories == null)
+            {
+                return false;
+            }
+
+            return categories.All(category => TryAddAchievementCategory(category));
+        }
 
         /// <inheritdoc/>
         public bool IsValid()
@@ -90,6 +114,17 @@ namespace AchievementLib.Pack.V1.Models
                 $"\"Id\": {Id}, " +
                 $"\"AchievementCategories\": {{ {(AchievementCategories == null ? "" : string.Join(", ", AchievementCategories))} }}, " +
                 $" }}, Valid?: {IsValid()} }}";
+        }
+
+        /// <inheritdoc/>
+        public bool TryAddChild(IHierarchyObject child)
+        {
+            if (!(child is AchievementCategory category))
+            {
+                return false;
+            }
+
+            return TryAddAchievementCategory(category);
         }
     }
 }

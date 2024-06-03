@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Threading;
+using System.Linq;
 
 namespace AchievementLib.Pack.V1
 {
@@ -134,6 +135,17 @@ namespace AchievementLib.Pack.V1
         /// </summary>
         public AchievementData[] Data => _data;
 
+        /// <inheritdoc/>
+        public IAchievementCategory[] Categories
+        {
+            get
+            {
+                CombineData();
+
+                return _data.SelectMany(data => data.AchievementCategories).ToArray();
+            }
+        }
+
         /// <summary>
         /// The resource manager of the <see cref="AchievementPackManager"/>.
         /// </summary>
@@ -181,6 +193,54 @@ namespace AchievementLib.Pack.V1
             _report = new PackLoadReport();
 
             _data = Array.Empty<AchievementData>();
+        }
+
+        private bool TryAddAchievementData(AchievementData data)
+        {
+            if (data == null)
+            {
+                return false;
+            }
+
+            if (_data.Contains(data))
+            {
+                return false;
+            }
+
+            data.Parent = this;
+
+            List<AchievementData> newData = new List<AchievementData>(_data)
+            {
+                data
+            };
+
+            _data = newData.ToArray();
+
+            return true;
+        }
+
+        private bool TryAddAchievementData(IEnumerable<AchievementData> data)
+        {
+            if (data == null)
+            {
+                return false;
+            }
+
+            List<AchievementData> newData = new List<AchievementData>(_data);
+
+            foreach (AchievementData date in data)
+            {
+                if (newData.Contains(date))
+                {
+                    return false;
+                }
+
+                date.Parent = this;
+                newData.Add(date);
+            }
+
+            _data = newData.ToArray();
+            return true;
         }
 
         /// <summary>
@@ -493,6 +553,16 @@ namespace AchievementLib.Pack.V1
             return (true, Array.Empty<PackResourceException>());
         }
 
+        private bool CombineData()
+        {
+            if (_data == null || _data.Length == 0)
+            {
+                return true;
+            }
+
+            return this.TryCombineChildren();
+        }
+
         /// <inheritdoc/>
         public bool Disable(bool forceDisable)
         {
@@ -615,7 +685,11 @@ namespace AchievementLib.Pack.V1
                 data.Add(achievementData);
             }
 
-            _data = data.ToArray();
+            // TODO: should throw if this returns false
+            TryAddAchievementData(data);
+
+            // TODO: should throw if this returns false
+            CombineData();
 
             cancellationToken.ThrowIfCancellationRequested();
         }
@@ -668,6 +742,17 @@ namespace AchievementLib.Pack.V1
             
             _dataReader?.Dispose();
             _cancellationSourceEnable?.Dispose();
+        }
+
+        /// <inheritdoc/>
+        public bool TryAddChild(IHierarchyObject child)
+        {
+            if (!(child is AchievementData data))
+            {
+                return false;
+            }
+
+            return TryAddAchievementData(data);
         }
     }
 }

@@ -253,5 +253,12 @@ namespace AchievementLib.Pack.V1.Models
                 Condition.Dispose();
             }
         }
+
+        /// <inheritdoc/> 
+        /// Will always return false as <see cref="Objective"/>s have no children. 
+        public bool TryAddChild(IHierarchyObject child)
+        {
+            return false;
+        }
     }
 }

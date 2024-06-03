@@ -15,22 +15,22 @@ namespace AchievementLib.Pack.V1.Models
     public class AchievementCollection : IAchievementCollection, ILoadable
     {
         /// <inheritdoc/>
-        public string Id { get; set; }
+        public string Id { get; }
 
         /// <inheritdoc cref="IAchievementCollection.Name"/>
-        public Localizable Name { get; set; }
+        public Localizable Name { get; }
 
         /// <inheritdoc/>
         ILocalizable IAchievementCollection.Name => Name;
 
         /// <inheritdoc cref="IAchievementCollection.Achievements"/>
-        public IEnumerable<Achievement> Achievements { get; set; }
+        public List<Achievement> Achievements { get; }
 
         /// <inheritdoc/>
         IEnumerable<IAchievement> IAchievementCollection.Achievements => Achievements;
 
         /// <inheritdoc cref="IAchievementCollection.Icon"/>
-        public LoadableTexture Icon { get; set; }
+        public LoadableTexture Icon { get; }
 
         /// <inheritdoc/>
         Texture2D IAchievementCollection.Icon => Icon.LoadedTexture;
@@ -59,19 +59,43 @@ namespace AchievementLib.Pack.V1.Models
         {
             Id = id;
             Name = name;
-            Achievements = achievements;
+            Achievements = new List<Achievement>();
             Icon = icon;
 
-            if (Achievements != null)
+            if (achievements != null)
             {
-                foreach (Achievement achievement in Achievements)
-                {
-                    achievement.Parent = this;
-                }
+                // TODO: should throw if this returns false
+                TryAddAchievements(achievements);
             }
         }
 
+        private bool TryAddAchievement(Achievement achievement)
+        {
+            if (achievement == null)
+            {
+                return false;
+            }
 
+            if (Achievements.Contains(achievement))
+            {
+                return false;
+            }
+
+            achievement.Parent = this;
+
+            Achievements.Add(achievement);
+            return true;
+        }
+
+        private bool TryAddAchievements(IEnumerable<Achievement> achievements)
+        {
+            if (achievements == null)
+            {
+                return false;
+            }
+
+            return achievements.All(achievement => TryAddAchievement(achievement));
+        }
 
         /// <inheritdoc/>
         public bool IsValid()
@@ -172,6 +196,17 @@ namespace AchievementLib.Pack.V1.Models
                 $"\"Achievements\": {{ {(Achievements == null ? "" : string.Join(", ", Achievements))} }}, " +
                 $"\"Icon\": {Icon}, " +
                 $" }}, Valid?: {IsValid()} }}";
+        }
+
+        /// <inheritdoc/>
+        public bool TryAddChild(IHierarchyObject child)
+        {
+            if (!(child is Achievement achievement))
+            {
+                return false;
+            }
+
+            return TryAddAchievement(achievement);
         }
     }
 }
