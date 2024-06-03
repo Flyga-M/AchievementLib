@@ -93,5 +93,13 @@ namespace AchievementLib.Pack
         /// </summary>
         [JsonIgnore]
         bool IsVisible { get; }
+
+        /// <summary>
+        /// Resets the current progress of the <see cref="IAchievement"/>. May be used on (daily/weekly/monthly) reset, if 
+        /// <see cref="ResetType"/> is something other than <see cref="ResetType.Permanent"/>.
+        /// </summary>
+        /// <returns><see langword="true"/>, if the <see cref="ResetType"/> is not <see cref="ResetType.Permanent"/>. 
+        /// Othwise <see langword="false"/>.</returns>
+        bool ResetProgress();
     }
 }

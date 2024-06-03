@@ -336,6 +336,29 @@ namespace AchievementLib.Pack.V1.Models
         }
 
         /// <inheritdoc/>
+        public bool ResetProgress()
+        {
+            if (this.ResetType == ResetType.Permanent)
+            {
+                return false;
+            }
+
+            // will also unfreeze all objectives
+            FreezeUpdates = false;
+
+            foreach (Objective objective in Objectives)
+            {
+                // TODO: this should probably call a ResetProgress() method on Objective
+                objective.CurrentAmount = 0;
+                objective.IsFulfilled = false;
+            }
+
+            IsFulfilled = false;
+
+            return true;
+        }
+
+        /// <inheritdoc/>
         public bool IsValid()
         {
             return !string.IsNullOrWhiteSpace(Id)
