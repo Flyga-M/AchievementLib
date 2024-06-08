@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using AchievementLib.Pack.PersistantData;
+using Newtonsoft.Json;
 using System;
 
 namespace AchievementLib.Pack.V1.Models
@@ -7,6 +8,7 @@ namespace AchievementLib.Pack.V1.Models
     /// <inheritdoc cref="IObjective"/>
     /// This is the V1 implementation.
     /// </summary>
+    [Store]
     public class Objective : IObjective, IResolvable, IDisposable
     {
         private Condition _condition;
@@ -25,6 +27,7 @@ namespace AchievementLib.Pack.V1.Models
         public event EventHandler<bool> FulfilledChanged;
 
         /// <inheritdoc/>
+        [StorageProperty(IsPrimaryKey = true)]
         public string Id { get; set; }
         
         /// <summary>
@@ -53,7 +56,10 @@ namespace AchievementLib.Pack.V1.Models
             set
             {
                 _condition = value;
-                _condition.Parent = this;
+                if (_condition != null)
+                {
+                    _condition.Parent = this;
+                }
             }
         }
 
@@ -116,6 +122,7 @@ namespace AchievementLib.Pack.V1.Models
 
         /// <inheritdoc/>
         [JsonIgnore]
+        [StorageProperty]
         public bool IsFulfilled
         {
             get => _isFulfilled;
@@ -127,6 +134,7 @@ namespace AchievementLib.Pack.V1.Models
                 }
 
                 _isFulfilled = value;
+                Storage.TryStoreProperty(this, nameof(IsFulfilled));
 
                 if (value)
                 {
@@ -147,12 +155,16 @@ namespace AchievementLib.Pack.V1.Models
                     FreezeUpdatesChanged?.Invoke(this, value);
                 }
                 _freezeUpdates = value;
-                Condition.FreezeUpdates = value;
+                if (Condition != null)
+                {
+                    Condition.FreezeUpdates = value;
+                }
             }
         }
 
         /// <inheritdoc/>
         [JsonIgnore]
+        [StorageProperty]
         public int CurrentAmount
         {
             get
@@ -168,11 +180,13 @@ namespace AchievementLib.Pack.V1.Models
                 if (value >= MaxAmount)
                 {
                     _currentAmount = MaxAmount;
+                    Storage.TryStoreProperty(this, nameof(CurrentAmount));
                     IsFulfilled = true;
                     return;
                 }
                 _currentAmount = value;
-                IsFulfilled = false;
+                IsFulfilled = false; // needs to be set before storing, or the getter returns MaxAmount
+                bool eval = Storage.TryStoreProperty(this, nameof(CurrentAmount));
             }
         }
 

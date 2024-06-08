@@ -111,10 +111,13 @@ namespace AchievementLib.Pack
         DateTime LastCompletion { get; }
 
         /// <summary>
-        /// Resets the current progress of the <see cref="IAchievement"/>. May be used on (daily/weekly/monthly) reset, if 
-        /// <see cref="ResetType"/> is something other than <see cref="ResetType.Permanent"/>.
+        /// Resets the current progress of the <see cref="IAchievement"/>. May be used on (daily/weekly/monthly) reset or 
+        /// repeatable completion, if 
+        /// <see cref="ResetType"/> is something other than <see cref="ResetType.Permanent"/> or <see cref="IsRepeatable"/> is 
+        /// <see langword="true"/>.
         /// </summary>
-        /// <returns><see langword="true"/>, if the <see cref="ResetType"/> is not <see cref="ResetType.Permanent"/>. 
+        /// <returns><see langword="true"/>, if the <see cref="ResetType"/> is not <see cref="ResetType.Permanent"/>, or 
+        /// <see cref="IsRepeatable"/> is <see langword="true"/>. 
         /// Othwise <see langword="false"/>.</returns>
         bool ResetProgress();
     }

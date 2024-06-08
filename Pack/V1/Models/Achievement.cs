@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
+using AchievementLib.Pack.PersistantData;
 
 namespace AchievementLib.Pack.V1.Models
 {
@@ -12,6 +13,7 @@ namespace AchievementLib.Pack.V1.Models
     /// <inheritdoc cref="IAchievement"/>
     /// This is the V1 implementation.
     /// </summary>
+    [Store]
     public class Achievement : IAchievement, ILoadable, IResolvable
     {
         private bool _isFulfilled = false;
@@ -34,6 +36,7 @@ namespace AchievementLib.Pack.V1.Models
         public event EventHandler<bool> FulfilledChanged;
 
         /// <inheritdoc/>
+        [StorageProperty(IsPrimaryKey = true)]
         public string Id { get; }
 
         /// <inheritdoc cref="IAchievement.Name"/>
@@ -377,44 +380,62 @@ namespace AchievementLib.Pack.V1.Models
 
         /// <inheritdoc/>
         [JsonIgnore]
+        [StorageProperty]
         public bool IsFulfilled
         {
             get => _isFulfilled;
             set
             {
-                if (_isFulfilled != value)
+                if (_isFulfilled == value)
                 {
-                    OnIsFulfilledChanged(value);
+                    return;
                 }
 
                 _isFulfilled = value;
 
                 if (value)
                 {
+                    RepeatedAmount++;
+                    LastCompletion = DateTime.UtcNow;
+                }
+
+                OnIsFulfilledChanged(value);
+                Storage.TryStoreProperty(this, nameof(IsFulfilled));
+
+                if (value)
+                {
                     FreezeUpdates = true;
+                    if (IsRepeatable)
+                    {
+                        ResetProgress();
+                    }
                 }
             }
         }
 
         /// <inheritdoc/>
         [JsonIgnore]
+        [StorageProperty]
         public int RepeatedAmount
         {
             get => _repeatedAmount;
             private set
             {
                 _repeatedAmount = value;
+                Storage.TryStoreProperty(this, nameof(RepeatedAmount));
             }
         }
 
         /// <inheritdoc/>
         [JsonIgnore]
+        [StorageProperty]
         public DateTime LastCompletion
         {
             get => _lastCompletion;
             private set
             {
                 _lastCompletion = value;
+                Storage.TryStoreProperty(this, nameof(LastCompletion));
             }
         }
 
@@ -440,7 +461,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc/>
         public bool ResetProgress()
         {
-            if (this.ResetType == ResetType.Permanent)
+            if (this.ResetType == ResetType.Permanent && this.IsRepeatable == false)
             {
                 return false;
             }
