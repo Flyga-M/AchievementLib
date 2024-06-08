@@ -128,9 +128,9 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// Otherwise <see langword="false"/>.</returns>
         public bool Create(SQLiteConnection connection, bool ifNotExists, out Exception exception)
         {
-            string commandText = GetCreateString(ifNotExists, out (string Placeholder, object Value)[] parameters);
+            string commandText = GetCreateString(ifNotExists);
 
-            return ExecuteCommand(connection, commandText, parameters, out exception);
+            return ExecuteCommand(connection, commandText, Array.Empty<(string, object)>(), out exception);
         }
         
         /// <summary>
@@ -160,10 +160,8 @@ namespace AchievementLib.Pack.PersistantData.SQLite
             return Create(null, out exception);
         }
 
-        private string GetCreateString(bool ifNotExists, out (string Placeholder, object Value)[] parameters)
+        private string GetCreateString(bool ifNotExists)
         {
-            List<(string Placeholder, object Value)> @params = new List<(string Placeholder, object Value)>();
-            
             Column[] columns = Columns;
             string[] primaryKeyColumnNames = PrimaryKeyColumnNames;
             bool multiplePrimaryKeys = primaryKeyColumnNames.Length > 1;
@@ -187,14 +185,12 @@ namespace AchievementLib.Pack.PersistantData.SQLite
 
             for(int i = 0; i < columns.Length; i++)
             {
-                result += " " + columns[i].GetString(multiplePrimaryKeys, out (string Placeholder, object Value)[] columnParameters);
+                result += " " + columns[i].GetString(multiplePrimaryKeys);
 
                 if (i != columns.Length - 1 || multiplePrimaryKeys)
                 {
                     result += ",";
                 }
-
-                @params.AddRange(columnParameters);
             }
 
             if (multiplePrimaryKeys)
@@ -204,7 +200,6 @@ namespace AchievementLib.Pack.PersistantData.SQLite
 
             result += " );";
 
-            parameters = @params.ToArray();
             return result;
         }
 

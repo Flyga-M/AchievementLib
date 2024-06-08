@@ -400,7 +400,7 @@ namespace AchievementLib.Pack.PersistantData
             table.TryAddColumn(new SQLite.Column(
                     VERSION_COLUMN,
                     DataType.INTEGER,
-                    DBNull.Value,
+                    null,
                     false,
                     false,
                     true

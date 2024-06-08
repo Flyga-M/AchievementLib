@@ -9,19 +9,6 @@ namespace AchievementLib.Pack.PersistantData.SQLite
     /// </summary>
     public class Column
     {
-        private static Random _random = new Random();
-        
-        /// <summary>
-        /// The suffix that is used for the <see cref="Default"/> value placeholder in <see cref="GetString(bool, out ValueTuple{string, object}[])"/>.
-        /// </summary>
-        public const string DEFAULT_SUFFIX = "_default";
-
-        /// <summary>
-        /// The prefix that is used for the <see cref="Column"/> <see cref="Name"/> placeholder 
-        /// in <see cref="GetString(out ValueTuple{string, object}[])"/>.
-        /// </summary>
-        public const string DEFAULT_PREFIX_RANDOM = "@column_";
-
         /// <summary>
         /// The <see cref="Column"/> name.
         /// </summary>
@@ -82,22 +69,16 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// Returns a string representation of the <see cref="Column"/> to be used in <see cref="SQLiteCommand"/>s.
         /// </summary>
         /// <param name="omitPrimaryKey"></param>
-        /// <param name="parameters"></param>
         /// <returns>A string representation of the <see cref="Column"/> to be used in <see cref="SQLiteCommand"/>s.</returns>
-        public string GetString(bool omitPrimaryKey, out (string Placeholder, object Value)[] parameters)
+        public string GetString(bool omitPrimaryKey)
         {
-            List<(string Placeholder, object Value)> @params = new List<(string Placeholder, object Value)>();
-            
             string result = Name;
             result += " " + Type.ToString();
 
             if (HasDefault)
             {
-                string defaultPlaceholder = GetRandomPlaceholder() + DEFAULT_SUFFIX;
-
-                result += " DEFAULT " + defaultPlaceholder;
-
-                @params.Add((defaultPlaceholder, Default));
+                // default values can't be parameterized. So they need to directly put into the string.
+                result += " DEFAULT " + Default.ToString();
             }
 
             if (IsPrimaryKey && !omitPrimaryKey)
@@ -115,23 +96,16 @@ namespace AchievementLib.Pack.PersistantData.SQLite
                 result += " NOT NULL";
             }
 
-            parameters = @params.ToArray();
             return result;
         }
 
         /// <summary>
         /// Returns a string representation of the <see cref="Column"/> to be used in <see cref="SQLiteCommand"/>s.
         /// </summary>
-        /// <param name="parameters"></param>
         /// <returns>A string representation of the <see cref="Column"/> to be used in <see cref="SQLiteCommand"/>s.</returns>
-        public string GetString(out (string Placeholder, object Value)[] parameters)
+        public string GetString()
         {
-            return GetString(false, out parameters);
-        }
-
-        private string GetRandomPlaceholder()
-        {
-            return DEFAULT_PREFIX_RANDOM + _random.Next().ToString();
+            return GetString(false);
         }
     }
 }
