@@ -5,7 +5,7 @@ namespace AchievementLib.Pack.PersistantData
     /// <summary>
     /// An <see cref="Attribute"/> that is used on a class, if the class should be stored.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class StoreAttribute : Attribute
     {
         /// <summary>
