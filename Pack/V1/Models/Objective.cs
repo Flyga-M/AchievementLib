@@ -190,6 +190,13 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <summary>
+        /// The id of the parent <see cref="Achievement"/>. Only used for <see cref="Storage"/> purposes.
+        /// </summary>
+        [JsonIgnore]
+        [StorageProperty]
+        public string AchievementId => Parent.GetFullName();
+
         /// <inheritdoc/>
         public bool IsValid()
         {
