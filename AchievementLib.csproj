@@ -156,7 +156,6 @@
     <Compile Include="Reset\ResetManager.cs" />
     <Compile Include="Reset\_Extensions\DateTimeExtensions.cs" />
     <Compile Include="Reset\_Util\DateTimeUtil.cs" />
-    <Compile Include="Pack\PersistantData\todo.cs" />
     <Compile Include="_Exceptions\AchievementLibAggregateException.cs" />
     <Compile Include="_Exceptions\AchievementLibException.cs" />
     <Compile Include="_Exceptions\AchievementLibInternalException.cs" />

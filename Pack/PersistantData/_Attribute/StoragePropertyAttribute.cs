@@ -14,11 +14,6 @@ namespace AchievementLib.Pack.PersistantData
         public string ColumnName;
 
         /// <summary>
-        /// The storage version.
-        /// </summary>
-        public int Version = 1;
-
-        /// <summary>
         /// The default value for the column.
         /// </summary>
         public object Default;

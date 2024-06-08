@@ -12,5 +12,10 @@ namespace AchievementLib.Pack.PersistantData
         /// The table name where the object is saved to.
         /// </summary>
         public string TableName;
+
+        /// <summary>
+        /// The storage version. Will be incremented, if a new column is added a later point in time.
+        /// </summary>
+        public int Version = 1;
     }
 }

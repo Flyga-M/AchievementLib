@@ -13,6 +13,11 @@ namespace AchievementLib.Pack.PersistantData
     public static class Storage
     {
         /// <summary>
+        /// The column name that stores the <see cref="StoreAttribute.Version"/>.
+        /// </summary>
+        public const string VERSION_COLUMN = "_InternalStorageVersion";
+
+        /// <summary>
         /// Fires, when an exception during storing or retrieving occures.
         /// </summary>
         public static event EventHandler<Exception> ExceptionOccured;
@@ -152,9 +157,9 @@ namespace AchievementLib.Pack.PersistantData
 
             storeAttribute.TableName = ConvertTableName(storeAttribute.TableName);
 
-            (string Name, StoragePropertyAttribute Attribute, Type Type, object Value)[] fieldAttributes = AttributeUtil.GetPropertyAttributes<StoragePropertyAttribute>(@object);
+            (string Name, StoragePropertyAttribute Attribute, Type Type, object Value)[] propertyAttributes = AttributeUtil.GetPropertyAttributes<StoragePropertyAttribute>(@object);
 
-            foreach (var attribute in fieldAttributes)
+            foreach (var attribute in propertyAttributes)
             {
                 if (string.IsNullOrWhiteSpace(attribute.Attribute.ColumnName))
                 {
@@ -162,7 +167,7 @@ namespace AchievementLib.Pack.PersistantData
                 }
             }
 
-            SQLite.Table table = GetTable(storeAttribute, fieldAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
+            SQLite.Table table = GetTable(storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
 
             if (!table.Create(connection, true, out Exception createException))
             {
@@ -170,7 +175,8 @@ namespace AchievementLib.Pack.PersistantData
                     $"Table creation failed.", createException);
             }
 
-            IEnumerable<(string ColumnName, object Value)> values = fieldAttributes.Select(attribute => (attribute.Attribute.ColumnName, attribute.Value));
+            List<(string ColumnName, object Value)> values = propertyAttributes.Select(attribute => (attribute.Attribute.ColumnName, attribute.Value)).ToList();
+            values.Add((VERSION_COLUMN, storeAttribute.Version));
 
             if (!table.InsertOrReplace(connection, values, out Exception insertException))
             {
@@ -254,7 +260,8 @@ namespace AchievementLib.Pack.PersistantData
                     $"of type {@object.GetType()}. Property with that name has no {nameof(StoragePropertyAttribute)}.");
             }
 
-            IEnumerable<(string ColumnName, object Value)> values = propertyAttributes.Select(attribute => (attribute.Attribute.ColumnName, attribute.Value));
+            List<(string ColumnName, object Value)> values = propertyAttributes.Select(attribute => (attribute.Attribute.ColumnName, attribute.Value)).ToList();
+            values.Add((VERSION_COLUMN, storeAttribute.Version));
             IEnumerable<string> primaryKeyColumnNames = table.PrimaryKeyColumnNames;
 
             if (!table.InsertOrUpdate(connection, values, new string[] { propertyColumn.Attribute.ColumnName }, primaryKeyColumnNames, out Exception insertOrUpdateException))
@@ -263,7 +270,6 @@ namespace AchievementLib.Pack.PersistantData
                     $"of type {@object.GetType()}. Insert or Update command failed.", insertOrUpdateException);
             }
         }
-
 
         /// <summary>
         /// Stores the given <paramref name="object"/> according to its <see cref="StoreAttribute"/> and 
@@ -390,6 +396,15 @@ namespace AchievementLib.Pack.PersistantData
                         $"with that name already exists.");
                 }
             }
+
+            table.TryAddColumn(new SQLite.Column(
+                    VERSION_COLUMN,
+                    DataType.INTEGER,
+                    DBNull.Value,
+                    false,
+                    false,
+                    true
+                ));
 
             return table;
         }
