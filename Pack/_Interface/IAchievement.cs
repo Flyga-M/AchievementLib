@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace AchievementLib.Pack
@@ -93,6 +94,21 @@ namespace AchievementLib.Pack
         /// </summary>
         [JsonIgnore]
         bool IsVisible { get; }
+
+        /// <summary>
+        /// The amount of times the <see cref="IAchievement"/> was completed.
+        /// </summary>
+        [JsonIgnore]
+        int RepeatedAmount { get; }
+
+        /// <summary>
+        /// The <see cref="DateTime"/> when the <see cref="IAchievement"/> was last completed.
+        /// </summary>
+        /// <remarks>
+        /// Will be <see cref="DateTime.MinValue"/>, if the <see cref="IAchievement"/> has not been completed.
+        /// </remarks>
+        [JsonIgnore]
+        DateTime LastCompletion { get; }
 
         /// <summary>
         /// Resets the current progress of the <see cref="IAchievement"/>. May be used on (daily/weekly/monthly) reset, if 

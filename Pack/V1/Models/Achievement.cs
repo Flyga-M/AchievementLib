@@ -21,6 +21,9 @@ namespace AchievementLib.Pack.V1.Models
         private int _currentObjectives = 0;
         private bool _isUnlocked = false;
 
+        private int _repeatedAmount = 0;
+        private DateTime _lastCompletion = DateTime.MinValue;
+
         /// <inheritdoc/>
         public event EventHandler Resolved;
 
@@ -390,6 +393,28 @@ namespace AchievementLib.Pack.V1.Models
                 {
                     FreezeUpdates = true;
                 }
+            }
+        }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public int RepeatedAmount
+        {
+            get => _repeatedAmount;
+            private set
+            {
+                _repeatedAmount = value;
+            }
+        }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public DateTime LastCompletion
+        {
+            get => _lastCompletion;
+            private set
+            {
+                _lastCompletion = value;
             }
         }
 
