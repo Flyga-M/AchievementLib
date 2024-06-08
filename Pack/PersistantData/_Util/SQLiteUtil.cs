@@ -30,7 +30,7 @@ namespace AchievementLib.Pack.PersistantData
                 return SQLite.DataType.REAL;
             }
 
-            if (type == typeof(string) || type == typeof(char))
+            if (type == typeof(string) || type == typeof(char) || type == typeof(DateTime))
             {
                 return SQLite.DataType.TEXT;
             }
