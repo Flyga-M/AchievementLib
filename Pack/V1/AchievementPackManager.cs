@@ -684,7 +684,7 @@ namespace AchievementLib.Pack.V1
 
                 achievementData.Parent = this;
 
-                // TODO: currently always uses the default connection. Might change that later to allow for more costumization.
+                // TODO: currently always uses the default connection. Might change that later to allow for more customization.
                 RetrieveStoredAchievements(null, achievementData.GetAchievements().Select(achievement => (Achievement)achievement));
 
                 data.Add(achievementData);
