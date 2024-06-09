@@ -300,8 +300,10 @@ namespace AchievementLib.Pack.PersistantData
         /// <param name="propertyName"></param>
         /// <returns>The value of the property with the <paramref name="propertyName"/> on the <paramref name="object"/> 
         /// from the database.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
+        /// the select command fails or returns <see langword="null"/>. Also if the property with the <paramref name="propertyName"/> does not have 
+        /// the <see cref="StoragePropertyAttribute"/>.</exception>
         internal static T RetrieveProperty<T>(SQLiteConnection connection, object @object, string propertyName)
         {
             if (@object == null)
@@ -371,13 +373,81 @@ namespace AchievementLib.Pack.PersistantData
         /// <param name="propertyName"></param>
         /// <returns>The value of the property with the <paramref name="propertyName"/> on the <paramref name="object"/> 
         /// from the database.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
+        /// the select command fails or returns <see langword="null"/>. Also if the property with the <paramref name="propertyName"/> does not have 
+        /// the <see cref="StoragePropertyAttribute"/>.</exception>
         internal static T RetrieveProperty<T>(object @object, string propertyName)
         {
             return RetrieveProperty<T>(null, @object, propertyName);
         }
 
+        /// <summary>
+        /// Determines whether an entry for the given <paramref name="object"/> is stored.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="object"></param>
+        /// <returns><see langword="true"/>, if an entry for the given <paramref name="object"/> exists. 
+        /// Otherwise <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
+        /// the exists command fails.</exception>
+        internal static bool IsStored(SQLiteConnection connection, object @object)
+        {
+            if (@object == null)
+            {
+                throw new ArgumentNullException(nameof(@object));
+            }
+
+            StoreAttribute storeAttribute = AttributeUtil.GetAttribute<StoreAttribute>(@object);
+
+            if (string.IsNullOrWhiteSpace(storeAttribute.TableName))
+            {
+                storeAttribute.TableName = @object.GetType().Namespace + "." + @object.GetType().Name;
+            }
+
+            storeAttribute.TableName = ConvertTableName(storeAttribute.TableName);
+
+            (string Name, StoragePropertyAttribute Attribute, Type Type, object Value)[] propertyAttributes = AttributeUtil.GetPropertyAttributes<StoragePropertyAttribute>(@object);
+
+            foreach (var attribute in propertyAttributes)
+            {
+                if (string.IsNullOrWhiteSpace(attribute.Attribute.ColumnName))
+                {
+                    attribute.Attribute.ColumnName = attribute.Name;
+                }
+            }
+
+            SQLite.Table table = GetTable(storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
+
+            IEnumerable<(string Name, StoragePropertyAttribute Attribute, Type Type, object Value)> primaryKeys = propertyAttributes.Where(attribute => attribute.Attribute.IsPrimaryKey);
+            IEnumerable<(string ColumnName, object Value)> filters = primaryKeys.Select(attribute => (attribute.Attribute.ColumnName, attribute.Value));
+
+            if (!table.Exists(connection, filters, out bool exists, out Exception existsException))
+            {
+                throw new InvalidOperationException($"Unable to determine whether object of type {@object.GetType()} with " +
+                    $"primary keys {{ {string.Join(", ", primaryKeys.Select(key => $"{key.Name}: {key.Value}"))} }}" +
+                    $"exists. Exists command failed.", existsException);
+            }
+
+            return exists;
+        }
+
+        /// <summary>
+        /// Determines whether an entry for the given <paramref name="object"/> is stored.
+        /// </summary>
+        /// <param name="object"></param>
+        /// <returns><see langword="true"/>, if an entry for the given <paramref name="object"/> exists. 
+        /// Otherwise <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
+        /// the exists command fails.</exception>
+        internal static bool IsStored(object @object)
+        {
+            return IsStored(null, @object);
+        }
+
+        /// <exception cref="InvalidOperationException"></exception>
         private static SQLite.Table GetTable(StoreAttribute storeAttribute, IEnumerable<(StoragePropertyAttribute Attribute, Type Type)> fieldAttributes)
         {
             SQLite.Table table = new SQLite.Table(storeAttribute.TableName);

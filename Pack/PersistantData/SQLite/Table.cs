@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpDX;
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
@@ -406,7 +407,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
             return exception == null;
         }
 
-        private bool ExecuteScalar(SQLiteConnection connection, string commandText, string columnName, (string Placeholder, object Value)[] parameters, out object result, out Exception exception)
+        private bool ExecuteScalar(SQLiteConnection connection, string commandText, (string Placeholder, object Value)[] parameters, out object result, out Exception exception)
         {
             exception = null;
             result = null;
@@ -608,7 +609,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         {
             string commandText = GetSelectString(distinct, new string[] { columnName }, filters, 1, out (string Placeholder, object Value)[] parameters);
 
-            return ExecuteScalar(connection, commandText, columnName, parameters, out result, out exception);
+            return ExecuteScalar(connection, commandText, parameters, out result, out exception);
         }
 
         /// <summary>
@@ -708,6 +709,55 @@ namespace AchievementLib.Pack.PersistantData.SQLite
 
             // table and column names can't be parameterized. So they need to directly put into the string.
             return filter.ColumnName + " = " + valuePlaceholder;
+        }
+
+        /// <summary>
+        /// Determines whether a <see cref="Row"/> in the <see cref="Table"/> with the given <paramref name="filters"/> exists.
+        /// </summary>
+        /// <remarks>
+        /// The method will return if the query was successfull - NOT the result of the query. To determine if a <see cref="Row"/> with 
+        /// the given <paramref name="filters"/> exists, check the <paramref name="result"/>.
+        /// </remarks>
+        /// <param name="connection"></param>
+        /// <param name="filters"></param>
+        /// <param name="result"></param>
+        /// <param name="exception"></param>
+        /// <returns><see langword="true"/>, if the exists query did not throw any <see cref="Exception"/>s. 
+        /// Otherwise <see langword="false"/>.</returns>
+        public bool Exists(SQLiteConnection connection, IEnumerable<(string ColumnName, object Value)> filters, out bool result, out Exception exception)
+        {
+            string commandText = GetExistsString(filters, out (string Placeholder, object Value)[] parameters);
+
+            bool eval = ExecuteScalar(connection, commandText, parameters, out object scalarResult, out exception);
+
+            result = (bool)scalarResult;
+
+            return eval;
+        }
+
+        /// <summary>
+        /// Determines whether a <see cref="Row"/> in the <see cref="Table"/> with the given <paramref name="filters"/> exists.
+        /// </summary>
+        /// <remarks>
+        /// The method will return if the query was successfull - NOT the result of the query. To determine if a <see cref="Row"/> with 
+        /// the given <paramref name="filters"/> exists, check the <paramref name="result"/>.
+        /// </remarks>
+        /// <param name="filters"></param>
+        /// <param name="result"></param>
+        /// <param name="exception"></param>
+        /// <returns><see langword="true"/>, if the exists query did not throw any <see cref="Exception"/>s. 
+        /// Otherwise <see langword="false"/>.</returns>
+        public bool Exists(IEnumerable<(string ColumnName, object Value)> filters, out bool result, out Exception exception)
+        {
+            return Exists(null, filters, out result, out exception);
+        }
+
+        private string GetExistsString(IEnumerable<(string ColumnName, object Value)> filters, out (string Placeholder, object Value)[] parameters)
+        {
+            string result = $"SELECT EXISTS( {GetSelectString(false, new string[] { "1" }, filters, 1, out parameters)}";
+            result = result.Remove(result.Length - 1); // remove ; from select string
+            result += " );";
+            return result;
         }
     }
 }
