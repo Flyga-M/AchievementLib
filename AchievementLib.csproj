@@ -97,6 +97,7 @@
     <Compile Include="Pack\Content\ZipArchiveReader.cs" />
     <Compile Include="Pack\_Extensions\IAchievementCategoryExtensions.cs" />
     <Compile Include="Pack\_Extensions\IAchievementCollectionExtensions.cs" />
+    <Compile Include="Pack\_Extensions\IAchievementDataExtensions.cs" />
     <Compile Include="Pack\_Extensions\IAchievementExtensions.cs" />
     <Compile Include="Pack\_Extensions\IConditionExtensions.cs" />
     <Compile Include="Pack\_Extensions\IFulfillableExtensions.cs" />

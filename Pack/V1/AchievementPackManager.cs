@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Threading;
 using System.Linq;
+using AchievementLib.Pack.PersistantData;
+using System.Data.SQLite;
 
 namespace AchievementLib.Pack.V1
 {
@@ -682,6 +684,9 @@ namespace AchievementLib.Pack.V1
 
                 achievementData.Parent = this;
 
+                // TODO: currently always uses the default connection. Might change that later to allow for more costumization.
+                RetrieveStoredAchievements(null, achievementData.GetAchievements().Select(achievement => (Achievement)achievement));
+
                 data.Add(achievementData);
             }
 
@@ -692,6 +697,27 @@ namespace AchievementLib.Pack.V1
             CombineData();
 
             cancellationToken.ThrowIfCancellationRequested();
+        }
+
+        private void RetrieveStoredAchievements(SQLiteConnection connection, IEnumerable<Achievement> achievements)
+        {
+            foreach(Achievement achievement in achievements)
+            {
+                RetrieveStoredAchievement(connection, achievement);
+            }
+        }
+
+        private void RetrieveStoredAchievement(SQLiteConnection connection, Achievement achievement)
+        {
+            if (!Storage.TryRetrieve(connection, achievement, out _))
+            {
+                return; // No exception here, because the exception will be available through Storage.ExceptionOccured.
+            }
+
+            foreach (Objective objective in achievement.Objectives)
+            {
+                Storage.TryRetrieve(connection, objective, out _);
+            }
         }
 
         /// <exception cref="OperationCanceledException"></exception>
