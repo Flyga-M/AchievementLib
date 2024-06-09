@@ -154,7 +154,6 @@ namespace AchievementLib.Pack.PersistantData
             return true;
         }
 
-
         /// <summary>
         /// <inheritdoc cref="IsStored(object)"/>
         /// </summary>
@@ -204,13 +203,7 @@ namespace AchievementLib.Pack.PersistantData
                 }
             }
 
-            SQLite.Table table = GetTable(storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
-
-            if (!table.Create(connection, true, out Exception createException))
-            {
-                throw new InvalidOperationException($"Unable to store object of type {@object.GetType()}. " +
-                    $"Table creation failed.", createException);
-            }
+            SQLite.Table table = GetTable(connection, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
 
             List<(string ColumnName, object Value)> values = propertyAttributes.Select(attribute => (attribute.Attribute.ColumnName, attribute.Value)).ToList();
             values.Add((VERSION_COLUMN, storeAttribute.Version));
@@ -281,13 +274,7 @@ namespace AchievementLib.Pack.PersistantData
                 }
             }
 
-            SQLite.Table table = GetTable(storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
-
-            if (!table.Create(connection, true, out Exception createException))
-            {
-                throw new InvalidOperationException($"Unable to insert or update property with name {propertyName} on object " +
-                    $"of type {@object.GetType()}. Table creation failed.", createException);
-            }
+            SQLite.Table table = GetTable(connection, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
 
             (string Name, StoragePropertyAttribute Attribute, Type Type, object Value) propertyColumn = propertyAttributes.FirstOrDefault(attribute => attribute.Name == propertyName);
 
@@ -367,7 +354,7 @@ namespace AchievementLib.Pack.PersistantData
                 }
             }
 
-            SQLite.Table table = GetTable(storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
+            SQLite.Table table = GetTable(connection, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
 
             (string Name, StoragePropertyAttribute Attribute, Type Type, object Value) propertyColumn = propertyAttributes.FirstOrDefault(attribute => attribute.Name == propertyName);
 
@@ -455,7 +442,7 @@ namespace AchievementLib.Pack.PersistantData
                 }
             }
 
-            SQLite.Table table = GetTable(storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
+            SQLite.Table table = GetTable(connection, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
 
             IEnumerable<(string Name, StoragePropertyAttribute Attribute, Type Type, object Value)> primaryKeys = propertyAttributes.Where(attribute => attribute.Attribute.IsPrimaryKey);
             IEnumerable<(string ColumnName, object Value)> filters = primaryKeys.Select(attribute => (attribute.Attribute.ColumnName, attribute.Value));
@@ -489,7 +476,7 @@ namespace AchievementLib.Pack.PersistantData
         }
 
         /// <exception cref="InvalidOperationException"></exception>
-        private static SQLite.Table GetTable(StoreAttribute storeAttribute, IEnumerable<(StoragePropertyAttribute Attribute, Type Type)> fieldAttributes)
+        private static SQLite.Table GetTable(SQLiteConnection connection, StoreAttribute storeAttribute, IEnumerable<(StoragePropertyAttribute Attribute, Type Type)> fieldAttributes)
         {
             SQLite.Table table = new SQLite.Table(storeAttribute.TableName);
 
@@ -516,6 +503,12 @@ namespace AchievementLib.Pack.PersistantData
                     false,
                     true
                 ));
+
+            if (!table.Create(connection, true, out Exception createException))
+            {
+                throw new InvalidOperationException($"Unable to create table {table.Name} at {connection?.FileName}. " +
+                    $"Table creation failed.", createException);
+            }
 
             return table;
         }
