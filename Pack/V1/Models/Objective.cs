@@ -112,9 +112,9 @@ namespace AchievementLib.Pack.V1.Models
         [JsonIgnore]
         public bool IsResolved => Condition.IsResolved;
 
-        private void OnIsFulfilledChanged(bool isFulfilled)
+        private void OnIsFulfilledChanged(bool isFulfilled, bool ignoreFreeze = false)
         {
-            if (!FreezeUpdates)
+            if (!FreezeUpdates || ignoreFreeze)
             {
                 FulfilledChanged?.Invoke(this, isFulfilled);
             }
@@ -128,18 +128,26 @@ namespace AchievementLib.Pack.V1.Models
             get => _isFulfilled;
             set
             {
-                if (_isFulfilled != value)
+                if (_isFulfilled == value)
                 {
-                    OnIsFulfilledChanged(value);
+                    return;
                 }
 
                 _isFulfilled = value;
+
                 Storage.TryStoreProperty(this, nameof(IsFulfilled));
+
+                bool freezeUpdates = FreezeUpdates;
 
                 if (value)
                 {
                     FreezeUpdates = true;
                 }
+
+                // must only be called after FreezeUpdates was changed, because this may trigger an update chain
+                // -> achievement completed -> reset achievement -> reset objectives -> unfreeze updates
+                // and "FreezeUpdates = true" would overwrite this unfreeze.
+                OnIsFulfilledChanged(value, ignoreFreeze: !freezeUpdates);
             }
         }
 
@@ -150,15 +158,19 @@ namespace AchievementLib.Pack.V1.Models
             get => _freezeUpdates;
             set
             {
-                if (_freezeUpdates != value)
+                if (_freezeUpdates == value)
                 {
-                    FreezeUpdatesChanged?.Invoke(this, value);
+                    return;
                 }
+
                 _freezeUpdates = value;
+
                 if (Condition != null)
                 {
                     Condition.FreezeUpdates = value;
                 }
+
+                FreezeUpdatesChanged?.Invoke(this, value);
             }
         }
 
@@ -196,6 +208,15 @@ namespace AchievementLib.Pack.V1.Models
         [JsonIgnore]
         [StorageProperty]
         public string AchievementId => Parent.GetFullName();
+
+        /// <summary>
+        /// Resets the current progress of the <see cref="Objective"/>.
+        /// </summary>
+        public void ResetProgress()
+        {
+            CurrentAmount = 0;
+            IsFulfilled = false;
+        }
 
         /// <inheritdoc/>
         public bool IsValid()

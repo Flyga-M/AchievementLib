@@ -471,9 +471,8 @@ namespace AchievementLib.Pack.V1.Models
 
             foreach (Objective objective in Objectives)
             {
-                // TODO: this should probably call a ResetProgress() method on Objective
-                objective.CurrentAmount = 0;
-                objective.IsFulfilled = false;
+                objective.ResetProgress();
+
             }
 
             IsFulfilled = false;
