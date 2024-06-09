@@ -114,6 +114,20 @@ namespace AchievementLib.Pack.PersistantData
         }
 
         /// <summary>
+        /// <inheritdoc cref="Retrieve(object)"/>
+        /// </summary>
+        /// <remarks>
+        /// <inheritdoc cref="Retrieve(object)"/>
+        /// </remarks>
+        /// <param name="object"></param>
+        /// <returns><see langword="true"/>, if the properties of the <paramref name="object"/> were successfully retrieved. 
+        /// Otherwise <see langword="false"/>.</returns>
+        internal static bool TryRetrieve(object @object)
+        {
+            return TryRetrieve(null, @object);
+        }
+
+        /// <summary>
         /// <inheritdoc cref="RetrieveProperty{T}(SQLiteConnection, object, string)"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
