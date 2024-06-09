@@ -730,7 +730,14 @@ namespace AchievementLib.Pack.PersistantData.SQLite
 
             bool eval = ExecuteScalar(connection, commandText, parameters, out object scalarResult, out exception);
 
-            result = (bool)scalarResult;
+            if (scalarResult == null)
+            {
+                result = false;
+            }
+            else
+            {
+                result = (bool)Convert.ChangeType(scalarResult, typeof(bool));
+            }
 
             return eval;
         }
@@ -754,9 +761,26 @@ namespace AchievementLib.Pack.PersistantData.SQLite
 
         private string GetExistsString(IEnumerable<(string ColumnName, object Value)> filters, out (string Placeholder, object Value)[] parameters)
         {
-            string result = $"SELECT EXISTS( {GetSelectString(false, new string[] { "1" }, filters, 1, out parameters)}";
-            result = result.Remove(result.Length - 1); // remove ; from select string
-            result += " );";
+            List<(string Placeholder, object Value)> @params = new List<(string Placeholder, object Value)>();
+            
+            string filterString = string.Empty;
+
+            for (int i = 0; i < filters.Count(); i++)
+            {
+                (string ColumnName, object Value) filter = filters.ElementAt(i);
+
+                filterString += " " + GetFilterString(GetValuePlaceholder(i), filter, out (string Placeholder, object Value)[] filterParameters);
+
+                if (i != filters.Count() - 1)
+                {
+                    filterString += "AND";
+                }
+
+                @params.AddRange(filterParameters);
+            }
+
+            string result = $"SELECT EXISTS( SELECT 1 FROM {Name} WHERE {filterString} );";
+            parameters = @params.ToArray();
             return result;
         }
     }
