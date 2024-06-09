@@ -133,6 +133,43 @@ namespace AchievementLib.Pack.PersistantData
         }
 
         /// <summary>
+        /// <inheritdoc cref="IsStored(SQLiteConnection, object)"/>
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="object"></param>
+        /// <param name="isStored"></param>
+        /// <returns><see langword="true"/>, if the exists query was successfull. Otherwise <see langword="false"/>.</returns>
+        internal static bool TryIsStored(SQLiteConnection connection, object @object, out bool isStored)
+        {
+            try
+            {
+                isStored = IsStored(connection, @object);
+            }
+            catch (Exception ex)
+            {
+                OnException(ex);
+                isStored = false;
+                return false;
+            }
+            return true;
+        }
+
+
+        /// <summary>
+        /// <inheritdoc cref="IsStored(object)"/>
+        /// </summary>
+        /// <remarks>
+        /// <inheritdoc cref="IsStored(object)"/>
+        /// </remarks>
+        /// <param name="object"></param>
+        /// <param name="isStored"></param>
+        /// <returns><see langword="true"/>, if the exists query was successfull. Otherwise <see langword="false"/>.</returns>
+        internal static bool TryIsStored(object @object, out bool isStored)
+        {
+            return TryIsStored(null, @object, out isStored);
+        }
+
+        /// <summary>
         /// Stores the given <paramref name="object"/> according to its <see cref="StoreAttribute"/> and 
         /// <see cref="StoragePropertyAttribute"/>s.
         /// </summary>
@@ -436,6 +473,10 @@ namespace AchievementLib.Pack.PersistantData
         /// <summary>
         /// Determines whether an entry for the given <paramref name="object"/> is stored.
         /// </summary>
+        /// <remarks>
+        /// Uses the <see cref="SQLite.ConnectionHandler.DefaultConnection"/>. Make sure to set the appropriate 
+        /// parameters (<see cref="DefaultDirectory"/>, <see cref="DefaultFileName"/>, <see cref="DefaultFileExtension"/>) before using.
+        /// </remarks>
         /// <param name="object"></param>
         /// <returns><see langword="true"/>, if an entry for the given <paramref name="object"/> exists. 
         /// Otherwise <see langword="false"/>.</returns>
