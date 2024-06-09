@@ -11,14 +11,14 @@ namespace AchievementLib.Pack.PersistantData
     public static class AttributeUtil
     {
         /// <summary>
-        /// Returns the <see cref="Attribute"/> of the given targetType <typeparamref name="T"/> on the <paramref name="object"/>.
+        /// Returns the <see cref="Attribute"/> of the given type <typeparamref name="T"/> on the <paramref name="object"/>.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="object"></param>
-        /// <returns>The <see cref="Attribute"/> of the given targetType <typeparamref name="T"/> on the <paramref name="object"/>.</returns>
+        /// <returns>The <see cref="Attribute"/> of the given type <typeparamref name="T"/> on the <paramref name="object"/>.</returns>
         /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">If the <paramref name="object"/> has no 
-        /// <see cref="Attribute"/> of the given targetType, or more than one.</exception>
+        /// <see cref="Attribute"/> of the given type, or more than one.</exception>
         public static T GetAttribute<T>(object @object) where T : Attribute
         {
             if (@object == null)
@@ -41,28 +41,28 @@ namespace AchievementLib.Pack.PersistantData
 
             if (customAttributes == null || !customAttributes.Any())
             {
-                throw new InvalidOperationException($"Given object of targetType {type} has no attribute of targetType {typeof(T)}.");
+                throw new InvalidOperationException($"Given object of type {type} has no attribute of type {typeof(T)}.");
             }
 
             if (customAttributes.Length > 1)
             {
-                throw new InvalidOperationException($"Given object of targetType {type} has more than one attribute of targetType {typeof(T)}.");
+                throw new InvalidOperationException($"Given object of type {type} has more than one attribute of type {typeof(T)}.");
             }
 
             return customAttributes.First() as T;
         }
 
         /// <summary>
-        /// Returns the <see cref="Attribute"/>s of the given targetType <typeparamref name="T"/> on the <paramref name="object"/>s 
+        /// Returns the <see cref="Attribute"/>s of the given type <typeparamref name="T"/> on the <paramref name="object"/>s 
         /// properties.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="object"></param>
-        /// <returns>The <see cref="Attribute"/>s of the given targetType <typeparamref name="T"/> on the <paramref name="object"/>s 
+        /// <returns>The <see cref="Attribute"/>s of the given type <typeparamref name="T"/> on the <paramref name="object"/>s 
         /// properties.</returns>
         /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">If one of the <paramref name="object"/>s property has more than one
-        /// <see cref="Attribute"/> of the given targetType.</exception>
+        /// <see cref="Attribute"/> of the given type.</exception>
         public static (string Name, T Attribute, Type Type, object Value)[] GetPropertyAttributes<T> (object @object) where T : Attribute
         {
             if (@object == null)
