@@ -97,13 +97,16 @@ namespace AchievementLib.Pack.PersistantData
         /// </summary>
         /// <param name="connection"></param>
         /// <param name="object"></param>
+        /// <param name="isStored"></param>
         /// <returns><see langword="true"/>, if the properties of the <paramref name="object"/> were successfully retrieved. 
         /// Otherwise <see langword="false"/>.</returns>
-        internal static bool TryRetrieve(SQLiteConnection connection, object @object)
+        internal static bool TryRetrieve(SQLiteConnection connection, object @object, out bool isStored)
         {
+            isStored = false;
+
             try
             {
-                Retrieve(connection, @object);
+                isStored = Retrieve(connection, @object);
             }
             catch (Exception ex)
             {
@@ -120,11 +123,12 @@ namespace AchievementLib.Pack.PersistantData
         /// <inheritdoc cref="Retrieve(object)"/>
         /// </remarks>
         /// <param name="object"></param>
+        /// <param name="isStored"></param>
         /// <returns><see langword="true"/>, if the properties of the <paramref name="object"/> were successfully retrieved. 
         /// Otherwise <see langword="false"/>.</returns>
-        internal static bool TryRetrieve(object @object)
+        internal static bool TryRetrieve(object @object, out bool isStored)
         {
-            return TryRetrieve(null, @object);
+            return TryRetrieve(null, @object, out isStored);
         }
 
         /// <summary>
