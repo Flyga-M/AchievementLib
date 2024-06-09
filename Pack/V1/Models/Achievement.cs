@@ -36,7 +36,7 @@ namespace AchievementLib.Pack.V1.Models
         public event EventHandler<bool> FulfilledChanged;
 
         /// <inheritdoc/>
-        [StorageProperty(IsPrimaryKey = true)]
+        [StorageProperty(IsPrimaryKey = true, DoNotRetrieve = true)]
         public string Id { get; }
 
         /// <inheritdoc cref="IAchievement.Name"/>

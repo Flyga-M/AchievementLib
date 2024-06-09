@@ -32,5 +32,10 @@ namespace AchievementLib.Pack.PersistantData
         /// Determines whether an entry for the column may be <see langword="null"/>.
         /// </summary>
         public bool NotNull = false;
+
+        /// <summary>
+        /// Determines whether the entry should not be retrieved from storage.
+        /// </summary>
+        public bool DoNotRetrieve = false;
     }
 }

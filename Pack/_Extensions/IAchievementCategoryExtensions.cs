@@ -23,5 +23,22 @@ namespace AchievementLib.Pack
 
             return actions.ToArray();
         }
+
+        /// <summary>
+        /// Returns the <see cref="IAchievement"/>s associated with the <see cref="IAchievementCategory"/>.
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns>The <see cref="IAchievement"/>s associated with the <see cref="IAchievementCategory"/>.</returns>
+        public static IAchievement[] GetAchievements(this IAchievementCategory category)
+        {
+            List<IAchievement> achievements = new List<IAchievement>();
+
+            foreach (IAchievementCollection collection in category.AchievementCollections)
+            {
+                achievements.AddRange(collection.Achievements);
+            }
+
+            return achievements.ToArray();
+        }
     }
 }

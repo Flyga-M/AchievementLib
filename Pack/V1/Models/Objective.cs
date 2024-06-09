@@ -27,7 +27,7 @@ namespace AchievementLib.Pack.V1.Models
         public event EventHandler<bool> FulfilledChanged;
 
         /// <inheritdoc/>
-        [StorageProperty(IsPrimaryKey = true)]
+        [StorageProperty(IsPrimaryKey = true, DoNotRetrieve = true)]
         public string Id { get; set; }
         
         /// <summary>
@@ -206,7 +206,7 @@ namespace AchievementLib.Pack.V1.Models
         /// The id of the parent <see cref="Achievement"/>. Only used for <see cref="Storage"/> purposes.
         /// </summary>
         [JsonIgnore]
-        [StorageProperty]
+        [StorageProperty(DoNotRetrieve = true)]
         public string AchievementId => Parent.GetFullName();
 
         /// <summary>

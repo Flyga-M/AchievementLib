@@ -93,6 +93,27 @@ namespace AchievementLib.Pack.PersistantData
         }
 
         /// <summary>
+        /// <inheritdoc cref="Retrieve(SQLiteConnection, object)"/>
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="object"></param>
+        /// <returns><see langword="true"/>, if the properties of the <paramref name="object"/> were successfully retrieved. 
+        /// Otherwise <see langword="false"/>.</returns>
+        internal static bool TryRetrieve(SQLiteConnection connection, object @object)
+        {
+            try
+            {
+                Retrieve(connection, @object);
+            }
+            catch (Exception ex)
+            {
+                OnException(ex);
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
         /// <inheritdoc cref="RetrieveProperty{T}(SQLiteConnection, object, string)"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -312,6 +333,113 @@ namespace AchievementLib.Pack.PersistantData
         internal static void StoreProperty(object @object, string propertyName)
         {
             StoreProperty(null, @object, propertyName);
+        }
+
+        /// <summary>
+        /// Retrieves the stored values and applies them to the <paramref name="object"/>.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="object"></param>
+        /// <returns><see langword="true"/>, if the <paramref name="object"/> has an entry in the database. 
+        /// Otherwise <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
+        /// the exists or select command fails. Also if the select command does not retrieve a value, or if at least 
+        /// one property can't be set to it's saved value.</exception>
+        internal static bool Retrieve(SQLiteConnection connection, object @object)
+        {
+            if (@object == null)
+            {
+                throw new ArgumentNullException(nameof(@object));
+            }
+
+            StoreAttribute storeAttribute = AttributeUtil.GetAttribute<StoreAttribute>(@object);
+
+            if (string.IsNullOrWhiteSpace(storeAttribute.TableName))
+            {
+                storeAttribute.TableName = @object.GetType().Namespace + "." + @object.GetType().Name;
+            }
+
+            storeAttribute.TableName = ConvertTableName(storeAttribute.TableName);
+
+            (string Name, StoragePropertyAttribute Attribute, Type Type, object Value)[] propertyAttributes = AttributeUtil.GetPropertyAttributes<StoragePropertyAttribute>(@object);
+
+            foreach (var attribute in propertyAttributes)
+            {
+                if (string.IsNullOrWhiteSpace(attribute.Attribute.ColumnName))
+                {
+                    attribute.Attribute.ColumnName = attribute.Name;
+                }
+            }
+
+            SQLite.Table table = GetTable(connection, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
+
+            if (!TryIsStored(connection, @object, out bool isStored))
+            {
+                throw new InvalidOperationException($"Unable to retrieve object of type {@object.GetType()}. " +
+                    $"Exists command failed.");
+            }
+
+            if (!isStored)
+            {
+                return false;
+            }
+
+            IEnumerable<(string Name, StoragePropertyAttribute Attribute, Type Type, object Value)> doRetrieve = propertyAttributes.Where(attribute => !attribute.Attribute.DoNotRetrieve);
+            List<string> columnNames = doRetrieve.Select(attribute => attribute.Attribute.ColumnName).ToList();
+            // not currently used. Will only be used, if the store version changes in the future.
+            columnNames.Add(VERSION_COLUMN);
+
+            IEnumerable<(string Name, StoragePropertyAttribute Attribute, Type Type, object Value)> primaryKeys = propertyAttributes.Where(attribute => attribute.Attribute.IsPrimaryKey);
+            IEnumerable<(string ColumnName, object Value)> filters = primaryKeys.Select(attribute => (attribute.Attribute.ColumnName, attribute.Value));
+
+            if (!table.Select(connection, true, columnNames, filters, 1, out SQLite.Row[] result, out Exception selectException))
+            {
+                throw new InvalidOperationException($"Unable to retrieve object of type {@object.GetType()}. " +
+                    $"Select command failed.", selectException);
+            }
+
+            if (!result.Any())
+            {
+                throw new InvalidOperationException($"Unable to retrieve object of type {@object.GetType()}. " +
+                    $"Select command did not return any value.", selectException);
+            }
+
+            SQLite.Row retrievedValues = result.First();
+
+            try
+            {
+                foreach ((string Name, StoragePropertyAttribute Attribute, Type Type, object Value) attribute in doRetrieve)
+                {
+                    AttributeUtil.SetPropertyValue(@object, attribute.Name, attribute.Type, retrievedValues[attribute.Attribute.ColumnName]);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Unable to retrieve object of type {@object.GetType()}. " +
+                    $"Unable to set property values.", ex);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Retrieves the stored values and applies them to the <paramref name="object"/>.
+        /// </summary>
+        /// <remarks>
+        /// Uses the <see cref="SQLite.ConnectionHandler.DefaultConnection"/>. Make sure to set the appropriate 
+        /// parameters (<see cref="DefaultDirectory"/>, <see cref="DefaultFileName"/>, <see cref="DefaultFileExtension"/>) before using.
+        /// </remarks>
+        /// <param name="object"></param>
+        /// <returns><see langword="true"/>, if the <paramref name="object"/> has an entry in the database. 
+        /// Otherwise <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
+        /// the exists or select command fails. Also if the select command does not retrieve a value, or if at least 
+        /// one property can't be set to it's saved value.</exception>
+        internal static bool Retrieve(object @object)
+        {
+            return Retrieve(null, @object);
         }
 
         /// <summary>
