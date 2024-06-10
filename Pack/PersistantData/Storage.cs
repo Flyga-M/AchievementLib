@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Data.SQLite;
+using System.IO;
 using System.Linq;
 
 namespace AchievementLib.Pack.PersistantData
@@ -50,6 +51,23 @@ namespace AchievementLib.Pack.PersistantData
         {
             get => ConnectionHandler.DefaultFileExtension;
             set => ConnectionHandler.DefaultFileExtension = value;
+        }
+
+        /// <summary>
+        /// The full default file path (with file name and extension) that is used by the default connection.
+        /// </summary>
+        public static string DefaultPath
+        {
+            get
+            {
+                return Path.Combine(DefaultDirectory, DefaultFileName) + "." + DefaultFileExtension;
+            }
+            set
+            {
+                DefaultDirectory = Path.GetDirectoryName(value);
+                DefaultDirectory = Path.GetFileNameWithoutExtension(value);
+                DefaultDirectory = Path.GetExtension(value);
+            }
         }
 
         private static void OnException(Exception ex)
