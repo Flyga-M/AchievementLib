@@ -92,7 +92,12 @@ namespace AchievementLib.Pack.V1
         {
             get
             {
-                lock(_packStateLock)
+                if (_packStateLock == null) // the state should still be retrievable for logging purposes, after the manager was disposed. 
+                {
+                    return PackLoadState.Unloaded;
+                }
+
+                lock (_packStateLock)
                 {
                     return _state;
                 }
