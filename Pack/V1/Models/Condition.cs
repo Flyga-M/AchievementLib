@@ -34,7 +34,10 @@ namespace AchievementLib.Pack.V1.Models
             set
             {
                 _orCondition = value;
-                _orCondition.ParentCondition = this;
+                if (value != null)
+                {
+                    _orCondition.ParentCondition = this;
+                }
             }
         }
 
@@ -45,7 +48,10 @@ namespace AchievementLib.Pack.V1.Models
             set
             {
                 _andCondition = value;
-                _andCondition.ParentCondition = this;
+                if (value != null)
+                {
+                    _andCondition.ParentCondition = this;
+                }
             }
         }
 
@@ -56,7 +62,10 @@ namespace AchievementLib.Pack.V1.Models
             set
             {
                 _action = value;
-                _action.Parent = this;
+                if (value != null)
+                {
+                    _action.Parent = this;
+                }
             }
         }
 

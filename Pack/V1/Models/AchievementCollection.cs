@@ -21,18 +21,21 @@ namespace AchievementLib.Pack.V1.Models
         public Localizable Name { get; }
 
         /// <inheritdoc/>
+        [JsonIgnore]
         ILocalizable IAchievementCollection.Name => Name;
 
         /// <inheritdoc cref="IAchievementCollection.Achievements"/>
         public List<Achievement> Achievements { get; }
 
         /// <inheritdoc/>
+        [JsonIgnore]
         IEnumerable<IAchievement> IAchievementCollection.Achievements => Achievements;
 
         /// <inheritdoc cref="IAchievementCollection.Icon"/>
         public LoadableTexture Icon { get; }
 
         /// <inheritdoc/>
+        [JsonIgnore]
         Texture2D IAchievementCollection.Icon => Icon.LoadedTexture;
 
         /// <inheritdoc/>

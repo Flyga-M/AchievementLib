@@ -627,19 +627,26 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc cref="ResolvableHierarchyReference.Resolve(IResolveContext)"/>
         public void Resolve(IResolveContext context)
         {
-            foreach(ResolvableHierarchyReference achievement in Prerequesites)
+            
+            if (Prerequesites != null)
             {
-                achievement.Resolve(context);
-                if (!(achievement.Reference is IAchievement referencedAchievement))
+                foreach (ResolvableHierarchyReference achievement in Prerequesites)
                 {
-                    throw new PackReferenceException("Reference in prerequesites must be to another IAchievement. " +
-                        $"Referenced type: {achievement.Reference.GetType()}.");
+                    achievement.Resolve(context);
+                    if (!(achievement.Reference is IAchievement referencedAchievement))
+                    {
+                        throw new PackReferenceException("Reference in prerequesites must be to another IAchievement. " +
+                            $"Referenced type: {achievement.Reference.GetType()}.");
+                    }
                 }
             }
-
-            foreach (Objective objective in Objectives)
+            
+            if (Objectives != null)
             {
-                objective.Resolve(context);
+                foreach (Objective objective in Objectives)
+                {
+                    objective.Resolve(context);
+                }
             }
 
             Resolved?.Invoke(this, null);
@@ -656,26 +663,32 @@ namespace AchievementLib.Pack.V1.Models
         {
             List<PackReferenceException> exceptions = new List<PackReferenceException>();
 
-            foreach (ResolvableHierarchyReference achievement in Prerequesites)
+            if (Prerequesites != null)
             {
-                if (!achievement.TryResolve(context, out PackReferenceException achievementException))
+                foreach (ResolvableHierarchyReference achievement in Prerequesites)
                 {
-                    exceptions.Add(achievementException);
-                    continue;
-                }
+                    if (!achievement.TryResolve(context, out PackReferenceException achievementException))
+                    {
+                        exceptions.Add(achievementException);
+                        continue;
+                    }
 
-                if (!(achievement.Reference is IAchievement))
-                {
-                    exceptions.Add(new PackReferenceException("Reference in prerequesites must be to another IAchievement. " +
-                        $"Referenced type: {achievement.Reference.GetType()}."));
+                    if (!(achievement.Reference is IAchievement))
+                    {
+                        exceptions.Add(new PackReferenceException("Reference in prerequesites must be to another IAchievement. " +
+                            $"Referenced type: {achievement.Reference.GetType()}."));
+                    }
                 }
             }
 
-            foreach (Objective objective in Objectives)
+            if (Objectives != null)
             {
-                if (!objective.TryResolve(context, out PackReferenceException objectiveException))
+                foreach (Objective objective in Objectives)
                 {
-                    exceptions.Add(objectiveException);
+                    if (!objective.TryResolve(context, out PackReferenceException objectiveException))
+                    {
+                        exceptions.Add(objectiveException);
+                    }
                 }
             }
 
