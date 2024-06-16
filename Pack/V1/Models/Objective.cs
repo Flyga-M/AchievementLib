@@ -27,6 +27,9 @@ namespace AchievementLib.Pack.V1.Models
         public event EventHandler<bool> FulfilledChanged;
 
         /// <inheritdoc/>
+        public event EventHandler<int> CurrentAmountChanged;
+
+        /// <inheritdoc/>
         [StorageProperty(IsPrimaryKey = true, DoNotRetrieve = true)]
         public string Id { get; set; }
         
@@ -116,6 +119,7 @@ namespace AchievementLib.Pack.V1.Models
         {
             if (!FreezeUpdates || ignoreFreeze)
             {
+                CurrentAmountChanged?.Invoke(this, CurrentAmount);
                 FulfilledChanged?.Invoke(this, isFulfilled);
             }
         }
@@ -189,16 +193,24 @@ namespace AchievementLib.Pack.V1.Models
             }
             set
             {
+                int oldValue = _currentAmount;
+                
                 if (value >= MaxAmount)
                 {
                     _currentAmount = MaxAmount;
                     Storage.TryStoreProperty(this, nameof(CurrentAmount));
                     IsFulfilled = true;
+                    // no need to invoke CurrentAmountChanged, because it will be invoked by IsFulfilled
                     return;
                 }
                 _currentAmount = value;
                 IsFulfilled = false; // needs to be set before storing, or the getter returns MaxAmount
                 bool eval = Storage.TryStoreProperty(this, nameof(CurrentAmount));
+
+                if (oldValue != value)
+                {
+                    CurrentAmountChanged?.Invoke(this, value);
+                }
             }
         }
 

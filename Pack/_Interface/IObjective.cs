@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace AchievementLib.Pack
 {
@@ -7,6 +8,11 @@ namespace AchievementLib.Pack
     /// </summary>
     public interface IObjective : IHierarchyObject, IValidateable, IFulfillable
     {
+        /// <summary>
+        /// Fires, when the <see cref="CurrentAmount"/> changes.
+        /// </summary>
+        event EventHandler<int> CurrentAmountChanged;
+
         /// <summary>
         /// The name of the <see cref="IObjective"/>.
         /// </summary>

@@ -36,6 +36,9 @@ namespace AchievementLib.Pack.V1.Models
         public event EventHandler<bool> FulfilledChanged;
 
         /// <inheritdoc/>
+        public event EventHandler<int> CurrentObjectivesChanged;
+
+        /// <inheritdoc/>
         [StorageProperty(IsPrimaryKey = true, DoNotRetrieve = true)]
         public string Id { get; }
 
@@ -126,6 +129,11 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        private void OnObjectiveCurrentAmountChanged(object _, int _1)
+        {
+            RecalculateCurrentObjectives();
+        }
+
         private bool TryAddObjective(Objective objective)
         {
             if (objective == null)
@@ -139,6 +147,7 @@ namespace AchievementLib.Pack.V1.Models
             }
 
             objective.FulfilledChanged += OnObjectiveFulfillmentStatusChanged;
+            objective.CurrentAmountChanged += OnObjectiveCurrentAmountChanged;
             objective.Parent = this;
 
             Objectives.Add(objective);
@@ -203,6 +212,7 @@ namespace AchievementLib.Pack.V1.Models
 
                 if (_currentObjectives != oldValue)
                 {
+                    CurrentObjectivesChanged?.Invoke(this, value);
                     RecalculateCurrentTier();
                 }
             }
@@ -578,6 +588,7 @@ namespace AchievementLib.Pack.V1.Models
                 foreach (Objective objective in Objectives)
                 {
                     objective.FulfilledChanged -= OnObjectiveFulfillmentStatusChanged;
+                    objective.CurrentAmountChanged -= OnObjectiveCurrentAmountChanged;
                 }
             }
 

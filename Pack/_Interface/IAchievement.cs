@@ -11,6 +11,11 @@ namespace AchievementLib.Pack
     public interface IAchievement : IHierarchyObject, IValidateable, IFulfillable
     {
         /// <summary>
+        /// Fires, when the <see cref="CurrentObjectives"/> changes.
+        /// </summary>
+        event EventHandler<int> CurrentObjectivesChanged;
+
+        /// <summary>
         /// The name of the <see cref="IAchievement"/>.
         /// </summary>
         ILocalizable Name { get; }
