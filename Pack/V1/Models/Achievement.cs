@@ -203,7 +203,16 @@ namespace AchievementLib.Pack.V1.Models
         [JsonIgnore]
         public int CurrentObjectives
         {
-            get => _currentObjectives;
+            get
+            {
+                if (IsFulfilled)
+                {
+                    return MaxObjectives;
+                }
+
+                return _currentObjectives;
+            }
+
             private set
             {
                 int oldValue = _currentObjectives;
