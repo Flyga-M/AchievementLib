@@ -39,12 +39,14 @@ namespace AchievementLib.Pack.V1.Models
         {
             get => _isFulfilled;
             set
-            {
-                if (_isFulfilled != value)
+            {   
+                bool oldValue = _isFulfilled;
+                _isFulfilled = value;
+
+                if (oldValue != value)
                 {
                     OnIsFulFilledChanged(value);
                 }
-                _isFulfilled = value;
             }
         }
 
