@@ -5,6 +5,7 @@ using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace AchievementLib.Pack.PersistantData
 {
@@ -65,8 +66,18 @@ namespace AchievementLib.Pack.PersistantData
             set
             {
                 DefaultDirectory = Path.GetDirectoryName(value);
-                DefaultDirectory = Path.GetFileNameWithoutExtension(value);
-                DefaultDirectory = Path.GetExtension(value);
+                DefaultFileName = Path.GetFileNameWithoutExtension(value);
+
+                string extensionWithDot = Path.GetExtension(value);
+
+                if (string.IsNullOrWhiteSpace(extensionWithDot))
+                {
+                    DefaultFileExtension = string.Empty;
+                }
+                else
+                {
+                    DefaultFileExtension = extensionWithDot.Substring(1);
+                }
             }
         }
 

@@ -57,7 +57,19 @@ namespace AchievementLib.Pack.PersistantData.SQLite
                         $"{nameof(DefaultDirectory)} can't be null, empty or whitespace.");
                 }
 
-                return GetConnection(Path.Combine(DefaultDirectory, DefaultFileName) + $".{DefaultFileExtension}", DefaultVersion);
+                string path = DefaultDirectory;
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    path = DefaultFileName;
+                }
+                else
+                {
+                    path = Path.Combine(path, DefaultFileName);
+                }
+
+                path += $".{DefaultFileExtension}";
+
+                return GetConnection(path, DefaultVersion);
             }
         }
 
@@ -150,7 +162,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// <see cref="DefaultVersion"/>.</returns>
         public static SQLiteConnection GetConnection(string subPath, string fileName, string fileExtension)
         {
-            string path = DefaultDirectory;
+            string path = DefaultDirectory ?? string.Empty;
 
             if (!string.IsNullOrWhiteSpace(subPath))
             {
@@ -212,7 +224,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
                 throw new ArgumentException($"{nameof(path)} can't be empty or whitespace.", nameof(path));
             }
 
-            return $"Data Source={path};Version={version};";
+            return $"Data Source=\"{path}\";Version={version};";
         }
     }
 }

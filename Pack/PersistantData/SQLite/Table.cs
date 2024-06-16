@@ -318,7 +318,9 @@ namespace AchievementLib.Pack.PersistantData.SQLite
                 }
                 catch (Exception ex)
                 {
-                    exception = new InvalidOperationException("Default connection has invalid default values. Set " +
+                    exception = new InvalidOperationException($"Default connection has invalid default values " +
+                        $"(dir: {ConnectionHandler.DefaultDirectory}, filename: {ConnectionHandler.DefaultFileName}, ext: " +
+                        $"{ConnectionHandler.DefaultFileExtension}). Set " +
                         $"{nameof(ConnectionHandler.DefaultConnection)} properly, or provide a {nameof(SQLiteConnection)}.", ex);
                     return false;
                 }
@@ -365,7 +367,9 @@ namespace AchievementLib.Pack.PersistantData.SQLite
                 }
                 catch (Exception ex)
                 {
-                    exception = new InvalidOperationException("Default connection has invalid default values. Set " +
+                    exception = new InvalidOperationException($"Default connection has invalid default values " +
+                        $"(dir: {ConnectionHandler.DefaultDirectory}, filename: {ConnectionHandler.DefaultFileName}, ext: " +
+                        $"{ConnectionHandler.DefaultFileExtension}). Set " +
                         $"{nameof(ConnectionHandler.DefaultConnection)} properly, or provide a {nameof(SQLiteConnection)}.", ex);
                     return false;
                 }
@@ -421,7 +425,9 @@ namespace AchievementLib.Pack.PersistantData.SQLite
                 }
                 catch (Exception ex)
                 {
-                    exception = new InvalidOperationException("Default connection has invalid default values. Set " +
+                    exception = new InvalidOperationException($"Default connection has invalid default values " +
+                        $"(dir: {ConnectionHandler.DefaultDirectory}, filename: {ConnectionHandler.DefaultFileName}, ext: " +
+                        $"{ConnectionHandler.DefaultFileExtension}). Set " +
                         $"{nameof(ConnectionHandler.DefaultConnection)} properly, or provide a {nameof(SQLiteConnection)}.", ex);
                     return false;
                 }
