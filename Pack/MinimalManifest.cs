@@ -22,7 +22,11 @@ namespace AchievementLib.Pack
         public string Namespace { get; set; }
 
         /// <inheritdoc/>
-        public ILocalizable Name { get; set; }
+        public V1.Models.Localizable Name { get; set; }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        ILocalizable IManifest.Name => Name;
 
         /// <inheritdoc/>
         [JsonIgnore]

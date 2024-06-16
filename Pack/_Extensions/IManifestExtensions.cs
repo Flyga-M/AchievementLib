@@ -49,7 +49,7 @@ namespace AchievementLib.Pack
         /// <returns>The detailed name of the achievement pack suitable for displaying in logs.</returns>
         public static string GetDetailedName(this IManifest manifest)
         {
-            return $"{manifest.Name} ({manifest.Namespace}) v{manifest.Version}";
+            return $"{manifest.Name.GetLocalized("en")} ({manifest.Namespace}) v{manifest.Version}";
         }
     }
 }
