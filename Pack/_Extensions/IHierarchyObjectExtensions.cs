@@ -281,7 +281,7 @@ namespace AchievementLib.Pack
         {
             exceptions = Array.Empty<PackReferenceException>();
 
-            if (hierarchyObject.Children == null)
+            if (hierarchyObject.Children == null || !hierarchyObject.Children.Any())
             {
                 return true;
             }

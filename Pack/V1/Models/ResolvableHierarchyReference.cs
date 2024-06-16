@@ -17,7 +17,7 @@ namespace AchievementLib.Pack.V1.Models
 
         /// <inheritdoc/>
         [JsonIgnore]
-        public IHierarchyObject Reference { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public IHierarchyObject Reference { get; set; }
 
         /// <inheritdoc/>
         [JsonIgnore]

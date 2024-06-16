@@ -24,6 +24,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc cref="IManifest.Name"/>
         public Localizable Name { get; set; }
 
+        [JsonIgnore]
         ILocalizable IManifest.Name => Name;
 
         /// <summary>
