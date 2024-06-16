@@ -67,7 +67,8 @@ namespace AchievementLib.Reset
                 return;
             }
 
-            IEnumerable<ResetData> sortedByNext = _data.OrderBy(reset => reset.NextOccurence);
+            // .ToArray() is needed, because SafeList<T>.CopyTo is not suported and will throw an exception
+            IEnumerable<ResetData> sortedByNext = _data.ToArray().OrderBy(reset => reset.NextOccurence);
             IEnumerable<ResetData> next = sortedByNext.Where(reset => reset.NextOccurence == sortedByNext.First().NextOccurence);
 
             TimeSpan nextExpiration = next.First().UntilNextOccurence;

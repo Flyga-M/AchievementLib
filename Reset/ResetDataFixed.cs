@@ -47,7 +47,7 @@ namespace AchievementLib.Reset
                     month = now.Month;
                 }
 
-                return new DateTime(day, month, year, now.Hour, now.Minute, now.Second);
+                return new DateTime(year, month, day, now.Hour, now.Minute, now.Second);
             }
         }
 
