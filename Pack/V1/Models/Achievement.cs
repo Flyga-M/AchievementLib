@@ -364,7 +364,7 @@ namespace AchievementLib.Pack.V1.Models
         ILocalizable IAchievement.LockedDescription => LockedDescription;
 
         [JsonIgnore]
-        Texture2D IAchievement.Icon => Icon.LoadedTexture;
+        Texture2D IAchievement.Icon => Icon?.LoadedTexture;
 
         [JsonIgnore]
         IEnumerable<IAchievement> IAchievement.Prerequesites => Prerequesites.Select(resolvable => (IAchievement)resolvable.Reference);
