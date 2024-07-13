@@ -625,7 +625,7 @@ namespace AchievementLib.Pack.PersistantData
             if (!table.Exists(connection, filters, out bool exists, out Exception existsException))
             {
                 throw new InvalidOperationException($"Unable to determine whether object of type {@object.GetType()} with " +
-                    $"primary keys {{ {string.Join(", ", primaryKeys.Select(key => $"{key.Name}: {key.Value}"))} }}" +
+                    $"primary keys {{ {string.Join(", ", primaryKeys.Select(key => $"{key.Name}: {key.Value}"))} }} " +
                     $"exists. Exists command failed.", existsException);
             }
 

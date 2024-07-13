@@ -72,7 +72,7 @@ namespace AchievementLib.Pack.PersistantData
 
             Type type = @object.GetType();
 
-            PropertyInfo[] properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            PropertyInfo[] properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
             List<(string Name, T Attribute, Type Type, object Value)> result = new List<(string Name, T Attribute, Type Type, object Value)>();
 

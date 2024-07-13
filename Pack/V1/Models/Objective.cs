@@ -30,8 +30,10 @@ namespace AchievementLib.Pack.V1.Models
         public event EventHandler<int> CurrentAmountChanged;
 
         /// <inheritdoc/>
-        [StorageProperty(IsPrimaryKey = true, DoNotRetrieve = true)]
         public string Id { get; set; }
+
+        [StorageProperty(IsPrimaryKey = true, ColumnName = "Id", DoNotRetrieve = true)]
+        private string FullId => this.GetFullName();
         
         /// <summary>
         /// The name of the <see cref="Objective"/>.

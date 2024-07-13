@@ -39,8 +39,10 @@ namespace AchievementLib.Pack.V1.Models
         public event EventHandler<int> CurrentObjectivesChanged;
 
         /// <inheritdoc/>
-        [StorageProperty(IsPrimaryKey = true, DoNotRetrieve = true)]
         public string Id { get; }
+
+        [StorageProperty(IsPrimaryKey = true, ColumnName = "Id", DoNotRetrieve = true)]
+        private string FullId => this.GetFullName();
 
         /// <inheritdoc cref="IAchievement.Name"/>
         public Localizable Name { get; }
