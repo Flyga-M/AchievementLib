@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,11 @@ namespace AchievementLib.Pack
         /// the <see cref="IAchievement"/>. [Optional]
         /// </summary>
         Texture2D Icon { get; }
+
+        /// <summary>
+        /// The <see cref="Color"/> that is used for the achievement display. [Optional]
+        /// </summary>
+        Color? Color { get; }
 
         /// <summary>
         /// The <see cref="IAchievement">IAchievements</see> that need to be 

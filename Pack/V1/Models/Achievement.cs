@@ -6,6 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System;
 using AchievementLib.Pack.PersistantData;
+using Microsoft.Xna.Framework;
+using Newtonsoft.Json.Converters;
+using AchievementLib.Pack.V1.JSON;
 
 namespace AchievementLib.Pack.V1.Models
 {
@@ -59,6 +62,10 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         public LoadableTexture Icon { get; }
 
+        /// <inheritdoc cref="IAchievement.Color"/>
+        [JsonConverter(typeof(ColorConverter))]
+        public Color? Color { get; }
+
         /// <summary>
         /// The <see cref="ResolvableHierarchyReference">ResolvableHierarchyReferences</see> of the 
         /// <see cref="Achievement">Achievements</see> that need to be 
@@ -90,6 +97,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <param name="description"></param>
         /// <param name="lockedDescription"></param>
         /// <param name="icon"></param>
+        /// <param name="color"></param>
         /// <param name="prerequesites"></param>
         /// <param name="tiers"></param>
         /// <param name="objectives"></param>
@@ -97,13 +105,14 @@ namespace AchievementLib.Pack.V1.Models
         /// <param name="isHidden"></param>
         /// <param name="resetType"></param>
         [JsonConstructor]
-        public Achievement (string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableTexture icon, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, bool isRepeatable, bool isHidden, ResetType resetType)
+        public Achievement(string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableTexture icon, Color? color, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, bool isRepeatable, bool isHidden, ResetType resetType)
         {
             Id = id;
             Name = name;
             Description = description;
             LockedDescription = lockedDescription;
             Icon = icon;
+            Color = color;
             Prerequesites = prerequesites;
             Tiers = tiers;
             Objectives = new List<Objective>();
@@ -119,7 +128,7 @@ namespace AchievementLib.Pack.V1.Models
 
             if (Prerequesites != null)
             {
-                foreach(ResolvableHierarchyReference prerequesite in Prerequesites)
+                foreach (ResolvableHierarchyReference prerequesite in Prerequesites)
                 {
                     if (prerequesite.IsResolved)
                     {
@@ -218,7 +227,7 @@ namespace AchievementLib.Pack.V1.Models
             private set
             {
                 int oldValue = _currentObjectives;
-                
+
                 _currentObjectives = value;
 
                 if (_currentObjectives != oldValue)
@@ -231,7 +240,7 @@ namespace AchievementLib.Pack.V1.Models
 
         private void RecalculateCurrentTier()
         {
-            for (int i=0; i < Tiers.Count(); i++)
+            for (int i = 0; i < Tiers.Count(); i++)
             {
                 int upperBound = Tiers.ElementAt(i);
 
@@ -283,7 +292,7 @@ namespace AchievementLib.Pack.V1.Models
                 {
                     return true;
                 }
-                
+
                 if (Prerequesites == null || !Prerequesites.Any())
                 {
                     return true;
@@ -632,6 +641,7 @@ namespace AchievementLib.Pack.V1.Models
                 $"\"Description\": {Description}, " +
                 $"\"LockedDescription\": {LockedDescription}, " +
                 $"\"Icon\": {Icon}, " +
+                $"\"Color\": {Color}, " +
                 $"\"Prerequesites\": {{ {(Prerequesites == null ? "" : string.Join(", ", Prerequesites))} }}, " +
                 $"\"Tiers\": {{ {(Tiers == null ? "" : string.Join(", ", Tiers))} }}, " +
                 $"\"Objectives\": {{ {(Objectives == null ? "" : string.Join(", ", Objectives))} }}, " +
