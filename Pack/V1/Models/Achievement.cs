@@ -80,6 +80,9 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc cref="IAchievement.Objectives"/>
         public List<Objective> Objectives { get; }
 
+        /// <inheritdoc cref="IAchievement.ObjectiveDisplay"/>
+        public ObjectiveDisplay ObjectiveDisplay { get; }
+
         /// <inheritdoc cref="IAchievement.IsRepeatable"/>
         public bool IsRepeatable { get; }
 
@@ -101,11 +104,12 @@ namespace AchievementLib.Pack.V1.Models
         /// <param name="prerequesites"></param>
         /// <param name="tiers"></param>
         /// <param name="objectives"></param>
+        /// <param name="objectiveDisplay"></param>
         /// <param name="isRepeatable"></param>
         /// <param name="isHidden"></param>
         /// <param name="resetType"></param>
         [JsonConstructor]
-        public Achievement(string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableTexture icon, Color? color, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, bool isRepeatable, bool isHidden, ResetType resetType)
+        public Achievement(string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableTexture icon, Color? color, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, ObjectiveDisplay objectiveDisplay, bool isRepeatable, bool isHidden, ResetType resetType)
         {
             Id = id;
             Name = name;
@@ -116,6 +120,7 @@ namespace AchievementLib.Pack.V1.Models
             Prerequesites = prerequesites;
             Tiers = tiers;
             Objectives = new List<Objective>();
+            ObjectiveDisplay = objectiveDisplay;
             IsRepeatable = isRepeatable;
             IsHidden = isHidden;
             ResetType = resetType;
@@ -645,6 +650,7 @@ namespace AchievementLib.Pack.V1.Models
                 $"\"Prerequesites\": {{ {(Prerequesites == null ? "" : string.Join(", ", Prerequesites))} }}, " +
                 $"\"Tiers\": {{ {(Tiers == null ? "" : string.Join(", ", Tiers))} }}, " +
                 $"\"Objectives\": {{ {(Objectives == null ? "" : string.Join(", ", Objectives))} }}, " +
+                $"\"ObjectiveDisplay\": {ObjectiveDisplay}, " +
                 $"\"IsRepeatable\": {IsRepeatable}, " +
                 $"\"IsHidden\": {IsHidden}, " +
                 $"\"ResetType\": {ResetType}, " +

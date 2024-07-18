@@ -64,6 +64,11 @@ namespace AchievementLib.Pack
         IEnumerable<IObjective> Objectives { get; }
 
         /// <summary>
+        /// Determines how the <see cref="Objectives"/> are displayed. [Optional]
+        /// </summary>
+        ObjectiveDisplay ObjectiveDisplay { get; }
+
+        /// <summary>
         /// Determines whether the <see cref="IAchievement"/> can be repeated 
         /// multiple times. [Optional]
         /// </summary>
