@@ -17,6 +17,11 @@ namespace AchievementLib.Pack
         event EventHandler<int> CurrentObjectivesChanged;
 
         /// <summary>
+        /// Fires, when the <see cref="IsWatched"/> property changed.
+        /// </summary>
+        event EventHandler<bool> IsWatchedChanged;
+
+        /// <summary>
         /// The name of the <see cref="IAchievement"/>.
         /// </summary>
         ILocalizable Name { get; }

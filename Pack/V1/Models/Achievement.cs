@@ -44,6 +44,9 @@ namespace AchievementLib.Pack.V1.Models
         public event EventHandler<int> CurrentObjectivesChanged;
 
         /// <inheritdoc/>
+        public event EventHandler<bool> IsWatchedChanged;
+
+        /// <inheritdoc/>
         public string Id { get; }
 
         [StorageProperty(IsPrimaryKey = true, ColumnName = "Id", DoNotRetrieve = true)]
@@ -515,8 +518,14 @@ namespace AchievementLib.Pack.V1.Models
             get => _isWatched;
             set
             {
+                bool oldValue = _isWatched;
                 _isWatched = value;
-                Storage.TryStoreProperty(this, nameof(IsWatched));
+
+                if (oldValue != value)
+                {
+                    IsWatchedChanged?.Invoke(this, value);
+                    Storage.TryStoreProperty(this, nameof(IsWatched));
+                }
             }
         }
 
