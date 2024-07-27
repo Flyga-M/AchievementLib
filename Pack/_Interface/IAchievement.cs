@@ -87,6 +87,12 @@ namespace AchievementLib.Pack
         ResetType ResetType { get; }
 
         /// <summary>
+        /// Will reset the progress for the whole <see cref="IAchievement"/>, if met. 
+        /// [Optional]
+        /// </summary>
+        ICondition ResetCondition { get; }
+
+        /// <summary>
         /// The current tier, that the <see cref="IAchievement"/> is completing. 1-indexed.
         /// </summary>
         [JsonIgnore]
@@ -125,6 +131,12 @@ namespace AchievementLib.Pack
         /// </remarks>
         [JsonIgnore]
         DateTime LastCompletion { get; }
+
+        /// <summary>
+        /// Determines whether the <see cref="IAchievement"/> is currently on the watch list.
+        /// </summary>
+        [JsonIgnore]
+        bool IsWatched { get; }
 
         /// <summary>
         /// Resets the current progress of the <see cref="IAchievement"/>. May be used on (daily/weekly/monthly) reset or 

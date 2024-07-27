@@ -29,6 +29,8 @@ namespace AchievementLib.Pack.V1.Models
         private int _repeatedAmount = 0;
         private DateTime _lastCompletion = DateTime.MinValue;
 
+        private bool _isWatched = false;
+
         /// <inheritdoc/>
         public event EventHandler Resolved;
 
@@ -92,6 +94,9 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc cref="IAchievement.ResetType"/>
         public ResetType ResetType { get; }
 
+        /// <inheritdoc cref="IAchievement.ResetCondition"/>
+        public Condition ResetCondition { get; }
+
         /// <summary>
         /// Instantiates an <see cref="Achievement"/>.
         /// </summary>
@@ -108,8 +113,9 @@ namespace AchievementLib.Pack.V1.Models
         /// <param name="isRepeatable"></param>
         /// <param name="isHidden"></param>
         /// <param name="resetType"></param>
+        /// <param name="resetCondition"></param>
         [JsonConstructor]
-        public Achievement(string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableTexture icon, Color? color, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, ObjectiveDisplay objectiveDisplay, bool isRepeatable, bool isHidden, ResetType resetType)
+        public Achievement(string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableTexture icon, Color? color, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, ObjectiveDisplay objectiveDisplay, bool isRepeatable, bool isHidden, ResetType resetType, Condition resetCondition)
         {
             Id = id;
             Name = name;
@@ -124,6 +130,12 @@ namespace AchievementLib.Pack.V1.Models
             IsRepeatable = isRepeatable;
             IsHidden = isHidden;
             ResetType = resetType;
+            ResetCondition = resetCondition;
+
+            if (ResetCondition != null)
+            {
+                ResetCondition.FulfilledChanged += OnResetConditionFulfilledChanged;
+            }
 
             if (objectives != null)
             {
@@ -141,6 +153,24 @@ namespace AchievementLib.Pack.V1.Models
                     }
 
                     prerequesite.Resolved += OnPrerequesiteResolved;
+                }
+            }
+        }
+
+        private void OnResetConditionFulfilledChanged(object _, bool fulfilled)
+        {
+            if (fulfilled)
+            {
+                ForceResetProgress();
+                FreezeUpdates = true;
+            }
+            else
+            {
+                if (!this.IsFulfilled)
+                {
+                    // TODO: check if neccessary
+                    //ForceResetProgress();
+                    FreezeUpdates = false;
                 }
             }
         }
@@ -388,6 +418,9 @@ namespace AchievementLib.Pack.V1.Models
         [JsonIgnore]
         IEnumerable<IObjective> IAchievement.Objectives => Objectives;
 
+        [JsonIgnore]
+        ICondition IAchievement.ResetCondition => ResetCondition;
+
         /// <summary>
         /// The maximum the <see cref="CurrentObjectives"/> can reach.
         /// </summary>
@@ -476,6 +509,19 @@ namespace AchievementLib.Pack.V1.Models
 
         /// <inheritdoc/>
         [JsonIgnore]
+        [StorageProperty]
+        public bool IsWatched
+        {
+            get => _isWatched;
+            set
+            {
+                _isWatched = value;
+                Storage.TryStoreProperty(this, nameof(IsWatched));
+            }
+        }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
         public bool FreezeUpdates
         {
             get => _freezeUpdates;
@@ -501,6 +547,12 @@ namespace AchievementLib.Pack.V1.Models
                 return false;
             }
 
+            ForceResetProgress();
+            return true;
+        }
+
+        private void ForceResetProgress()
+        {
             // will also unfreeze all objectives
             FreezeUpdates = false;
 
@@ -511,8 +563,6 @@ namespace AchievementLib.Pack.V1.Models
             }
 
             IsFulfilled = false;
-
-            return true;
         }
 
         /// <inheritdoc/>
@@ -530,7 +580,8 @@ namespace AchievementLib.Pack.V1.Models
                 && Tiers.Any()
                 && Objectives != null
                 && Objectives.Any()
-                && Objectives.All(objective => objective.IsValid());
+                && Objectives.All(objective => objective.IsValid())
+                && (ResetCondition == null || ResetCondition.IsValid());
         }
 
         /// <inheritdoc/>
@@ -552,6 +603,7 @@ namespace AchievementLib.Pack.V1.Models
                             objective.Validate();
                         }
                     }
+                    ResetCondition?.Validate();
                 }
                 catch (PackFormatException ex)
                 {
@@ -629,6 +681,13 @@ namespace AchievementLib.Pack.V1.Models
                 }
             }
 
+
+            if (ResetCondition != null)
+            {
+                ResetCondition.FulfilledChanged -= OnResetConditionFulfilledChanged;
+                ResetCondition.Dispose();
+            }
+
             Resolved = null;
             FulfilledChanged = null;
 
@@ -654,6 +713,7 @@ namespace AchievementLib.Pack.V1.Models
                 $"\"IsRepeatable\": {IsRepeatable}, " +
                 $"\"IsHidden\": {IsHidden}, " +
                 $"\"ResetType\": {ResetType}, " +
+                $"\"ResetCondiiton\": {ResetCondition}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
 

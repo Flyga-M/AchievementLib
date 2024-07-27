@@ -36,7 +36,7 @@ namespace AchievementLib.Pack.V1.Models
 
         /// <inheritdoc/>
         [JsonIgnore]
-        Texture2D IAchievementCollection.Icon => Icon.LoadedTexture;
+        Texture2D IAchievementCollection.Icon => Icon?.LoadedTexture;
 
         /// <inheritdoc/>
         [JsonIgnore]
