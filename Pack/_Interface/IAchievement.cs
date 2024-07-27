@@ -136,7 +136,7 @@ namespace AchievementLib.Pack
         /// Determines whether the <see cref="IAchievement"/> is currently on the watch list.
         /// </summary>
         [JsonIgnore]
-        bool IsWatched { get; }
+        bool IsWatched { get; set; }
 
         /// <summary>
         /// Resets the current progress of the <see cref="IAchievement"/>. May be used on (daily/weekly/monthly) reset or 
