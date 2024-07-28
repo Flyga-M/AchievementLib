@@ -47,10 +47,14 @@ namespace AchievementLib.Pack
         string FullId { get; }
 
         /// <summary>
-        /// Determines whether the managed pack is enabled.
+        /// Determines whether the managed pack is enabled. Is persistent across sessions.
         /// </summary>
         /// <remarks>
-        /// Does NOT determine, if the pack is (successfully) loaded.
+        /// Does NOT determine, if the pack is (successfully) loaded. 
+        /// May be <see langword="true"/>, if the <see cref="IAchievementPackManager"/> was enabled in the last session, even 
+        /// though it has not been enabled in this session yet. In this case, this is just an indicator, that the 
+        /// <see cref="IAchievementPackManager"/> should be enabled as soon as possible. This is NOT handled by this 
+        /// library and must be done manually.
         /// </remarks>
         [StorageProperty]
         bool IsEnabled { get; }

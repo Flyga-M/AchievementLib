@@ -449,6 +449,10 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <summary>
+        /// <inheritdoc/> 
+        /// Is persistent across sessions.
+        /// </summary>
         /// <inheritdoc/>
         [JsonIgnore]
         [StorageProperty]
@@ -484,6 +488,10 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <summary>
+        /// <inheritdoc/> 
+        /// Is persistent across sessions.
+        /// </summary>
         /// <inheritdoc/>
         [JsonIgnore]
         [StorageProperty]
@@ -497,6 +505,10 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <summary>
+        /// <inheritdoc/> 
+        /// Is persistent across sessions.
+        /// </summary>
         /// <inheritdoc/>
         [JsonIgnore]
         [StorageProperty]
@@ -510,6 +522,10 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <summary>
+        /// <inheritdoc/> 
+        /// Is persistent across sessions.
+        /// </summary>
         /// <inheritdoc/>
         [JsonIgnore]
         [StorageProperty]
