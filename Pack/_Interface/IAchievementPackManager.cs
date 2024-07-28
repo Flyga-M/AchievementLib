@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using AchievementLib.Pack.PersistantData;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace AchievementLib.Pack
     /// <summary>
     /// Manages the state and contents of an Achievement Pack.
     /// </summary>
+    [Store]
     public interface IAchievementPackManager : IDisposable, IHierarchyObject
     {
         /// <summary>
@@ -36,6 +38,22 @@ namespace AchievementLib.Pack
         /// Fires, if an error occurs during Enabling"/>.
         /// </summary>
         event EventHandler<AchievementLibException> PackError;
+
+        /// <summary>
+        /// Only used as primary key for the storage.
+        /// </summary>
+        /// <remarks>Should correspond with the <see cref="IManifest.Namespace"/>.</remarks>
+        [StorageProperty(IsPrimaryKey = true, ColumnName = "Id", DoNotRetrieve = true)]
+        string FullId { get; }
+
+        /// <summary>
+        /// Determines whether the managed pack is enabled.
+        /// </summary>
+        /// <remarks>
+        /// Does NOT determine, if the pack is (successfully) loaded.
+        /// </remarks>
+        [StorageProperty]
+        bool IsEnabled { get; }
 
         /// <summary>
         /// The <see cref="PackLoadState"/> of the <see cref="IAchievementPackManager"/>.

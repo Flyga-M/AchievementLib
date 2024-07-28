@@ -18,6 +18,7 @@ namespace AchievementLib.Pack.V1
     /// <inheritdoc cref="IAchievementPackManager"/>
     /// This is the implementation of the V1 AchievementPackManager.
     /// </summary>
+    [Store]
     public class AchievementPackManager : IAchievementPackManager
     {
         private readonly IDataReader _dataReader;
@@ -30,6 +31,8 @@ namespace AchievementLib.Pack.V1
 
         private PackLoadState _state = PackLoadState.Unloaded;
         private object _packStateLock = new object();
+
+        private bool _isEnabled;
 
         private PackLoadReport _report;
 
@@ -82,6 +85,8 @@ namespace AchievementLib.Pack.V1
 
         private void OnPackError(AchievementLibException ex)
         {
+            IsEnabled = false;
+
             PackError?.Invoke(this, ex);
         }
 
@@ -162,6 +167,10 @@ namespace AchievementLib.Pack.V1
         public string Id => Manifest?.Namespace;
 
         /// <inheritdoc/>
+        [StorageProperty(IsPrimaryKey = true, ColumnName = "Id", DoNotRetrieve = true)]
+        public string FullId => this.GetFullName();
+
+        /// <inheritdoc/>
         public IHierarchyObject Parent
         {
             get
@@ -180,6 +189,22 @@ namespace AchievementLib.Pack.V1
 
         /// <inheritdoc/>
         public IHierarchyObject[] Children => Data;
+
+        /// <inheritdoc/>
+        [StorageProperty]
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            private set
+            {
+                bool oldValue = _isEnabled;
+                _isEnabled = value;
+                if (oldValue != _isEnabled)
+                {
+                    Storage.TryStoreProperty(this, nameof(IsEnabled));
+                }
+            }
+        }
 
         /// <summary>
         /// 
@@ -282,6 +307,8 @@ namespace AchievementLib.Pack.V1
             {
                 return false;
             }
+
+            IsEnabled = true;
 
             State = PackLoadState.Loading;
 
@@ -604,6 +631,8 @@ namespace AchievementLib.Pack.V1
             _report.Exception = null;
 
             State = PackLoadState.Unloaded;
+
+            IsEnabled = false;
 
             return true;
         }

@@ -1,8 +1,10 @@
 ﻿using AchievementLib.Pack.Content;
+using AchievementLib.Pack.PersistantData;
 using AchievementLib.Pack.Reader;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 
@@ -96,6 +98,9 @@ namespace AchievementLib.Pack
             exceptions.AddRange(LoadManifestsFromWatchPath());
 
             exceptions.AddRange(RegisterPacksFromLoadedManifests());
+
+            // TODO: currently always uses the default connection. Might change that later to allow for more customization.
+            RetrieveStoredManagerStates(null, _packs);
 
             return exceptions.ToArray();
         }
@@ -531,6 +536,22 @@ namespace AchievementLib.Pack
 
             _manifests.Clear();
             _packs.Clear();
+        }
+
+        private void RetrieveStoredManagerStates(SQLiteConnection connection, IEnumerable<IAchievementPackManager> packs)
+        {
+            foreach (IAchievementPackManager pack in packs)
+            {
+                RetrieveStoredManagerState(connection, pack);
+            }
+        }
+
+        private void RetrieveStoredManagerState(SQLiteConnection connection, IAchievementPackManager pack)
+        {
+            if (!Storage.TryRetrieve(connection, pack, out _))
+            {
+                return; // No exception here, because the exception will be available through Storage.ExceptionOccured.
+            }
         }
 
         /// <inheritdoc/>
