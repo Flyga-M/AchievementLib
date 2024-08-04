@@ -137,6 +137,7 @@ namespace AchievementLib.Pack.V1.Models
 
             if (ResetCondition != null)
             {
+                ResetCondition.ParentAchievement = this;
                 ResetCondition.FulfilledChanged += OnResetConditionFulfilledChanged;
             }
 

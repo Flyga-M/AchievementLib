@@ -27,11 +27,21 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
-        /// <summary>
-        /// A reference to the <see cref="Condition"/> that is holding this <see cref="Action"/>.
-        /// </summary>
+        /// <inheritdoc cref="IAction.Root"/>
         [JsonIgnore]
-        public Condition Parent { get; internal set; }
+        public AchievementPackManager Root => ParentCondition?.Root;
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        IAchievementPackManager IAction.Root => Root;
+
+        /// <inheritdoc cref="IAction.ParentCondition"/>
+        [JsonIgnore]
+        public Condition ParentCondition { get; internal set; }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        ICondition IAction.ParentCondition => ParentCondition;
 
         /// <inheritdoc/>
         [JsonIgnore]
@@ -98,7 +108,7 @@ namespace AchievementLib.Pack.V1.Models
         {
             Dictionary<string, object> inner = new Dictionary<string, object>()
             {
-                { "Parent Objective", Parent.Parent.GetFullName() }
+                { "Parent Objective", ParentCondition?.ParentObjective?.GetFullName() }
             };
 
             return inner;

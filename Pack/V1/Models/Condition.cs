@@ -13,7 +13,8 @@ namespace AchievementLib.Pack.V1.Models
         private Condition _andCondition;
         private Action _action;
 
-        private Objective _parent;
+        private Objective _parentObjective;
+        private Achievement _parentAchievement;
 
         private bool _isFulfilled = false;
         private bool _freezeUpdates = false;
@@ -64,10 +65,18 @@ namespace AchievementLib.Pack.V1.Models
                 _action = value;
                 if (value != null)
                 {
-                    _action.Parent = this;
+                    _action.ParentCondition = this;
                 }
             }
         }
+
+        /// <inheritdoc cref="ICondition.Root"/>
+        [JsonIgnore]
+        public AchievementPackManager Root => ParentAchievement?.GetRoot() as AchievementPackManager;
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        IAchievementPackManager ICondition.Root => Root;
 
         /// <inheritdoc/>
         [JsonIgnore]
@@ -81,26 +90,54 @@ namespace AchievementLib.Pack.V1.Models
         [JsonIgnore]
         ICondition ICondition.AndCondition => AndCondition;
 
-        /// <summary>
-        /// A reference to the <see cref="Objective"/> that is holding this <see cref="Condition"/>.
-        /// </summary>
+        /// <inheritdoc/>
         [JsonIgnore]
-        public Objective Parent
+        IObjective ICondition.ParentObjective => ParentObjective;
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        ICondition ICondition.ParentCondition => ParentCondition;
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        IAchievement ICondition.ParentAchievement => ParentAchievement;
+
+        /// <inheritdoc cref="ICondition.ParentObjective"/>
+        [JsonIgnore]
+        public Objective ParentObjective
         {
             get
             {
                 if (ParentCondition != null)
                 {
-                    return ParentCondition.Parent;
+                    return ParentCondition.ParentObjective;
                 }
-                return _parent;
+                return _parentObjective;
             }
-            internal set => _parent = value;
+            internal set => _parentObjective = value;
         }
 
-        /// <summary>
-        /// A reference to the <see cref="Condition"/> that may be holding this <see cref="Condition"/>.
-        /// </summary>
+        /// <inheritdoc cref="ICondition.ParentAchievement"/>
+        [JsonIgnore]
+        public Achievement ParentAchievement
+        {
+            get
+            {
+                if (ParentCondition != null)
+                {
+                    return ParentCondition.ParentAchievement;
+                }
+                if (ParentObjective != null)
+                {
+                    return ParentObjective.Parent as Achievement;
+                }
+
+                return _parentAchievement;
+            }
+            internal set => _parentAchievement = value;
+        }
+
+        /// <inheritdoc cref="ICondition.ParentCondition"/>
         [JsonIgnore]
         public Condition ParentCondition { get; internal set; }
 

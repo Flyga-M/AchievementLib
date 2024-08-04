@@ -6,6 +6,11 @@
     public interface ICondition : IValidateable, IFulfillable
     {
         /// <summary>
+        /// The <see cref="IAchievementPackManager"/> that holds the <see cref="ICondition"/>.
+        /// </summary>
+        IAchievementPackManager Root { get; }
+
+        /// <summary>
         /// The <see cref="IAction"/> carrying the data associated with the 
         /// <see cref="ICondition"/>.
         /// </summary>
@@ -24,5 +29,25 @@
         /// AND-condition. [Optional]
         /// </summary>
         ICondition AndCondition { get; }
+
+        /// <summary>
+        ///  A reference to the <see cref="ICondition"/> that may be holding this <see cref="ICondition"/>. 
+        ///  Or <see langword="null"/>.
+        /// </summary>
+        ICondition ParentCondition { get; }
+
+        /// <summary>
+        ///  A reference to the <see cref="IAchievement"/> that may be holding this <see cref="ICondition"/>, either 
+        ///  directly as a <see cref="IAchievement.ResetCondition"/>, or indirectly via a <see cref="IObjective"/>.
+        /// </summary>
+        IAchievement ParentAchievement{ get; }
+
+        /// <summary>
+        /// A reference to the <see cref="IObjective"/> that is holding this <see cref="Condition"/>.
+        /// </summary>
+        /// <remarks>
+        /// Might be <see langword="null"/>, if the <see cref="ICondition"/> is a <see cref="IAchievement.ResetCondition"/>.
+        /// </remarks>
+        IObjective ParentObjective { get; }
     }
 }

@@ -63,7 +63,7 @@ namespace AchievementLib.Pack.V1.Models
                 _condition = value;
                 if (_condition != null)
                 {
-                    _condition.Parent = this;
+                    _condition.ParentObjective = this;
                 }
             }
         }

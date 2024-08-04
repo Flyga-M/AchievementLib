@@ -71,6 +71,21 @@ namespace AchievementLib.Pack
         }
 
         /// <summary>
+        /// Returns the highest <see cref="IHierarchyObject"/> in the hierarchy tree.
+        /// </summary>
+        /// <param name="hierarchyObject"></param>
+        /// <returns>The highest <see cref="IHierarchyObject"/> in the hierarchy tree.</returns>
+        public static IHierarchyObject GetRoot(this IHierarchyObject hierarchyObject)
+        {
+            if (hierarchyObject.Parent == null)
+            {
+                return hierarchyObject;
+            }
+
+            return hierarchyObject.Parent.GetRoot();
+        }
+
+        /// <summary>
         /// Checks whether the <see cref="IHierarchyObject"/> is part of the given
         /// <paramref name="namespace"/>.
         /// </summary>
