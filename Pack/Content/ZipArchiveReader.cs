@@ -85,7 +85,7 @@ namespace AchievementLib.Pack.Content
         /// <inheritdoc/>
         public void Dispose()
         {
-            // TODO: Allow dispose on AsyncZipArchive
+            AttemptReleaseLocks();
         }
 
     }

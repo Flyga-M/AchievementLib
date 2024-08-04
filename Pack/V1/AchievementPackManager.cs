@@ -420,6 +420,8 @@ namespace AchievementLib.Pack.V1
             {
                 State = PackLoadState.Loaded;
             }
+
+            ReleaseLocks();
         }
 
         /// <exception cref="PackReferenceException"></exception>
@@ -672,6 +674,7 @@ namespace AchievementLib.Pack.V1
                 if (fileName == Path.GetFileNameWithoutExtension(Constants.MANIFEST_NAME))
                 {
                     // ignore manifest here
+                    fileStream?.Dispose();
                     continue;
                 }
 
@@ -693,6 +696,10 @@ namespace AchievementLib.Pack.V1
                     throw new PackFormatException("Attempted to " +
                    $"load an invalid Achievement Pack ({FileName}): {fileName} " +
                    "appears to be malformed. The given type indicator is not currently supported.", ex);
+                }
+                finally
+                {
+                    fileStream.Dispose();
                 }
                 
 
@@ -780,6 +787,11 @@ namespace AchievementLib.Pack.V1
             return (true, null);
         }
 
+        public void ReleaseLocks()
+        {
+            _dataReader?.AttemptReleaseLocks();
+        }
+
         /// <inheritdoc/>
         public void Dispose()
         {
@@ -800,6 +812,7 @@ namespace AchievementLib.Pack.V1
 
             ResourceManager = null;
             
+            ReleaseLocks();
             _dataReader?.Dispose();
             _cancellationSourceEnable?.Dispose();
         }

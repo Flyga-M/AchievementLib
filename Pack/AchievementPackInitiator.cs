@@ -283,18 +283,16 @@ namespace AchievementLib.Pack
 
             foreach (string packArchive in zipPackFiles)
             {
-                IDataReader reader = new ZipArchiveReader(packArchive);
-
-                if (!TryLoadManifest(reader, out PackManifestException ex, out IManifest manifest))
+                using (IDataReader reader = new ZipArchiveReader(packArchive)) 
                 {
-                    exceptions.Add(ex);
-                    reader.Dispose();
-                    continue;
+                    if (!TryLoadManifest(reader, out PackManifestException ex, out IManifest manifest))
+                    {
+                        exceptions.Add(ex);
+                        continue;
+                    }
+
+                    _manifests.Add(manifest);
                 }
-
-                reader.Dispose();
-
-                _manifests.Add(manifest);
             }
 
             return exceptions.ToArray();
@@ -344,9 +342,10 @@ namespace AchievementLib.Pack
 
             try
             {
-                Stream fileStream = dataReader.GetFileStream(Constants.MANIFEST_NAME);
-                moduleManifest = ManifestReader.DeserializeFromJson<MinimalManifest>(fileStream);
-                fileStream.Dispose();
+                using (Stream fileStream = dataReader.GetFileStream(Constants.MANIFEST_NAME))
+                {
+                    moduleManifest = ManifestReader.DeserializeFromJson<MinimalManifest>(fileStream);
+                }
             }
             catch (Exception ex)
             {
@@ -385,9 +384,10 @@ namespace AchievementLib.Pack
                     {
                         try
                         {
-                            Stream fileStream = dataReader.GetFileStream(Constants.MANIFEST_NAME);
-                            moduleManifest = ManifestReader.DeserializeFromJson<V1.Models.Manifest>(fileStream);
-                            fileStream.Dispose();
+                            using (Stream fileStream = dataReader.GetFileStream(Constants.MANIFEST_NAME))
+                            {
+                                moduleManifest = ManifestReader.DeserializeFromJson<V1.Models.Manifest>(fileStream);
+                            }
 
                             moduleManifest.Validate();
                         }
@@ -478,7 +478,7 @@ namespace AchievementLib.Pack
                 $"packVersion {manifest.PackVersion} is not supported.");
             }
 
-            IAchievementPackManager newPack;
+            IAchievementPackManager newPack = null;
 
             switch (packVersion.Value)
             {
@@ -507,6 +507,10 @@ namespace AchievementLib.Pack
                             throw new PackException("Attempted to " +
                                 $"load an invalid Achievement Pack ({manifest.PackFilePath}): Uncaught exception " +
                                 $"occured.", ex);
+                        }
+                        finally
+                        {
+                            ((V1.AchievementPackManager)newPack)?.ReleaseLocks();
                         }
 
                         break;

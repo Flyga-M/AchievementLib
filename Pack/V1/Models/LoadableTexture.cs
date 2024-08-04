@@ -75,9 +75,10 @@ namespace AchievementLib.Pack.V1.Models
 
             try
             {
-                Stream fileStream = resourceManager.DataReader.GetFileStream(ActualPath);
-                loadedTexture = Texture2D.FromStream(graphicsDevice, fileStream);
-                fileStream.Dispose();
+                using (Stream fileStream = resourceManager.GetFileStream(ActualPath))
+                {
+                    loadedTexture = Texture2D.FromStream(graphicsDevice, fileStream);
+                }
             }
             catch (Exception ex)
             {
@@ -162,17 +163,15 @@ namespace AchievementLib.Pack.V1.Models
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            Stream fileStream = null;
-
             try
             {
-                fileStream = await resourceManager.LoadResourceStreamAsync(ActualPath);
-                loadedTexture = Texture2D.FromStream(graphicsDevice, fileStream);
-                fileStream?.Dispose();
+                using (Stream fileStream = await resourceManager.LoadResourceStreamAsync(ActualPath))
+                {
+                    loadedTexture = Texture2D.FromStream(graphicsDevice, fileStream);
+                }
             }
             catch (Exception ex)
             {
-                fileStream?.Dispose();
                 loadedTexture?.Dispose();
                 throw new PackResourceException("Resource could not be loaded as " +
                     $"{nameof(Texture2D)}", resourceManager.DataReader.GetPathRepresentation(ActualPath), ex);

@@ -36,5 +36,10 @@ namespace AchievementLib.Pack
             return await this.DataReader.GetFileStreamAsync(resourcePath);
         }
 
+        /// <inheritdoc cref="IDataReader.GetFileStream(string)"/>
+        public Stream GetFileStream(string resourcePath)
+        {
+            return this.DataReader.GetFileStream(resourcePath);
+        }
     }
 }
