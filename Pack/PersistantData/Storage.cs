@@ -93,7 +93,7 @@ namespace AchievementLib.Pack.PersistantData
         /// <param name="object"></param>
         /// <param name="propertyName"></param>
         /// <returns><see langword="true"/>, if the property was successfully stored. Otherwise <see langword="false"/>.</returns>
-        internal static bool TryStoreProperty(SQLiteConnection connection, object @object, string propertyName)
+        public static bool TryStoreProperty(SQLiteConnection connection, object @object, string propertyName)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace AchievementLib.Pack.PersistantData
         /// <param name="object"></param>
         /// <param name="propertyName"></param>
         /// <returns><see langword="true"/>, if the property was successfully stored. Otherwise <see langword="false"/>.</returns>
-        internal static bool TryStoreProperty(object @object, string propertyName)
+        public static bool TryStoreProperty(object @object, string propertyName)
         {
             return TryStoreProperty(null, @object, propertyName);
         }
@@ -129,7 +129,7 @@ namespace AchievementLib.Pack.PersistantData
         /// <param name="isStored"></param>
         /// <returns><see langword="true"/>, if the properties of the <paramref name="object"/> were successfully retrieved. 
         /// Otherwise <see langword="false"/>.</returns>
-        internal static bool TryRetrieve(SQLiteConnection connection, object @object, out bool isStored)
+        public static bool TryRetrieve(SQLiteConnection connection, object @object, out bool isStored)
         {
             isStored = false;
 
@@ -155,7 +155,7 @@ namespace AchievementLib.Pack.PersistantData
         /// <param name="isStored"></param>
         /// <returns><see langword="true"/>, if the properties of the <paramref name="object"/> were successfully retrieved. 
         /// Otherwise <see langword="false"/>.</returns>
-        internal static bool TryRetrieve(object @object, out bool isStored)
+        public static bool TryRetrieve(object @object, out bool isStored)
         {
             return TryRetrieve(null, @object, out isStored);
         }
