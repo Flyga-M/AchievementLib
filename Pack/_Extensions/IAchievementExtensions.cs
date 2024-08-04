@@ -32,6 +32,11 @@ namespace AchievementLib.Pack
                 actions.AddRange(objective.GetActions());
             }
 
+            if (achievement.ResetCondition != null)
+            {
+                actions.AddRange(achievement.ResetCondition.GetActions());
+            }
+
             return actions.ToArray();
         }
     }

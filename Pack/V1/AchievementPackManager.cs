@@ -111,11 +111,13 @@ namespace AchievementLib.Pack.V1
             {
                 lock (_packStateLock)
                 {
-                    if (_state != value)
+                    PackLoadState oldValue = _state;
+                    _state = value;
+
+                    if (oldValue != value)
                     {
                         OnPackLoadStateChanged(value);
                     }
-                    _state = value;
                 }
             }
         }
@@ -154,7 +156,7 @@ namespace AchievementLib.Pack.V1
             {
                 CombineData();
 
-                return _data.SelectMany(data => data.AchievementCategories).ToArray();
+                return _data?.SelectMany(data => data.AchievementCategories).ToArray() ?? Array.Empty<IAchievementCategory>();
             }
         }
 
@@ -701,7 +703,7 @@ namespace AchievementLib.Pack.V1
                 {
                     fileStream.Dispose();
                 }
-                
+
 
                 if (achievementData == null)
                 {
@@ -811,7 +813,7 @@ namespace AchievementLib.Pack.V1
             PackLoadStateChanged = null;
 
             ResourceManager = null;
-            
+
             ReleaseLocks();
             _dataReader?.Dispose();
             _cancellationSourceEnable?.Dispose();

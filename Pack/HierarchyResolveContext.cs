@@ -147,5 +147,13 @@ namespace AchievementLib.Pack
         {
             return _roots.Remove(root);
         }
+
+        /// <summary>
+        /// Removes all roots from the <see cref="HierarchyResolveContext"/>.
+        /// </summary>
+        public void Clear()
+        {
+            _roots.Clear();
+        }
     }
 }
