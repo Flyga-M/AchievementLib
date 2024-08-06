@@ -34,7 +34,10 @@ namespace AchievementLib.Pack.V1.JSON
                 { "apiComparison", typeof(ApiActionComparison) },
                 { "position", typeof(PositionAction) },
                 { "positionArea", typeof(PositionAreaAction)},
-                { "lookingAt", typeof(LookingAtAction) }
+                { "lookingAt", typeof(LookingAtAction) },
+                { "mount", typeof(MountAction) },
+                { "identity", typeof(IdentityAction) },
+                { "map", typeof(MapAction) }
             };
         }
     }
