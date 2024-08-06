@@ -22,6 +22,11 @@ namespace AchievementLib.Pack
         event EventHandler<bool> IsWatchedChanged;
 
         /// <summary>
+        /// Fires, when the <see cref="IsUnlocked"/> property changed.
+        /// </summary>
+        event EventHandler<bool> IsUnlockedChanged;
+
+        /// <summary>
         /// The name of the <see cref="IAchievement"/>.
         /// </summary>
         ILocalizable Name { get; }

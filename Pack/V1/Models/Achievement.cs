@@ -47,6 +47,9 @@ namespace AchievementLib.Pack.V1.Models
         public event EventHandler<bool> IsWatchedChanged;
 
         /// <inheritdoc/>
+        public event EventHandler<bool> IsUnlockedChanged;
+
+        /// <inheritdoc/>
         public string Id { get; }
 
         [StorageProperty(IsPrimaryKey = true, ColumnName = "Id", DoNotRetrieve = true)]
@@ -317,7 +320,13 @@ namespace AchievementLib.Pack.V1.Models
                     FreezeUpdates = true;
                 }
 
+                bool oldValue = _isUnlocked;
                 _isUnlocked = value;
+
+                if (oldValue != value)
+                {
+                    IsUnlockedChanged?.Invoke(this, value);
+                }
             }
         }
 
@@ -537,7 +546,7 @@ namespace AchievementLib.Pack.V1.Models
             {
                 bool oldValue = _isWatched;
                 _isWatched = value;
-
+                
                 if (oldValue != value)
                 {
                     IsWatchedChanged?.Invoke(this, value);
