@@ -16,7 +16,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <remarks>
         /// Will solely check for <see cref="MapType"/>, if <see cref="MapId"/> is <see langword="null"/>.
         /// </remarks>
-        int? MapId { get; set; }
+        public int? MapId { get; set; }
 
         /// <summary>
         /// The map type, that is checked. For reference take a look at 
@@ -26,7 +26,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <remarks>
         /// Will solely check for <see cref="MapId"/>, if <see cref="MapType"/> is <see langword="null"/>.
         /// </remarks>
-        MapType? MapType { get; set; }
+        public MapType? MapType { get; set; }
 
         /// <summary>
         /// Instantiates a <see cref="MapAction"/>.
