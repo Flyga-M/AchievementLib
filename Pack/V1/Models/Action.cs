@@ -67,11 +67,13 @@ namespace AchievementLib.Pack.V1.Models
             get => _freezeUpdates;
             set
             {
-                if (_freezeUpdates != value)
+                bool oldValue = _freezeUpdates;
+                _freezeUpdates = value;
+
+                if (oldValue != value)
                 {
                     FreezeUpdatesChanged?.Invoke(this, value);
                 }
-                _freezeUpdates = value;
             }
         }
 

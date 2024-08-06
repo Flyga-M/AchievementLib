@@ -166,7 +166,7 @@ namespace AchievementLib.Pack.V1.Models
             if (fulfilled)
             {
                 ForceResetProgress();
-                FreezeUpdates = true;
+                FreezeUpdates = true; // Freezing updates as long as the reset condition is still fulfilled.
             }
             else
             {
@@ -553,14 +553,17 @@ namespace AchievementLib.Pack.V1.Models
             get => _freezeUpdates;
             set
             {
-                if (_freezeUpdates != value)
-                {
-                    FreezeUpdatesChanged?.Invoke(this, value);
-                }
+                bool oldValue = _freezeUpdates;
                 _freezeUpdates = value;
-                foreach (Objective objective in Objectives)
+
+                if (oldValue != value)
                 {
-                    objective.FreezeUpdates = value;
+                    foreach (Objective objective in Objectives)
+                    {
+                        objective.FreezeUpdates = value;
+                    }
+
+                    FreezeUpdatesChanged?.Invoke(this, value);
                 }
             }
         }
