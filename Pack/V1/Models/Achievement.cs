@@ -164,9 +164,9 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
-        private void OnResetConditionFulfilledChanged(object _, bool fulfilled)
+        private void OnResetConditionFulfilledChanged(object _, bool resetConditionFulfilled)
         {
-            if (fulfilled)
+            if (resetConditionFulfilled)
             {
                 ForceResetProgress();
                 FreezeUpdates = true; // Freezing updates as long as the reset condition is still fulfilled.
@@ -269,13 +269,12 @@ namespace AchievementLib.Pack.V1.Models
             private set
             {
                 int oldValue = _currentObjectives;
-
                 _currentObjectives = value;
 
-                if (_currentObjectives != oldValue)
+                if (oldValue != value)
                 {
-                    CurrentObjectivesChanged?.Invoke(this, value);
                     RecalculateCurrentTier();
+                    CurrentObjectivesChanged?.Invoke(this, value);
                 }
             }
         }
@@ -580,7 +579,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc/>
         public bool ResetProgress()
         {
-            if (this.ResetType == ResetType.Permanent && this.IsRepeatable == false)
+            if (this.ResetType == ResetType.Permanent && this.IsRepeatable == false && this.ResetCondition == null)
             {
                 return false;
             }
@@ -591,13 +590,11 @@ namespace AchievementLib.Pack.V1.Models
 
         private void ForceResetProgress()
         {
-            // will also unfreeze all objectives
             FreezeUpdates = false;
 
             foreach (Objective objective in Objectives)
             {
                 objective.ResetProgress();
-
             }
 
             IsFulfilled = false;

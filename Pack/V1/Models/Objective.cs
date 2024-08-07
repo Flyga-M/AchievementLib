@@ -228,7 +228,11 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         public void ResetProgress()
         {
+            FreezeUpdates = false;
             CurrentAmount = 0;
+
+            Condition?.ResetProgress();
+
             IsFulfilled = false;
         }
 

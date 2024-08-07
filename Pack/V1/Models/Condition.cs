@@ -162,12 +162,13 @@ namespace AchievementLib.Pack.V1.Models
             get => _isFulfilled;
             set
             {
-                if (_isFulfilled != value)
+                bool oldValue = _isFulfilled;
+                _isFulfilled = value;
+
+                if (oldValue != value)
                 {
                     OnIsFulfilledChanged(value);
                 }
-
-                _isFulfilled = value;
             }
         }
 
@@ -293,6 +294,22 @@ namespace AchievementLib.Pack.V1.Models
             {
                 AndCondition.FulfilledChanged += OnChildFulfillmentStatusChanged;
             }
+        }
+
+        /// <summary>
+        /// Resets the current progress of the <see cref="Condition"/>.
+        /// </summary>
+        public void ResetProgress()
+        {
+            FreezeUpdates = false;
+
+            Action?.ResetProgress();
+            AndCondition?.ResetProgress();
+            OrCondition?.ResetProgress();
+
+            RecalculateChildFreeze();
+
+            IsFulfilled = false;
         }
 
         /// <inheritdoc/>

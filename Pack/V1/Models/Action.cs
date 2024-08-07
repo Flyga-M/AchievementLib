@@ -77,6 +77,15 @@ namespace AchievementLib.Pack.V1.Models
             }
         }
 
+        /// <summary>
+        /// Resets the current progress of the <see cref="Action"/>.
+        /// </summary>
+        public void ResetProgress()
+        {
+            FreezeUpdates = false;
+            IsFulfilled = false;
+        }
+
         /// <inheritdoc/>
         public abstract bool IsValid();
 
