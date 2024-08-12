@@ -58,6 +58,26 @@ namespace AchievementLib
         }
 
         /// <summary>
+        /// Calculates the cosine similarity from the given <paramref name="angleInRadians"/>.
+        /// </summary>
+        /// <param name="angleInRadians"></param>
+        /// <returns>The cosine similarity from the given <paramref name="angleInRadians"/>.</returns>
+        public static float CosineSimilarityFromAngle(float angleInRadians)
+        {
+            return (float) Math.Cos(angleInRadians);
+        }
+
+        /// <summary>
+        /// Calculates the cosine similarity from the given <paramref name="angleInDegrees"/>.
+        /// </summary>
+        /// <param name="angleInDegrees"></param>
+        /// <returns>The cosine similarity from the given <paramref name="angleInDegrees"/>.</returns>
+        public static float CosineSimilarityFromAngleDegree(float angleInDegrees)
+        {
+            return CosineSimilarityFromAngle(ToRadians(angleInDegrees));
+        }
+
+        /// <summary>
         /// Calculates the angle in radians between the given <see cref="Vector3">Vectors</see>.
         /// </summary>
         /// <param name="a"></param>
