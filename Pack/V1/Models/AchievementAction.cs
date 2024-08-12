@@ -42,11 +42,19 @@ namespace AchievementLib.Pack.V1.Models
 
         private void OnAchievementResolved(object sender, EventArgs _)
         {
-            if (!(sender is IAchievement achievement))
+            if (!(sender is IResolvableHierarchyReference resolvable))
             {
                 throw new AchievementLibInternalException("OnAchievementResolved sender could not be unboxed to " +
-                    $"IAchievement. Given type: {sender.GetType()}.");
+                    $"IResolvableHierarchyReference. Given type: {sender.GetType()}.");
             }
+
+            if (!(resolvable.Reference is IAchievement achievement))
+            {
+                throw new PackReferenceException("Reference in AchievementAction must be to another IAchievement. " +
+                    $"Referenced type: {Achievement.Reference?.GetType()}.");
+            }
+
+            OnAchievementFulfilledChanged(achievement, achievement.IsFulfilled);
 
             achievement.FulfilledChanged += OnAchievementFulfilledChanged;
         }

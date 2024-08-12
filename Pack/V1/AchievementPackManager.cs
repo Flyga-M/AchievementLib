@@ -434,7 +434,7 @@ namespace AchievementLib.Pack.V1
             {
                 throw new ArgumentNullException(nameof(context));
             }
-            
+
             if (!this.TryResolveChildren(context, out PackReferenceException[] packExceptions))
             {
                 throw new PackReferenceException($"Unable to resolve references for pack " +
