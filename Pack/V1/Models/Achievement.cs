@@ -404,8 +404,8 @@ namespace AchievementLib.Pack.V1.Models
 
         /// <summary>
         /// <inheritdoc/>
-        /// Will only be true, if all <see cref="Prerequesites"/> and <see cref="Objectives"/> 
-        /// have been successfully resolved.
+        /// Will only be true, if all <see cref="Prerequesites"/>, <see cref="Objectives"/> and the 
+        /// <see cref="ResetCondition"/> have been successfully resolved.
         /// </summary>
         [JsonIgnore]
         public bool IsResolved
@@ -413,7 +413,8 @@ namespace AchievementLib.Pack.V1.Models
             get
             {
                 return (!Prerequesites.Any() || Prerequesites.All(achievement => achievement.IsResolved))
-                    && (!Objectives.Any() || Objectives.All(objective => objective.IsResolved));
+                    && (!Objectives.Any() || Objectives.All(objective => objective.IsResolved)
+                    && (ResetCondition == null || ResetCondition.IsResolved));
             }
         }
 
@@ -788,6 +789,11 @@ namespace AchievementLib.Pack.V1.Models
                 }
             }
 
+            if (ResetCondition != null)
+            {
+                ResetCondition.Resolve(context);
+            }
+
             Resolved?.Invoke(this, null);
         }
 
@@ -828,6 +834,14 @@ namespace AchievementLib.Pack.V1.Models
                     {
                         exceptions.Add(objectiveException);
                     }
+                }
+            }
+
+            if (ResetCondition != null)
+            {
+                if (!ResetCondition.TryResolve(context, out PackReferenceException resetConditionException))
+                {
+                    exceptions.Add(resetConditionException);
                 }
             }
 
