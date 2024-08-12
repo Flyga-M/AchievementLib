@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
+using AchievementLib.Pack.V1.JSON;
+using Microsoft.Xna.Framework;
 
 namespace AchievementLib.Pack.V1.Models
 {
@@ -34,6 +36,10 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc cref="IAchievementCollection.Icon"/>
         public LoadableTexture Icon { get; }
 
+        /// <inheritdoc cref="IAchievementCollection.Color"/>
+        [JsonConverter(typeof(ColorConverter))]
+        public Color? Color { get; }
+
         /// <inheritdoc/>
         [JsonIgnore]
         Texture2D IAchievementCollection.Icon => Icon?.LoadedTexture;
@@ -57,13 +63,15 @@ namespace AchievementLib.Pack.V1.Models
         /// <param name="name"></param>
         /// <param name="achievements"></param>
         /// <param name="icon"></param>
+        /// <param name="color"></param>
         [JsonConstructor]
-        public AchievementCollection(string id, Localizable name, IEnumerable<Achievement> achievements, LoadableTexture icon)
+        public AchievementCollection(string id, Localizable name, IEnumerable<Achievement> achievements, LoadableTexture icon, Color? color)
         {
             Id = id;
             Name = name;
             Achievements = new List<Achievement>();
             Icon = icon;
+            Color = color;
 
             if (achievements != null)
             {

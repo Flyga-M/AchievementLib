@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 
 namespace AchievementLib.Pack
@@ -24,5 +25,10 @@ namespace AchievementLib.Pack
         /// the <see cref="IAchievementCollection"/>. [Optional]
         /// </summary>
         Texture2D Icon { get; }
+
+        /// <summary>
+        /// The <see cref="Color"/> that is used for displaying the <see cref="Achievements"/>. [Optional]
+        /// </summary>
+        Color? Color { get; }
     }
 }
