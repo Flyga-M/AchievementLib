@@ -8,6 +8,13 @@ namespace AchievementLib.Pack
     public interface IAction : IValidateable, IFulfillable
     {
         /// <summary>
+        /// Determines how long the <see cref="IAction"/> needs to stay fulfilled, before it actually 
+        /// sets it's <see cref="IFulfillable.IsFulfilled"/> property to <see langword="true"/>. 
+        /// [Optional]
+        /// </summary>
+        int MinimumDuration { get; }
+
+        /// <summary>
         /// The <see cref="IAchievementPackManager"/> that holds the <see cref="IAction"/>.
         /// </summary>
         [JsonIgnore]

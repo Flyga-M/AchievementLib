@@ -103,6 +103,14 @@ namespace AchievementLib.Pack
         ICondition ResetCondition { get; }
 
         /// <summary>
+        /// Determines whether the <see cref="IAchievement"/> is pinned to the top, 
+        /// when it's <see cref="IAchievementCollection"/> is displayed. This is usually 
+        /// <see langword="true"/> for meta-achievements. 
+        /// [Optional]
+        /// </summary>
+        bool IsPinned { get; }
+
+        /// <summary>
         /// The current tier, that the <see cref="IAchievement"/> is completing. 1-indexed.
         /// </summary>
         [JsonIgnore]

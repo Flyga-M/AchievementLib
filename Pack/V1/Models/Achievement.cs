@@ -103,6 +103,9 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc cref="IAchievement.ResetCondition"/>
         public Condition ResetCondition { get; }
 
+        /// <inheritdoc cref="IAchievement.IsPinned"/>
+        public bool IsPinned { get; }
+
         /// <summary>
         /// Instantiates an <see cref="Achievement"/>.
         /// </summary>
@@ -120,8 +123,9 @@ namespace AchievementLib.Pack.V1.Models
         /// <param name="isHidden"></param>
         /// <param name="resetType"></param>
         /// <param name="resetCondition"></param>
+        /// <param name="isPinned"></param>
         [JsonConstructor]
-        public Achievement(string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableTexture icon, Color? color, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, ObjectiveDisplay objectiveDisplay, bool isRepeatable, bool isHidden, ResetType resetType, Condition resetCondition)
+        public Achievement(string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableTexture icon, Color? color, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, ObjectiveDisplay objectiveDisplay, bool isRepeatable, bool isHidden, ResetType resetType, Condition resetCondition, bool isPinned)
         {
             Id = id;
             Name = name;
@@ -137,6 +141,7 @@ namespace AchievementLib.Pack.V1.Models
             IsHidden = isHidden;
             ResetType = resetType;
             ResetCondition = resetCondition;
+            IsPinned = isPinned;
 
             if (ResetCondition != null)
             {
@@ -749,6 +754,7 @@ namespace AchievementLib.Pack.V1.Models
                 $"\"IsHidden\": {IsHidden}, " +
                 $"\"ResetType\": {ResetType}, " +
                 $"\"ResetCondiiton\": {ResetCondition}, " +
+                $"\"IsPinned\": {IsPinned}, " +
                 $" }}, Valid?: {IsValid()} }}";
         }
 

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace AchievementLib.Pack.V1.Models
 {
@@ -12,6 +13,23 @@ namespace AchievementLib.Pack.V1.Models
     {
         private bool _isFulfilled = false;
         private bool _freezeUpdates = false;
+
+        private int _minimumDuration;
+        private Timer _durationTimer;
+
+        /// <inheritdoc cref="IAction.MinimumDuration"/>
+        public int MinimumDuration
+        {
+            get => _minimumDuration;
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+                _minimumDuration = value;
+            }
+        }
 
         /// <inheritdoc/>
         public event EventHandler<bool> FreezeUpdatesChanged;
@@ -51,13 +69,54 @@ namespace AchievementLib.Pack.V1.Models
             set
             {   
                 bool oldValue = _isFulfilled;
-                _isFulfilled = value;
 
-                if (oldValue != value)
+                if (oldValue == value)
                 {
-                    OnIsFulFilledChanged(value);
+                    return;
                 }
+
+                if (value && _durationTimer != null)
+                {
+                    // prevent resetting of timer, if IsFulfilled is repeatedly set to true, while
+                    // _isFulfilled has not been yet updated by the timer
+                    return;
+                }
+
+                if (!value)
+                {
+                    // cancel timer
+                    _durationTimer?.Dispose();
+                    _durationTimer = null;
+                }
+
+                if (value && MinimumDuration > 0)
+                {
+                    // just as a precaution, _durationTimer should be null at this point
+                    _durationTimer?.Dispose();
+                    _durationTimer = new Timer(Fulfill, null, MinimumDuration, Timeout.Infinite);
+
+                    // setting _isFulfilled to true will be handled by TimerCallback Fulfill
+                    // that's also where the timer will be disposed and set to null again
+                    return;
+                }
+
+                _isFulfilled = value;
+                OnIsFulFilledChanged(value);
             }
+        }
+
+        private void Fulfill(object _)
+        {
+            if (IsFulfilled == true)
+            {
+                return;
+            }
+
+            _durationTimer?.Dispose();
+            _durationTimer = null;
+
+            _isFulfilled = true;
+            OnIsFulFilledChanged(true);
         }
 
         /// <inheritdoc/>

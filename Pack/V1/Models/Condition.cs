@@ -208,8 +208,10 @@ namespace AchievementLib.Pack.V1.Models
         private void OnConditionUnFreeze()
         {
             Action?.UnfreezeUpdates();
+            OrCondition?.UnfreezeUpdates();
+            AndCondition?.UnfreezeUpdates();
 
-            RecalculateChildFreeze();
+            //RecalculateChildFreeze();
             RecalculateIsFulfilled();
         }
 
@@ -220,24 +222,26 @@ namespace AchievementLib.Pack.V1.Models
                 OnConditionFreeze();
                 return;
             }
-            
-            if (LocalIsFulfilled)
-            {
-                OrCondition?.FreezeUpdates();
-            }
-            else
-            {
-                OrCondition?.UnfreezeUpdates();
-            }
 
-            if (!Action.IsFulfilled)
-            {
-                AndCondition?.FreezeUpdates();
-            }
-            else
-            {
-                AndCondition?.UnfreezeUpdates();
-            }
+            OnConditionUnFreeze();
+            
+            //if (LocalIsFulfilled)
+            //{
+            //    OrCondition?.FreezeUpdates();
+            //}
+            //else
+            //{
+            //    OrCondition?.UnfreezeUpdates();
+            //}
+
+            //if (!Action.IsFulfilled)
+            //{
+            //    AndCondition?.FreezeUpdates();
+            //}
+            //else
+            //{
+            //    AndCondition?.UnfreezeUpdates();
+            //}
         }
 
         private void OnChildFulfillmentStatusChanged(object _, bool _1)
