@@ -9,7 +9,7 @@ namespace AchievementLib.Pack.V1.Models
     /// This is the V1 implementation.
     /// </summary>
     [Store]
-    public class Objective : IObjective, IResolvable, IDisposable
+    public class Objective : IObjective, IResolvable, IDisposable, IRetrievable
     {
         private Condition _condition;
         
@@ -67,6 +67,10 @@ namespace AchievementLib.Pack.V1.Models
                 }
             }
         }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public bool IsRetrieving { get; set; }
 
         /// <summary>
         /// Instantiates an <see cref="Objective"/>.
@@ -141,7 +145,10 @@ namespace AchievementLib.Pack.V1.Models
 
                 _isFulfilled = value;
 
-                Storage.TryStoreProperty(this, nameof(IsFulfilled));
+                if (!IsRetrieving)
+                {
+                    Storage.TryStoreProperty(this, nameof(IsFulfilled));
+                }
 
                 bool freezeUpdates = FreezeUpdates;
 
@@ -197,21 +204,28 @@ namespace AchievementLib.Pack.V1.Models
             {
                 int oldValue = _currentAmount;
                 
-                if (value >= MaxAmount)
+                if (oldValue == value)
                 {
-                    _currentAmount = MaxAmount;
-                    Storage.TryStoreProperty(this, nameof(CurrentAmount));
-                    IsFulfilled = true;
-                    // no need to invoke CurrentAmountChanged, because it will be invoked by IsFulfilled
                     return;
                 }
-                _currentAmount = value;
-                IsFulfilled = false; // needs to be set before storing, or the getter returns MaxAmount
-                bool eval = Storage.TryStoreProperty(this, nameof(CurrentAmount));
 
-                if (oldValue != value)
+                _currentAmount = Math.Min(value, MaxAmount);
+
+                if (_currentAmount != MaxAmount)
                 {
+                    // needs to be set before storing, or the getter returns MaxAmount
+                    IsFulfilled = false;
                     CurrentAmountChanged?.Invoke(this, value);
+                }
+                else
+                {
+                    // no need to invoke CurrentAmountChanged, because it will be invoked by IsFulfilled
+                    IsFulfilled = true;
+                }
+
+                if (!IsRetrieving)
+                {
+                    Storage.TryStoreProperty(this, nameof(CurrentAmount));
                 }
             }
         }

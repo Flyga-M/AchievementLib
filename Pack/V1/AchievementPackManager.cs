@@ -1,16 +1,15 @@
 ﻿using AchievementLib.Pack.Content;
-using AchievementLib.Pack.V1.Models;
+using AchievementLib.Pack.PersistantData;
 using AchievementLib.Pack.Reader;
-using Microsoft.Xna.Framework.Graphics;
+using AchievementLib.Pack.V1.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Threading;
-using System.Linq;
-using AchievementLib.Pack.PersistantData;
 using System.Data.SQLite;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace AchievementLib.Pack.V1
 {
@@ -40,7 +39,7 @@ namespace AchievementLib.Pack.V1
 
         /// <summary>
         /// Fires, once the pack was successfully enabled and loaded via 
-        /// <see cref="Enable(GraphicsDevice, IResolveContext, out Task)"/>.
+        /// <see cref="Enable(IGraphicsDeviceProvider, IResolveContext, out Task)"/>.
         /// </summary>
         public event EventHandler PackLoaded;
 
@@ -56,7 +55,7 @@ namespace AchievementLib.Pack.V1
         public event EventHandler<PackLoadState> PackLoadStateChanged;
 
         /// <summary>
-        /// Fires, if an error occurs during <see cref="Enable(GraphicsDevice, IResolveContext, out Task)"/>.
+        /// Fires, if an error occurs during <see cref="Enable(IGraphicsDeviceProvider, IResolveContext, out Task)"/>.
         /// </summary>
         public event EventHandler<AchievementLibException> PackError;
 
@@ -201,12 +200,15 @@ namespace AchievementLib.Pack.V1
             {
                 bool oldValue = _isEnabled;
                 _isEnabled = value;
-                if (oldValue != _isEnabled)
+                if (oldValue != _isEnabled && !IsRetrieving)
                 {
                     Storage.TryStoreProperty(this, nameof(IsEnabled));
                 }
             }
         }
+
+        /// <inheritdoc/>
+        public bool IsRetrieving { get; set; }
 
         /// <summary>
         /// 
@@ -289,20 +291,22 @@ namespace AchievementLib.Pack.V1
         /// <summary>
         /// Attempts to enable the Achievement Pack and load it's data into 
         /// <see cref="Data"/>. The data is loaded asynchronously and is not available 
-        /// directly after <see cref="Enable(GraphicsDevice, IResolveContext, out Task)"/> was called. Listen to 
+        /// directly after <see cref="Enable(IGraphicsDeviceProvider, IResolveContext, out Task)"/> was called. Listen to 
         /// <see cref="PackLoaded"/> and <see cref="PackError"/> to make sure, the 
         /// data is available.
         /// </summary>
         /// <remarks>
         /// The <paramref name="loadingTask"/> should be awaited before disposing the 
-        /// <paramref name="graphicsDevice"/> or its context.
+        /// <paramref name="graphicsDeviceProvider"/> or its context.
         /// </remarks>
-        /// <param name="graphicsDevice"></param>
-        /// <param name="loadingTask"></param>
+        /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
+        /// <param name="graphicsDeviceProvider"></param>
         /// <param name="resolveContext"></param>
+        /// <param name="loadingTask"></param>
         /// <returns>True, if the Achievement Pack is eligible to be enabled. 
         /// Otherwise false.</returns>
-        public bool Enable(GraphicsDevice graphicsDevice, IResolveContext resolveContext, out Task loadingTask)
+        public bool Enable(SQLiteConnection connection, bool keepConnectionOpen, IGraphicsDeviceProvider graphicsDeviceProvider, IResolveContext resolveContext, out Task loadingTask)
         {
             loadingTask = null;
             if (State != PackLoadState.Unloaded)
@@ -314,9 +318,15 @@ namespace AchievementLib.Pack.V1
 
             State = PackLoadState.Loading;
 
-            loadingTask = Load(graphicsDevice, resolveContext, _cancellationSourceEnable.Token);
+            loadingTask = Load(connection, keepConnectionOpen, graphicsDeviceProvider, resolveContext, _cancellationSourceEnable.Token);
             
             return true;
+        }
+
+        /// <inheritdoc cref="Enable(SQLiteConnection, bool, IGraphicsDeviceProvider, IResolveContext, out Task)"/>
+        public bool Enable(IGraphicsDeviceProvider graphicsDeviceProvider, IResolveContext resolveContext, out Task loadingTask)
+        {
+            return Enable(null, false, graphicsDeviceProvider, resolveContext, out loadingTask);
         }
 
         private void OnLoadCancelled()
@@ -325,7 +335,7 @@ namespace AchievementLib.Pack.V1
         }
 
         /// <exception cref="OperationCanceledException"></exception>
-        private async Task Load(GraphicsDevice graphicsDevice, IResolveContext resolveContext, CancellationToken cancellationToken)
+        private async Task Load(SQLiteConnection connection, bool keepConnectionOpen, IGraphicsDeviceProvider graphicsDeviceProvider, IResolveContext resolveContext, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
             {
@@ -338,7 +348,7 @@ namespace AchievementLib.Pack.V1
 
             try
             {
-                (achievementSuccess, ex) = await TryLoadAchievements(cancellationToken);
+                (achievementSuccess, ex) = await TryLoadAchievements(connection, keepConnectionOpen, cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -393,7 +403,7 @@ namespace AchievementLib.Pack.V1
 
             try
             {
-                (resourceSuccess, exceptions) = await TryLoadResourcesAsync(graphicsDevice, cancellationToken);
+                (resourceSuccess, exceptions) = await TryLoadResourcesAsync(graphicsDeviceProvider, cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -473,7 +483,7 @@ namespace AchievementLib.Pack.V1
 
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="AggregateException"></exception>
-        private void LoadResources(GraphicsDevice graphicsDevice)
+        private void LoadResources(IGraphicsDeviceProvider graphicsDeviceProvider)
         {
             if (State != PackLoadState.Loaded)
             {
@@ -481,17 +491,17 @@ namespace AchievementLib.Pack.V1
                     "before resources can be loaded.");
             }
 
-            if (!this.TryLoadChildrensResources(ResourceManager, graphicsDevice, out PackResourceException[] exceptions))
+            if (!this.TryLoadChildrensResources(ResourceManager, graphicsDeviceProvider, out PackResourceException[] exceptions))
             {
                 throw new AggregateException(exceptions);
             }
         }
 
-        private bool TryLoadResources(GraphicsDevice graphicsDevice, out PackResourceException[] exceptions)
+        private bool TryLoadResources(IGraphicsDeviceProvider graphicsDeviceProvider, out PackResourceException[] exceptions)
         {
             try
             {
-                LoadResources(graphicsDevice);
+                LoadResources(graphicsDeviceProvider);
             }
             catch (InvalidOperationException ex)
             {
@@ -522,12 +532,12 @@ namespace AchievementLib.Pack.V1
         /// <summary>
         /// Throws, if at least one resource was not loaded successfully.
         /// </summary>
-        /// <param name="graphicsDevice"></param>
+        /// <param name="graphicsDeviceProvider"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="AggregateException"></exception>
         /// <exception cref="OperationCanceledException"></exception>
-        private async Task LoadResourcesAsync(GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
+        private async Task LoadResourcesAsync(IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -536,7 +546,7 @@ namespace AchievementLib.Pack.V1
 
             try
             {
-                (success, exceptions) = await this.TryLoadChildrensResourcesAsync(ResourceManager, graphicsDevice, cancellationToken);
+                (success, exceptions) = await this.TryLoadChildrensResourcesAsync(ResourceManager, graphicsDeviceProvider, cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -556,17 +566,17 @@ namespace AchievementLib.Pack.V1
         /// Returns false, if at least one resource was not loaded successfully. Will 
         /// strill try to attempt to load the other resources.
         /// </summary>
-        /// <param name="graphicsDevice"></param>
+        /// <param name="graphicsDeviceProvider"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="OperationCanceledException"></exception>
-        private async Task<(bool, PackResourceException[])> TryLoadResourcesAsync(GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
+        private async Task<(bool, PackResourceException[])> TryLoadResourcesAsync(IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             
             try
             {
-                await LoadResourcesAsync(graphicsDevice, cancellationToken);
+                await LoadResourcesAsync(graphicsDeviceProvider, cancellationToken);
             }
             catch (AggregateException ex)
             {
@@ -644,7 +654,7 @@ namespace AchievementLib.Pack.V1
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="PackFormatException"></exception>
         /// <exception cref="OperationCanceledException"></exception>
-        private async Task LoadAchievements(CancellationToken cancellationToken)
+        private async Task LoadAchievements(SQLiteConnection connection, bool keepConnectionOpen, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -704,7 +714,6 @@ namespace AchievementLib.Pack.V1
                     fileStream.Dispose();
                 }
 
-
                 if (achievementData == null)
                 {
                     throw new PackFormatException("Attempted to " +
@@ -727,8 +736,7 @@ namespace AchievementLib.Pack.V1
 
                 achievementData.Parent = this;
 
-                // TODO: currently always uses the default connection. Might change that later to allow for more customization.
-                RetrieveStoredAchievements(null, achievementData.GetAchievements().Select(achievement => (Achievement)achievement));
+                RetrieveStoredAchievements(connection, keepConnectionOpen, achievementData.GetAchievements().Select(achievement => (Achievement)achievement));
 
                 data.Add(achievementData);
             }
@@ -742,29 +750,29 @@ namespace AchievementLib.Pack.V1
             cancellationToken.ThrowIfCancellationRequested();
         }
 
-        private void RetrieveStoredAchievements(SQLiteConnection connection, IEnumerable<Achievement> achievements)
+        private void RetrieveStoredAchievements(SQLiteConnection connection, bool keepConnectionOpen, IEnumerable<Achievement> achievements)
         {
             foreach(Achievement achievement in achievements)
             {
-                RetrieveStoredAchievement(connection, achievement);
+                RetrieveStoredAchievement(connection, keepConnectionOpen, achievement);
             }
         }
 
-        private void RetrieveStoredAchievement(SQLiteConnection connection, Achievement achievement)
+        private void RetrieveStoredAchievement(SQLiteConnection connection, bool keepConnectionOpen, Achievement achievement)
         {
-            if (!Storage.TryRetrieve(connection, achievement, out _))
+            if (!Storage.TryRetrieve(connection, keepConnectionOpen, achievement, out _))
             {
                 return; // No exception here, because the exception will be available through Storage.ExceptionOccured.
             }
 
             foreach (Objective objective in achievement.Objectives)
             {
-                Storage.TryRetrieve(connection, objective, out _);
+                Storage.TryRetrieve(connection, keepConnectionOpen, objective, out _);
             }
         }
 
         /// <exception cref="OperationCanceledException"></exception>
-        private async Task<(bool, PackFormatException)> TryLoadAchievements(CancellationToken cancellationToken)
+        private async Task<(bool, PackFormatException)> TryLoadAchievements(SQLiteConnection connection, bool keepConnectionOpen, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -775,7 +783,7 @@ namespace AchievementLib.Pack.V1
 
             try
             {
-                await LoadAchievements(cancellationToken);
+                await LoadAchievements(connection, keepConnectionOpen, cancellationToken);
             }
             catch (PackFormatException ex)
             {

@@ -1,14 +1,13 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using AchievementLib.Pack.PersistantData;
+using AchievementLib.Pack.V1.JSON;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System;
-using AchievementLib.Pack.PersistantData;
-using Microsoft.Xna.Framework;
-using Newtonsoft.Json.Converters;
-using AchievementLib.Pack.V1.JSON;
 
 namespace AchievementLib.Pack.V1.Models
 {
@@ -17,7 +16,7 @@ namespace AchievementLib.Pack.V1.Models
     /// This is the V1 implementation.
     /// </summary>
     [Store]
-    public class Achievement : IAchievement, ILoadable, IResolvable
+    public class Achievement : IAchievement, ILoadable, IResolvable, IRetrievable
     {
         private bool _isFulfilled = false;
         private bool _freezeUpdates = false;
@@ -105,6 +104,10 @@ namespace AchievementLib.Pack.V1.Models
 
         /// <inheritdoc cref="IAchievement.IsPinned"/>
         public bool IsPinned { get; }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public bool IsRetrieving { get; set; }
 
         /// <summary>
         /// Instantiates an <see cref="Achievement"/>.
@@ -490,7 +493,11 @@ namespace AchievementLib.Pack.V1.Models
                 }
 
                 OnIsFulfilledChanged(value);
-                Storage.TryStoreProperty(this, nameof(IsFulfilled));
+
+                if (!IsRetrieving)
+                {
+                    Storage.TryStoreProperty(this, nameof(IsFulfilled));
+                }
 
                 if (value)
                 {
@@ -515,8 +522,13 @@ namespace AchievementLib.Pack.V1.Models
             get => _repeatedAmount;
             private set
             {
+                int oldValue = _repeatedAmount;
                 _repeatedAmount = value;
-                Storage.TryStoreProperty(this, nameof(RepeatedAmount));
+
+                if (oldValue != value && !IsRetrieving)
+                {
+                    Storage.TryStoreProperty(this, nameof(RepeatedAmount));
+                }
             }
         }
 
@@ -532,8 +544,13 @@ namespace AchievementLib.Pack.V1.Models
             get => _lastCompletion;
             private set
             {
+                DateTime oldValue = _lastCompletion;
                 _lastCompletion = value;
-                Storage.TryStoreProperty(this, nameof(LastCompletion));
+
+                if (oldValue != value && !IsRetrieving)
+                {
+                    Storage.TryStoreProperty(this, nameof(LastCompletion));
+                }
             }
         }
 
@@ -555,7 +572,11 @@ namespace AchievementLib.Pack.V1.Models
                 if (oldValue != value)
                 {
                     IsWatchedChanged?.Invoke(this, value);
-                    Storage.TryStoreProperty(this, nameof(IsWatched));
+
+                    if (!IsRetrieving)
+                    {
+                        Storage.TryStoreProperty(this, nameof(IsWatched));
+                    }
                 }
             }
         }
@@ -656,15 +677,15 @@ namespace AchievementLib.Pack.V1.Models
         }
 
         /// <inheritdoc/>
-        public void Load(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice)
+        public void Load(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider)
         {
-            Icon?.Load(resourceManager, graphicsDevice);
+            Icon?.Load(resourceManager, graphicsDeviceProvider);
         }
 
         /// <inheritdoc/>
-        public async Task LoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
+        public async Task LoadAsync(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken)
         {
-            await Icon?.LoadAsync(resourceManager, graphicsDevice, cancellationToken);
+            await Icon?.LoadAsync(resourceManager, graphicsDeviceProvider, cancellationToken);
         }
 
         /// <summary>
@@ -672,7 +693,7 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         /// <returns><inheritdoc/> Also true, if the optional resource is null and does 
         /// not need to be loaded.</returns>
-        public bool TryLoad(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, out PackResourceException exception)
+        public bool TryLoad(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, out PackResourceException exception)
         {
             exception = null;
             if (Icon == null)
@@ -680,7 +701,7 @@ namespace AchievementLib.Pack.V1.Models
                 return true;
             }
 
-            return Icon.TryLoad(resourceManager, graphicsDevice, out exception);
+            return Icon.TryLoad(resourceManager, graphicsDeviceProvider, out exception);
         }
 
         /// <summary>
@@ -689,13 +710,13 @@ namespace AchievementLib.Pack.V1.Models
         /// <returns><inheritdoc/> Also true, if the optional resource is null and does 
         /// not need to be loaded.</returns>
         /// <exception cref="OperationCanceledException"></exception>
-        public async Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
+        public async Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken)
         {
             if (Icon == null)
             {
                 return (true, null);
             }
-            return await Icon.TryLoadAsync(resourceManager, graphicsDevice, cancellationToken);
+            return await Icon.TryLoadAsync(resourceManager, graphicsDeviceProvider, cancellationToken);
         }
 
         /// <inheritdoc/>

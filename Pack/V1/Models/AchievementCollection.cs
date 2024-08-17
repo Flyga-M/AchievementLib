@@ -148,15 +148,15 @@ namespace AchievementLib.Pack.V1.Models
         }
 
         /// <inheritdoc/>
-        public void Load(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice)
+        public void Load(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider)
         {
-            Icon?.Load(resourceManager, graphicsDevice);
+            Icon?.Load(resourceManager, graphicsDeviceProvider);
         }
 
         /// <inheritdoc/>
-        public async Task LoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
+        public async Task LoadAsync(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken)
         {
-            await Icon?.LoadAsync(resourceManager, graphicsDevice, cancellationToken);
+            await Icon?.LoadAsync(resourceManager, graphicsDeviceProvider, cancellationToken);
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace AchievementLib.Pack.V1.Models
         /// </summary>
         /// <returns><inheritdoc/> Also true, if the optional resource is null and does 
         /// not need to be loaded.</returns>
-        public bool TryLoad(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, out PackResourceException exception)
+        public bool TryLoad(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, out PackResourceException exception)
         {
             exception = null;
             if (Icon == null)
@@ -172,7 +172,7 @@ namespace AchievementLib.Pack.V1.Models
                 return true;
             }
 
-            return Icon.TryLoad(resourceManager, graphicsDevice, out exception);
+            return Icon.TryLoad(resourceManager, graphicsDeviceProvider, out exception);
         }
 
         /// <summary>
@@ -181,13 +181,13 @@ namespace AchievementLib.Pack.V1.Models
         /// <returns><inheritdoc/> Also true, if the optional resource is null and does 
         /// not need to be loaded.</returns>
         /// <exception cref="OperationCanceledException"></exception>
-        public async Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
+        public async Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken)
         {
             if (Icon == null)
             {
                 return (true, null);
             }
-            return await Icon.TryLoadAsync(resourceManager, graphicsDevice, cancellationToken);
+            return await Icon.TryLoadAsync(resourceManager, graphicsDeviceProvider, cancellationToken);
         }
 
         /// <inheritdoc/>

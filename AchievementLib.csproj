@@ -71,6 +71,7 @@
     <Compile Include="Pack\PersistantData\Storage.cs" />
     <Compile Include="Pack\PersistantData\_Attribute\StoragePropertyAttribute.cs" />
     <Compile Include="Pack\PersistantData\_Attribute\StoreAttribute.cs" />
+    <Compile Include="Pack\PersistantData\_Interface\IRetrievable.cs" />
     <Compile Include="Pack\PersistantData\_Util\AttributeUtil.cs" />
     <Compile Include="Pack\PersistantData\_Util\SQLiteUtil.cs" />
     <Compile Include="Pack\Reader\AchievementPackReader.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="Pack\V1\Models\_Type\SpecializationType.cs" />
     <Compile Include="Pack\V1\Models\_Type\_Extensions\ProfessionTypeExtensions.cs" />
     <Compile Include="Pack\V1\Models\_Type\_Extensions\SpecializationTypeExtensions.cs" />
+    <Compile Include="Pack\_Interface\IGraphicsDeviceProvider.cs" />
     <Compile Include="_Type\ObjectiveDisplay.cs" />
     <Compile Include="Pack\V1\V1Constants.cs" />
     <Compile Include="Pack\V1\JSON\ActionConverter.cs" />

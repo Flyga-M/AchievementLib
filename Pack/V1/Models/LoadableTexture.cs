@@ -49,12 +49,12 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc/>
         /// </summary>
         /// <param name="resourceManager"></param>
-        /// <param name="graphicsDevice"></param>
+        /// <param name="graphicsDeviceProvider"></param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="PackResourceException"></exception>
-        public void Load(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice)
+        public void Load(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider)
         {
             if (resourceManager == null)
             {
@@ -71,38 +71,38 @@ namespace AchievementLib.Pack.V1.Models
                 throw new FileNotFoundException("Resource does not exist.", resourceManager.DataReader.GetPathRepresentation(ActualPath));
             }
 
-            Texture2D loadedTexture;
-
             try
             {
                 using (Stream fileStream = resourceManager.GetFileStream(ActualPath))
                 {
-                    loadedTexture = Texture2D.FromStream(graphicsDevice, fileStream);
+                    graphicsDeviceProvider.LendGraphicsDevice((graphicsDevice) =>
+                    {
+                        LoadedTexture = Texture2D.FromStream(graphicsDevice, fileStream);
+                    });
                 }
             }
             catch (Exception ex)
             {
+                LoadedTexture?.Dispose();
                 throw new PackResourceException("Resource could not be loaded as " +
                     $"{nameof(Texture2D)}", resourceManager.DataReader.GetPathRepresentation(ActualPath), ex);
             }
 
-            if (loadedTexture == null)
+            if (LoadedTexture == null)
             {
                 throw new PackResourceException("Resource could not be loaded as " +
                     $"{nameof(Texture2D)}", resourceManager.DataReader.GetPathRepresentation(ActualPath));
             }
-
-            LoadedTexture = loadedTexture;
         }
 
         /// <inheritdoc/>
-        public bool TryLoad(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, out PackResourceException exception)
+        public bool TryLoad(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, out PackResourceException exception)
         {
             exception = null;
             
             try
             {
-                Load(resourceManager, graphicsDevice);
+                Load(resourceManager, graphicsDeviceProvider);
             }
             catch (ArgumentNullException ex)
             {
@@ -132,7 +132,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc/>
         /// </summary>
         /// <param name="resourceManager"></param>
-        /// <param name="graphicsDevice"></param>
+        /// <param name="graphicsDeviceProvider"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
@@ -140,7 +140,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="PackResourceException"></exception>
         /// <exception cref="OperationCanceledException"></exception>
-        public async Task LoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
+        public async Task LoadAsync(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -159,43 +159,40 @@ namespace AchievementLib.Pack.V1.Models
                 throw new FileNotFoundException("Resource does not exist.", resourceManager.DataReader.GetPathRepresentation(ActualPath));
             }
 
-            Texture2D loadedTexture = null;
-
             cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
                 using (Stream fileStream = await resourceManager.LoadResourceStreamAsync(ActualPath))
                 {
-                    loadedTexture = Texture2D.FromStream(graphicsDevice, fileStream);
+                    graphicsDeviceProvider.LendGraphicsDevice((graphicsDevice) =>
+                    {
+                        LoadedTexture = Texture2D.FromStream(graphicsDevice, fileStream);
+                    });
                 }
             }
             catch (Exception ex)
             {
-                loadedTexture?.Dispose();
+                LoadedTexture?.Dispose();
                 throw new PackResourceException("Resource could not be loaded as " +
                     $"{nameof(Texture2D)}", resourceManager.DataReader.GetPathRepresentation(ActualPath), ex);
             }
 
-            if (loadedTexture == null)
+            if (LoadedTexture == null)
             {
                 throw new PackResourceException("Resource could not be loaded as " +
                     $"{nameof(Texture2D)}", resourceManager.DataReader.GetPathRepresentation(ActualPath));
             }
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            LoadedTexture = loadedTexture;
         }
 
         /// <inheritdoc/>
         /// <exception cref="OperationCanceledException"></exception>
-        public async Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
+        public async Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                await LoadAsync(resourceManager, graphicsDevice, cancellationToken);
+                await LoadAsync(resourceManager, graphicsDeviceProvider, cancellationToken);
             }
             catch (ArgumentNullException ex)
             {

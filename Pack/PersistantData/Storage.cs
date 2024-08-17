@@ -5,7 +5,6 @@ using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace AchievementLib.Pack.PersistantData
 {
@@ -87,17 +86,18 @@ namespace AchievementLib.Pack.PersistantData
         }
 
         /// <summary>
-        /// <inheritdoc cref="StoreProperty(SQLiteConnection, object, string)"/>
+        /// <inheritdoc cref="StoreProperty(SQLiteConnection, bool, object, string)"/>
         /// </summary>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="object"></param>
         /// <param name="propertyName"></param>
         /// <returns><see langword="true"/>, if the property was successfully stored. Otherwise <see langword="false"/>.</returns>
-        public static bool TryStoreProperty(SQLiteConnection connection, object @object, string propertyName)
+        public static bool TryStoreProperty(SQLiteConnection connection, bool keepConnectionOpen, object @object, string propertyName)
         {
             try
             {
-                StoreProperty(connection, @object, propertyName);
+                StoreProperty(connection, keepConnectionOpen, @object, propertyName);
             }
             catch (Exception ex)
             {
@@ -118,24 +118,25 @@ namespace AchievementLib.Pack.PersistantData
         /// <returns><see langword="true"/>, if the property was successfully stored. Otherwise <see langword="false"/>.</returns>
         public static bool TryStoreProperty(object @object, string propertyName)
         {
-            return TryStoreProperty(null, @object, propertyName);
+            return TryStoreProperty(null, false, @object, propertyName);
         }
 
         /// <summary>
-        /// <inheritdoc cref="Retrieve(SQLiteConnection, object)"/>
+        /// <inheritdoc cref="Retrieve(SQLiteConnection, bool, IRetrievable)"/>
         /// </summary>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="object"></param>
         /// <param name="isStored"></param>
         /// <returns><see langword="true"/>, if the properties of the <paramref name="object"/> were successfully retrieved. 
         /// Otherwise <see langword="false"/>.</returns>
-        public static bool TryRetrieve(SQLiteConnection connection, object @object, out bool isStored)
+        public static bool TryRetrieve(SQLiteConnection connection, bool keepConnectionOpen, IRetrievable @object, out bool isStored)
         {
             isStored = false;
 
             try
             {
-                isStored = Retrieve(connection, @object);
+                isStored = Retrieve(connection, keepConnectionOpen, @object);
             }
             catch (Exception ex)
             {
@@ -146,34 +147,35 @@ namespace AchievementLib.Pack.PersistantData
         }
 
         /// <summary>
-        /// <inheritdoc cref="Retrieve(object)"/>
+        /// <inheritdoc cref="Retrieve(IRetrievable)"/>
         /// </summary>
         /// <remarks>
-        /// <inheritdoc cref="Retrieve(object)"/>
+        /// <inheritdoc cref="Retrieve(IRetrievable)"/>
         /// </remarks>
         /// <param name="object"></param>
         /// <param name="isStored"></param>
         /// <returns><see langword="true"/>, if the properties of the <paramref name="object"/> were successfully retrieved. 
         /// Otherwise <see langword="false"/>.</returns>
-        public static bool TryRetrieve(object @object, out bool isStored)
+        public static bool TryRetrieve(IRetrievable @object, out bool isStored)
         {
-            return TryRetrieve(null, @object, out isStored);
+            return TryRetrieve(null, false, @object, out isStored);
         }
 
         /// <summary>
-        /// <inheritdoc cref="RetrieveProperty{T}(SQLiteConnection, object, string)"/>
+        /// <inheritdoc cref="RetrieveProperty{T}(SQLiteConnection, bool, object, string)"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="object"></param>
         /// <param name="propertyName"></param>
         /// <param name="result"></param>
         /// <returns><see langword="true"/>, if the property was successfully retrieved. Otherwise <see langword="false"/>.</returns>
-        internal static bool TryRetrieveProperty<T>(SQLiteConnection connection, object @object, string propertyName, out T result)
+        internal static bool TryRetrieveProperty<T>(SQLiteConnection connection, bool keepConnectionOpen, object @object, string propertyName, out T result)
         {
             try
             {
-                result = RetrieveProperty<T>(connection, @object, propertyName);
+                result = RetrieveProperty<T>(connection, keepConnectionOpen, @object, propertyName);
             }
             catch (Exception ex)
             {
@@ -197,21 +199,22 @@ namespace AchievementLib.Pack.PersistantData
         /// <returns><see langword="true"/>, if the property was successfully retrieved. Otherwise <see langword="false"/>.</returns>
         internal static bool TryRetrieveProperty<T>(object @object, string propertyName, out T result)
         {
-            return TryRetrieveProperty<T>(null, @object, propertyName, out result);
+            return TryRetrieveProperty<T>(null, false, @object, propertyName, out result);
         }
 
         /// <summary>
-        /// <inheritdoc cref="IsStored(SQLiteConnection, object)"/>
+        /// <inheritdoc cref="IsStored(SQLiteConnection, bool, object)"/>
         /// </summary>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="object"></param>
         /// <param name="isStored"></param>
         /// <returns><see langword="true"/>, if the exists query was successfull. Otherwise <see langword="false"/>.</returns>
-        internal static bool TryIsStored(SQLiteConnection connection, object @object, out bool isStored)
+        internal static bool TryIsStored(SQLiteConnection connection, bool keepConnectionOpen, object @object, out bool isStored)
         {
             try
             {
-                isStored = IsStored(connection, @object);
+                isStored = IsStored(connection, keepConnectionOpen, @object);
             }
             catch (Exception ex)
             {
@@ -233,7 +236,7 @@ namespace AchievementLib.Pack.PersistantData
         /// <returns><see langword="true"/>, if the exists query was successfull. Otherwise <see langword="false"/>.</returns>
         internal static bool TryIsStored(object @object, out bool isStored)
         {
-            return TryIsStored(null, @object, out isStored);
+            return TryIsStored(null, false, @object, out isStored);
         }
 
         /// <summary>
@@ -241,11 +244,12 @@ namespace AchievementLib.Pack.PersistantData
         /// <see cref="StoragePropertyAttribute"/>s.
         /// </summary>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="object"></param>
         /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
         /// the insert command fails.</exception>
-        internal static void Store(SQLiteConnection connection, object @object)
+        internal static void Store(SQLiteConnection connection, bool keepConnectionOpen, object @object)
         {   
             if (@object == null)
             {
@@ -271,14 +275,14 @@ namespace AchievementLib.Pack.PersistantData
                 }
             }
 
-            SQLite.Table table = GetTable(connection, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
+            SQLite.Table table = GetTable(connection, keepConnectionOpen, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
 
             List<(string ColumnName, object Value)> values = propertyAttributes.Select(attribute => (attribute.Attribute.ColumnName, attribute.Value)).ToList();
             values.Add((VERSION_COLUMN, storeAttribute.Version));
 
-            if (!table.InsertOrReplace(connection, values, out Exception insertException))
+            if (!table.InsertOrReplace(connection, keepConnectionOpen, values, out Exception insertException))
             {
-                throw new InvalidOperationException($"Unable to store object of type {@object.GetType()}. " +
+                throw new InvalidOperationException($"Unable to store retrievable of type {@object.GetType()}. " +
                     $"Value insertion failed.", insertException);
             }
         }
@@ -302,7 +306,7 @@ namespace AchievementLib.Pack.PersistantData
         /// the insert command fails.</exception>
         internal static void Store(object @object)
         {
-            Store(null, @object);
+            Store(null, false, @object);
         }
 
         /// <summary>
@@ -311,12 +315,13 @@ namespace AchievementLib.Pack.PersistantData
         /// if an entry for the <paramref name="object"/> already exists.
         /// </summary>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="object"></param>
         /// <param name="propertyName"></param>
         /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
         /// the upsert command fails.</exception>
-        internal static void StoreProperty(SQLiteConnection connection, object @object, string propertyName)
+        internal static void StoreProperty(SQLiteConnection connection, bool keepConnectionOpen, object @object, string propertyName)
         {
             if (@object == null)
             {
@@ -342,13 +347,13 @@ namespace AchievementLib.Pack.PersistantData
                 }
             }
 
-            SQLite.Table table = GetTable(connection, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
+            SQLite.Table table = GetTable(connection, keepConnectionOpen, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
 
             (string Name, StoragePropertyAttribute Attribute, Type Type, object Value) propertyColumn = propertyAttributes.FirstOrDefault(attribute => attribute.Name == propertyName);
 
             if (propertyColumn == default)
             {
-                throw new InvalidOperationException($"Unable to insert or update property with name {propertyName} on object " +
+                throw new InvalidOperationException($"Unable to insert or update property with name {propertyName} on retrievable " +
                     $"of type {@object.GetType()}. Property with that name has no {nameof(StoragePropertyAttribute)}.");
             }
 
@@ -356,9 +361,9 @@ namespace AchievementLib.Pack.PersistantData
             values.Add((VERSION_COLUMN, storeAttribute.Version));
             IEnumerable<string> primaryKeyColumnNames = table.PrimaryKeyColumnNames;
 
-            if (!table.InsertOrUpdate(connection, values, new string[] { propertyColumn.Attribute.ColumnName }, primaryKeyColumnNames, out Exception insertOrUpdateException))
+            if (!table.InsertOrUpdate(connection, keepConnectionOpen, values, new string[] { propertyColumn.Attribute.ColumnName }, primaryKeyColumnNames, out Exception insertOrUpdateException))
             {
-                throw new InvalidOperationException($"Unable to insert or update property with name {propertyName} on object " +
+                throw new InvalidOperationException($"Unable to insert or update property with name {propertyName} on retrievable " +
                     $"of type {@object.GetType()}. Insert or Update command failed.", insertOrUpdateException);
             }
         }
@@ -379,37 +384,40 @@ namespace AchievementLib.Pack.PersistantData
         /// the upsert command fails.</exception>
         internal static void StoreProperty(object @object, string propertyName)
         {
-            StoreProperty(null, @object, propertyName);
+            StoreProperty(null, false, @object, propertyName);
         }
 
         /// <summary>
-        /// Retrieves the stored values and applies them to the <paramref name="object"/>.
+        /// Retrieves the stored values and applies them to the <paramref name="retrievable"/>.
         /// </summary>
         /// <param name="connection"></param>
-        /// <param name="object"></param>
-        /// <returns><see langword="true"/>, if the <paramref name="object"/> has an entry in the database. 
+        /// <param name="keepConnectionOpen"></param>
+        /// <param name="retrievable"></param>
+        /// <returns><see langword="true"/>, if the <paramref name="retrievable"/> has an entry in the database. 
         /// Otherwise <see langword="false"/>.</returns>
-        /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException">If <paramref name="retrievable"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
         /// the exists or select command fails. Also if the select command does not retrieve a value, or if at least 
         /// one property can't be set to it's saved value.</exception>
-        internal static bool Retrieve(SQLiteConnection connection, object @object)
+        internal static bool Retrieve(SQLiteConnection connection, bool keepConnectionOpen, IRetrievable retrievable)
         {
-            if (@object == null)
+            if (retrievable == null)
             {
-                throw new ArgumentNullException(nameof(@object));
+                throw new ArgumentNullException(nameof(retrievable));
             }
 
-            StoreAttribute storeAttribute = AttributeUtil.GetAttribute<StoreAttribute>(@object);
+            retrievable.IsRetrieving = true;
+
+            StoreAttribute storeAttribute = AttributeUtil.GetAttribute<StoreAttribute>(retrievable);
 
             if (string.IsNullOrWhiteSpace(storeAttribute.TableName))
             {
-                storeAttribute.TableName = @object.GetType().Namespace + "." + @object.GetType().Name;
+                storeAttribute.TableName = retrievable.GetType().Namespace + "." + retrievable.GetType().Name;
             }
 
             storeAttribute.TableName = ConvertTableName(storeAttribute.TableName);
 
-            (string Name, StoragePropertyAttribute Attribute, Type Type, object Value)[] propertyAttributes = AttributeUtil.GetPropertyAttributes<StoragePropertyAttribute>(@object);
+            (string Name, StoragePropertyAttribute Attribute, Type Type, object Value)[] propertyAttributes = AttributeUtil.GetPropertyAttributes<StoragePropertyAttribute>(retrievable);
 
             foreach (var attribute in propertyAttributes)
             {
@@ -419,16 +427,18 @@ namespace AchievementLib.Pack.PersistantData
                 }
             }
 
-            SQLite.Table table = GetTable(connection, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
+            SQLite.Table table = GetTable(connection, keepConnectionOpen, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
 
-            if (!TryIsStored(connection, @object, out bool isStored))
+            if (!TryIsStored(connection, keepConnectionOpen, retrievable, out bool isStored))
             {
-                throw new InvalidOperationException($"Unable to retrieve object of type {@object.GetType()}. " +
+                retrievable.IsRetrieving = false;
+                throw new InvalidOperationException($"Unable to retrieve retrievable of type {retrievable.GetType()}. " +
                     $"Exists command failed.");
             }
 
             if (!isStored)
             {
+                retrievable.IsRetrieving = false;
                 return false;
             }
 
@@ -440,15 +450,17 @@ namespace AchievementLib.Pack.PersistantData
             IEnumerable<(string Name, StoragePropertyAttribute Attribute, Type Type, object Value)> primaryKeys = propertyAttributes.Where(attribute => attribute.Attribute.IsPrimaryKey);
             IEnumerable<(string ColumnName, object Value)> filters = primaryKeys.Select(attribute => (attribute.Attribute.ColumnName, attribute.Value));
 
-            if (!table.Select(connection, true, columnNames, filters, 1, out SQLite.Row[] result, out Exception selectException))
+            if (!table.Select(connection, keepConnectionOpen, true, columnNames, filters, 1, out SQLite.Row[] result, out Exception selectException))
             {
-                throw new InvalidOperationException($"Unable to retrieve object of type {@object.GetType()}. " +
+                retrievable.IsRetrieving = false;
+                throw new InvalidOperationException($"Unable to retrieve retrievable of type {retrievable.GetType()}. " +
                     $"Select command failed.", selectException);
             }
 
             if (!result.Any())
             {
-                throw new InvalidOperationException($"Unable to retrieve object of type {@object.GetType()}. " +
+                retrievable.IsRetrieving = false;
+                throw new InvalidOperationException($"Unable to retrieve retrievable of type {retrievable.GetType()}. " +
                     $"Select command did not return any value.", selectException);
             }
 
@@ -458,15 +470,17 @@ namespace AchievementLib.Pack.PersistantData
             {
                 foreach ((string Name, StoragePropertyAttribute Attribute, Type Type, object Value) attribute in doRetrieve)
                 {
-                    AttributeUtil.SetPropertyValue(@object, attribute.Name, attribute.Type, retrievedValues[attribute.Attribute.ColumnName]);
+                    AttributeUtil.SetPropertyValue(retrievable, attribute.Name, attribute.Type, retrievedValues[attribute.Attribute.ColumnName]);
                 }
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Unable to retrieve object of type {@object.GetType()}. " +
+                retrievable.IsRetrieving = false;
+                throw new InvalidOperationException($"Unable to retrieve retrievable of type {retrievable.GetType()}. " +
                     $"Unable to set property values.", ex);
             }
 
+            retrievable.IsRetrieving = false;
             return true;
         }
 
@@ -484,9 +498,9 @@ namespace AchievementLib.Pack.PersistantData
         /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
         /// the exists or select command fails. Also if the select command does not retrieve a value, or if at least 
         /// one property can't be set to it's saved value.</exception>
-        internal static bool Retrieve(object @object)
+        internal static bool Retrieve(IRetrievable @object)
         {
-            return Retrieve(null, @object);
+            return Retrieve(null, false, @object);
         }
 
         /// <summary>
@@ -495,6 +509,7 @@ namespace AchievementLib.Pack.PersistantData
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="object"></param>
         /// <param name="propertyName"></param>
         /// <returns>The value of the property with the <paramref name="propertyName"/> on the <paramref name="object"/> 
@@ -503,7 +518,7 @@ namespace AchievementLib.Pack.PersistantData
         /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
         /// the select command fails or returns <see langword="null"/>. Also if the property with the <paramref name="propertyName"/> does not have 
         /// the <see cref="StoragePropertyAttribute"/>.</exception>
-        internal static T RetrieveProperty<T>(SQLiteConnection connection, object @object, string propertyName)
+        internal static T RetrieveProperty<T>(SQLiteConnection connection, bool keepConnectionOpen, object @object, string propertyName)
         {
             if (@object == null)
             {
@@ -529,28 +544,28 @@ namespace AchievementLib.Pack.PersistantData
                 }
             }
 
-            SQLite.Table table = GetTable(connection, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
+            SQLite.Table table = GetTable(connection, keepConnectionOpen, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
 
             (string Name, StoragePropertyAttribute Attribute, Type Type, object Value) propertyColumn = propertyAttributes.FirstOrDefault(attribute => attribute.Name == propertyName);
 
             if (propertyColumn == default)
             {
-                throw new InvalidOperationException($"Unable to retrieve property with name {propertyName} from object " +
+                throw new InvalidOperationException($"Unable to retrieve property with name {propertyName} from retrievable " +
                     $"of type {@object.GetType()}. Property with that name has no {nameof(StoragePropertyAttribute)}.");
             }
 
             IEnumerable<(string Name, StoragePropertyAttribute Attribute, Type Type, object Value)> primaryKeys = propertyAttributes.Where(attribute => attribute.Attribute.IsPrimaryKey);
             IEnumerable<(string ColumnName, object Value)> filters = primaryKeys.Select(attribute => (attribute.Attribute.ColumnName, attribute.Value));
 
-            if (!table.Select(connection, true, propertyColumn.Attribute.ColumnName, filters, out object value, out Exception selectException))
+            if (!table.Select(connection, keepConnectionOpen, true, propertyColumn.Attribute.ColumnName, filters, out object value, out Exception selectException))
             {
-                throw new InvalidOperationException($"Unable to retrieve property with name {propertyName} from object " +
+                throw new InvalidOperationException($"Unable to retrieve property with name {propertyName} from retrievable " +
                     $"of type {@object.GetType()}. Select command failed.", selectException);
             }
 
             if (value == null)
             {
-                throw new InvalidOperationException($"Unable to retrieve property with name {propertyName} from object " +
+                throw new InvalidOperationException($"Unable to retrieve property with name {propertyName} from retrievable " +
                     $"of type {@object.GetType()}. Select command did not retrieve any value.");
             }
 
@@ -578,20 +593,21 @@ namespace AchievementLib.Pack.PersistantData
         /// the <see cref="StoragePropertyAttribute"/>.</exception>
         internal static T RetrieveProperty<T>(object @object, string propertyName)
         {
-            return RetrieveProperty<T>(null, @object, propertyName);
+            return RetrieveProperty<T>(null, false, @object, propertyName);
         }
 
         /// <summary>
         /// Determines whether an entry for the given <paramref name="object"/> is stored.
         /// </summary>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="object"></param>
         /// <returns><see langword="true"/>, if an entry for the given <paramref name="object"/> exists. 
         /// Otherwise <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
         /// the exists command fails.</exception>
-        internal static bool IsStored(SQLiteConnection connection, object @object)
+        internal static bool IsStored(SQLiteConnection connection, bool keepConnectionOpen, object @object)
         {
             if (@object == null)
             {
@@ -617,14 +633,14 @@ namespace AchievementLib.Pack.PersistantData
                 }
             }
 
-            SQLite.Table table = GetTable(connection, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
+            SQLite.Table table = GetTable(connection, keepConnectionOpen, storeAttribute, propertyAttributes.Select(attribute => (attribute.Attribute, attribute.Type)));
 
             IEnumerable<(string Name, StoragePropertyAttribute Attribute, Type Type, object Value)> primaryKeys = propertyAttributes.Where(attribute => attribute.Attribute.IsPrimaryKey);
             IEnumerable<(string ColumnName, object Value)> filters = primaryKeys.Select(attribute => (attribute.Attribute.ColumnName, attribute.Value));
 
-            if (!table.Exists(connection, filters, out bool exists, out Exception existsException))
+            if (!table.Exists(connection, keepConnectionOpen, filters, out bool exists, out Exception existsException))
             {
-                throw new InvalidOperationException($"Unable to determine whether object of type {@object.GetType()} with " +
+                throw new InvalidOperationException($"Unable to determine whether retrievable of type {@object.GetType()} with " +
                     $"primary keys {{ {string.Join(", ", primaryKeys.Select(key => $"{key.Name}: {key.Value}"))} }} " +
                     $"exists. Exists command failed.", existsException);
             }
@@ -647,11 +663,11 @@ namespace AchievementLib.Pack.PersistantData
         /// the exists command fails.</exception>
         internal static bool IsStored(object @object)
         {
-            return IsStored(null, @object);
+            return IsStored(null, false, @object);
         }
 
         /// <exception cref="InvalidOperationException"></exception>
-        private static SQLite.Table GetTable(SQLiteConnection connection, StoreAttribute storeAttribute, IEnumerable<(StoragePropertyAttribute Attribute, Type Type)> fieldAttributes)
+        private static SQLite.Table GetTable(SQLiteConnection connection, bool keepConnectionOpen, StoreAttribute storeAttribute, IEnumerable<(StoragePropertyAttribute Attribute, Type Type)> fieldAttributes)
         {
             SQLite.Table table = new SQLite.Table(storeAttribute.TableName);
 
@@ -679,7 +695,7 @@ namespace AchievementLib.Pack.PersistantData
                     true
                 ));
 
-            if (!table.Create(connection, true, out Exception createException))
+            if (!table.Create(connection, keepConnectionOpen, true, out Exception createException))
             {
                 throw new InvalidOperationException($"Unable to create table {table.Name} at {connection?.FileName}. " +
                     $"Table creation failed.", createException);

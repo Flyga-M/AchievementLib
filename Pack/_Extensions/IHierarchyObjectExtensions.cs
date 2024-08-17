@@ -163,12 +163,12 @@ namespace AchievementLib.Pack
         /// </summary>
         /// <param name="hierarchyObject"></param>
         /// <param name="resourceManager"></param>
-        /// <param name="graphicsDevice"></param>
+        /// <param name="graphicsDeviceProvider"></param>
         /// <param name="exceptions"></param>
         /// <returns>True, if all children successfully loaded their 
         /// resources. False, if at least one childs resources were not 
         /// loaded successfully.</returns>
-        public static bool TryLoadChildrensResources(this IHierarchyObject hierarchyObject, AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, out PackResourceException[] exceptions)
+        public static bool TryLoadChildrensResources(this IHierarchyObject hierarchyObject, AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, out PackResourceException[] exceptions)
         {
             exceptions = Array.Empty<PackResourceException>();
 
@@ -183,7 +183,7 @@ namespace AchievementLib.Pack
 
             foreach (IHierarchyObject child in hierarchyObject.Children)
             {
-                if (!child.TryLoadChildrensResources(resourceManager, graphicsDevice, out PackResourceException[] grandChildrenExceptions))
+                if (!child.TryLoadChildrensResources(resourceManager, graphicsDeviceProvider, out PackResourceException[] grandChildrenExceptions))
                 {
                     eval = false;
                     allExceptions.AddRange(grandChildrenExceptions);
@@ -191,7 +191,7 @@ namespace AchievementLib.Pack
 
                 if (child is ILoadable loadable)
                 {
-                    if (!loadable.TryLoad(resourceManager, graphicsDevice, out PackResourceException childException))
+                    if (!loadable.TryLoad(resourceManager, graphicsDeviceProvider, out PackResourceException childException))
                     {
                         eval = false;
                         allExceptions.Add(childException);
@@ -211,14 +211,14 @@ namespace AchievementLib.Pack
         /// </summary>
         /// <param name="hierarchyObject"></param>
         /// <param name="resourceManager"></param>
-        /// <param name="graphicsDevice"></param>
+        /// <param name="graphicsDeviceProvider"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>True, if all children successfully loaded their 
         /// resources. False, if at least one childs resources were not 
         /// loaded successfully. Might contain information on failed 
         /// attempts.</returns>
         /// <exception cref="OperationCanceledException"></exception>
-        public async static Task<(bool, PackResourceException[])> TryLoadChildrensResourcesAsync(this IHierarchyObject hierarchyObject, AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken)
+        public async static Task<(bool, PackResourceException[])> TryLoadChildrensResourcesAsync(this IHierarchyObject hierarchyObject, AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -240,7 +240,7 @@ namespace AchievementLib.Pack
 
                 try
                 {
-                    (grandChildrenSuccess, grandChildrenExceptions) = await child.TryLoadChildrensResourcesAsync(resourceManager, graphicsDevice, cancellationToken);
+                    (grandChildrenSuccess, grandChildrenExceptions) = await child.TryLoadChildrensResourcesAsync(resourceManager, graphicsDeviceProvider, cancellationToken);
                 }
                 catch (OperationCanceledException)
                 {
@@ -262,7 +262,7 @@ namespace AchievementLib.Pack
 
                     try
                     {
-                        (childSuccess, childException) = await loadable.TryLoadAsync(resourceManager, graphicsDevice, cancellationToken);
+                        (childSuccess, childException) = await loadable.TryLoadAsync(resourceManager, graphicsDeviceProvider, cancellationToken);
                     }
                     catch (OperationCanceledException)
                     {

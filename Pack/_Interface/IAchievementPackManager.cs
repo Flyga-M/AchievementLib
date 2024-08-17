@@ -1,6 +1,7 @@
 ﻿using AchievementLib.Pack.PersistantData;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Data.SQLite;
 using System.Threading.Tasks;
 
 namespace AchievementLib.Pack
@@ -9,7 +10,7 @@ namespace AchievementLib.Pack
     /// Manages the state and contents of an Achievement Pack.
     /// </summary>
     [Store]
-    public interface IAchievementPackManager : IDisposable, IHierarchyObject
+    public interface IAchievementPackManager : IDisposable, IHierarchyObject, IRetrievable
     {
         /// <summary>
         /// The <see cref="IManifest"/>, that contains information on the 
@@ -76,23 +77,26 @@ namespace AchievementLib.Pack
         /// </summary>
         IAchievementCategory[] Categories { get; }
 
+        /// <inheritdoc cref="Enable(IGraphicsDeviceProvider, IResolveContext, out Task)"/>
+        bool Enable(SQLiteConnection connection, bool keepConnectionOpen, IGraphicsDeviceProvider graphicsDeviceProvider, IResolveContext resolveContext, out Task loadingTask);
+
         /// <summary>
         /// Attempts to enable the <see cref="IAchievementPackManager"/> and load it's data. 
         /// The data is loaded asynchronously and is not available 
-        /// directly after <see cref="Enable(GraphicsDevice, IResolveContext, out Task)"/> was called. Listen to 
+        /// directly after <see cref="Enable(IGraphicsDeviceProvider, IResolveContext, out Task)"/> was called. Listen to 
         /// <see cref="PackLoaded"/> and <see cref="PackError"/> to make sure, the 
         /// data is available.
         /// </summary>
         /// <remarks>
         /// The <paramref name="loadingTask"/> should be awaited before disposing the 
-        /// <paramref name="graphicsDevice"/> or its context.
+        /// <paramref name="graphicsDeviceProvider"/> or its context.
         /// </remarks>
-        /// <param name="graphicsDevice"></param>
-        /// <param name="loadingTask"></param>
+        /// <param name="graphicsDeviceProvider"></param>
         /// <param name="resolveContext"></param>
+        /// <param name="loadingTask"></param>
         /// <returns>True, if the <see cref="IAchievementPackManager"/> is eligible to be enabled. 
         /// Otherwise false.</returns>
-        bool Enable(GraphicsDevice graphicsDevice, IResolveContext resolveContext, out Task loadingTask);
+        bool Enable(IGraphicsDeviceProvider graphicsDeviceProvider, IResolveContext resolveContext, out Task loadingTask);
 
         /// <summary>
         /// Attempts to disable the <see cref="IAchievementPackManager"/> and free it's resources by 

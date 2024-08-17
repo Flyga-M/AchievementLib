@@ -89,7 +89,7 @@ namespace AchievementLib.Pack
         /// </summary>
         /// <returns><see cref="PackException">PackExceptions</see> that occur during 
         /// initalization.</returns>
-        public PackException[] LoadWatchPath()
+        public PackException[] LoadWatchPath(SQLiteConnection connection, bool keepConnectionOpen)
         {
             UnregisterPacks();
 
@@ -99,8 +99,7 @@ namespace AchievementLib.Pack
 
             exceptions.AddRange(RegisterPacksFromLoadedManifests());
 
-            // TODO: currently always uses the default connection. Might change that later to allow for more customization.
-            RetrieveStoredManagerStates(null, _packs);
+            RetrieveStoredManagerStates(connection, keepConnectionOpen, _packs);
 
             return exceptions.ToArray();
         }
@@ -542,17 +541,17 @@ namespace AchievementLib.Pack
             _packs.Clear();
         }
 
-        private void RetrieveStoredManagerStates(SQLiteConnection connection, IEnumerable<IAchievementPackManager> packs)
+        private void RetrieveStoredManagerStates(SQLiteConnection connection, bool keepConnectionOpen, IEnumerable<IAchievementPackManager> packs)
         {
             foreach (IAchievementPackManager pack in packs)
             {
-                RetrieveStoredManagerState(connection, pack);
+                RetrieveStoredManagerState(connection, keepConnectionOpen, pack);
             }
         }
 
-        private void RetrieveStoredManagerState(SQLiteConnection connection, IAchievementPackManager pack)
+        private void RetrieveStoredManagerState(SQLiteConnection connection, bool keepConnectionOpen, IAchievementPackManager pack)
         {
-            if (!Storage.TryRetrieve(connection, pack, out _))
+            if (!Storage.TryRetrieve(connection, keepConnectionOpen, pack, out _))
             {
                 return; // No exception here, because the exception will be available through Storage.ExceptionOccured.
             }

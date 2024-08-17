@@ -1,5 +1,4 @@
-﻿using SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
@@ -123,15 +122,16 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// Will NOT dispose the <paramref name="connection"/>.
         /// </remarks>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="ifNotExists"></param>
         /// <param name="exception"></param>
         /// <returns><see langword="true"/>, if the creation did not throw any <see cref="Exception"/>s. 
         /// Otherwise <see langword="false"/>.</returns>
-        public bool Create(SQLiteConnection connection, bool ifNotExists, out Exception exception)
+        public bool Create(SQLiteConnection connection, bool keepConnectionOpen, bool ifNotExists, out Exception exception)
         {
             string commandText = GetCreateString(ifNotExists);
 
-            return ExecuteCommand(connection, commandText, Array.Empty<(string, object)>(), out exception);
+            return ExecuteCommand(connection, keepConnectionOpen, commandText, Array.Empty<(string, object)>(), out exception);
         }
         
         /// <summary>
@@ -141,12 +141,13 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// Will NOT dispose the <paramref name="connection"/>.
         /// </remarks>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="exception"></param>
         /// <returns><see langword="true"/>, if the creation did not throw any <see cref="Exception"/>s. 
         /// Otherwise <see langword="false"/>.</returns>
-        public bool Create(SQLiteConnection connection, out Exception exception)
+        public bool Create(SQLiteConnection connection, bool keepConnectionOpen, out Exception exception)
         {
-            return Create(connection, true, out exception);
+            return Create(connection, keepConnectionOpen, true, out exception);
         }
 
         /// <summary>
@@ -158,7 +159,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// Otherwise <see langword="false"/>.</returns>
         public bool Create(out Exception exception)
         {
-            return Create(null, out exception);
+            return Create(null, false, out exception);
         }
 
         private string GetCreateString(bool ifNotExists)
@@ -208,15 +209,16 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// Inserts the given <paramref name="values"/> into the <see cref="Table"/>.
         /// </summary>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="values"></param>
         /// <param name="exception"></param>
         /// <returns><see langword="true"/>, if the insertion did not throw any <see cref="Exception"/>s. 
         /// Otherwise <see langword="false"/>.</returns>
-        public bool Insert(SQLiteConnection connection, IEnumerable<(string ColumnName, object Value)> values, out Exception exception)
+        public bool Insert(SQLiteConnection connection, bool keepConnectionOpen, IEnumerable<(string ColumnName, object Value)> values, out Exception exception)
         {
             string commandText = GetInsertString(false, values, out (string Placeholder, object Value)[] parameters);
 
-            return ExecuteCommand(connection, commandText, parameters, out exception);
+            return ExecuteCommand(connection, keepConnectionOpen, commandText, parameters, out exception);
         }
 
         /// <summary>
@@ -228,7 +230,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// Otherwise <see langword="false"/>.</returns>
         public bool Insert(IEnumerable<(string ColumnName, object Value)> values, out Exception exception)
         {
-            return Insert(null, values, out exception);
+            return Insert(null, false, values, out exception);
         }
 
         /// <summary>
@@ -238,15 +240,16 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// Will delete the row, if it exists, first and then insert the new row. Values are not preserved.
         /// </remarks>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="values"></param>
         /// <param name="exception"></param>
         /// <returns><see langword="true"/>, if the insertion did not throw any <see cref="Exception"/>s. 
         /// Otherwise <see langword="false"/>.</returns>
-        public bool InsertOrReplace(SQLiteConnection connection, IEnumerable<(string ColumnName, object Value)> values, out Exception exception)
+        public bool InsertOrReplace(SQLiteConnection connection, bool keepConnectionOpen, IEnumerable<(string ColumnName, object Value)> values, out Exception exception)
         {
             string commandText = GetInsertString(true, values, out (string Placeholder, object Value)[] parameters);
 
-            return ExecuteCommand(connection, commandText, parameters, out exception);
+            return ExecuteCommand(connection, keepConnectionOpen, commandText, parameters, out exception);
         }
 
         /// <summary>
@@ -261,7 +264,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// Otherwise <see langword="false"/>.</returns>
         public bool InsertOrReplace(IEnumerable<(string ColumnName, object Value)> values, out Exception exception)
         {
-            return InsertOrReplace(null, values, out exception);
+            return InsertOrReplace(null, false, values, out exception);
         }
 
         /// <summary>
@@ -273,17 +276,18 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// only the <paramref name="values"/> for the columns in <paramref name="updateColumnNames"/> are updated.
         /// </remarks>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="values"></param>
         /// <param name="updateColumnNames"></param>
         /// <param name="primaryKeyColumnNames"></param>
         /// <param name="exception"></param>
         /// <returns><see langword="true"/>, if the insertion (or update) did not throw any <see cref="Exception"/>s. 
         /// Otherwise <see langword="false"/>.</returns>
-        public bool InsertOrUpdate(SQLiteConnection connection, IEnumerable<(string ColumnName, object Value)> values, IEnumerable<string> updateColumnNames, IEnumerable<string> primaryKeyColumnNames, out Exception exception)
+        public bool InsertOrUpdate(SQLiteConnection connection, bool keepConnectionOpen, IEnumerable<(string ColumnName, object Value)> values, IEnumerable<string> updateColumnNames, IEnumerable<string> primaryKeyColumnNames, out Exception exception)
         {
             string commandText = GetInsertOrUpdateString(values, updateColumnNames, primaryKeyColumnNames, out (string Placeholder, object Value)[] parameters);
 
-            return ExecuteCommand(connection, commandText, parameters, out exception);
+            return ExecuteCommand(connection, keepConnectionOpen, commandText, parameters, out exception);
         }
 
         /// <summary>
@@ -302,10 +306,10 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// Otherwise <see langword="false"/>.</returns>
         public bool InsertOrUpdate(IEnumerable<(string ColumnName, object Value)> values, IEnumerable<string> updateColumnNames, IEnumerable<string> primaryKeyColumnNames, out Exception exception)
         {
-            return InsertOrUpdate(null, values, updateColumnNames, primaryKeyColumnNames, out exception);
+            return InsertOrUpdate(null, false, values, updateColumnNames, primaryKeyColumnNames, out exception);
         }
 
-        private bool ExecuteCommand(SQLiteConnection connection, string commandText, (string Placeholder, object Value)[] parameters, out Exception exception)
+        private bool ExecuteCommand(SQLiteConnection connection, bool keepConnectionOpen, string commandText, (string Placeholder, object Value)[] parameters, out Exception exception)
         {
             exception = null;
             bool disposeConnection = connection == null;
@@ -328,7 +332,10 @@ namespace AchievementLib.Pack.PersistantData.SQLite
 
             try
             {
-                connection.Open();
+                if (connection.State != System.Data.ConnectionState.Open)
+                {
+                    connection.Open();
+                }
 
                 using (SQLiteCommand command = new SQLiteCommand(commandText, connection))
                 {
@@ -343,9 +350,16 @@ namespace AchievementLib.Pack.PersistantData.SQLite
             }
             finally
             {
-                connection.Close();
+                if (!keepConnectionOpen)
+                {
+                    connection.Close();
+                }
                 if (disposeConnection)
                 {
+                    if (connection.State != System.Data.ConnectionState.Closed)
+                    {
+                        connection.Close();
+                    }
                     connection.Dispose();
                 }
             }
@@ -353,7 +367,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
             return exception == null;
         }
 
-        private bool ExecuteCommandWithResult(SQLiteConnection connection, string commandText, IEnumerable<string> columnNames, (string Placeholder, object Value)[] parameters, out Row[] result, out Exception exception)
+        private bool ExecuteCommandWithResult(SQLiteConnection connection, bool keepConnectionOpen, string commandText, IEnumerable<string> columnNames, (string Placeholder, object Value)[] parameters, out Row[] result, out Exception exception)
         {
             exception = null;
             result = Array.Empty<Row>();
@@ -379,7 +393,10 @@ namespace AchievementLib.Pack.PersistantData.SQLite
 
             try
             {
-                connection.Open();
+                if (connection.State != System.Data.ConnectionState.Open)
+                {
+                    connection.Open();
+                }
 
                 using (SQLiteCommand command = new SQLiteCommand(commandText, connection))
                 {
@@ -400,9 +417,16 @@ namespace AchievementLib.Pack.PersistantData.SQLite
             }
             finally
             {
-                connection.Close();
+                if (!keepConnectionOpen)
+                {
+                    connection.Close();
+                }
                 if (disposeConnection)
                 {
+                    if (connection.State != System.Data.ConnectionState.Closed)
+                    {
+                        connection.Close();
+                    }
                     connection.Dispose();
                 }
             }
@@ -411,7 +435,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
             return exception == null;
         }
 
-        private bool ExecuteScalar(SQLiteConnection connection, string commandText, (string Placeholder, object Value)[] parameters, out object result, out Exception exception)
+        private bool ExecuteScalar(SQLiteConnection connection, bool keepConnectionOpen, string commandText, (string Placeholder, object Value)[] parameters, out object result, out Exception exception)
         {
             exception = null;
             result = null;
@@ -435,7 +459,10 @@ namespace AchievementLib.Pack.PersistantData.SQLite
 
             try
             {
-                connection.Open();
+                if (connection.State != System.Data.ConnectionState.Open)
+                {
+                    connection.Open();
+                }
 
                 using (SQLiteCommand command = new SQLiteCommand(commandText, connection))
                 {
@@ -450,9 +477,16 @@ namespace AchievementLib.Pack.PersistantData.SQLite
             }
             finally
             {
-                connection.Close();
+                if (!keepConnectionOpen)
+                {
+                    connection.Close();
+                }
                 if (disposeConnection)
                 {
+                    if (connection.State != System.Data.ConnectionState.Closed)
+                    {
+                        connection.Close();
+                    }
                     connection.Dispose();
                 }
             }
@@ -567,6 +601,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// are applied. Limits the <paramref name="result"/>, if <paramref name="limit"/> is not <see langword="null"/>.
         /// </summary>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="distinct"></param>
         /// <param name="columnNames"></param>
         /// <param name="filters"></param>
@@ -575,11 +610,11 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// <param name="exception"></param>
         /// <returns><see langword="true"/>, if the selection did not throw any <see cref="Exception"/>s. 
         /// Otherwise <see langword="false"/>.</returns>
-        public bool Select(SQLiteConnection connection, bool distinct, IEnumerable<string> columnNames, IEnumerable<(string ColumnName, object Value)> filters, int? limit, out Row[] result, out Exception exception)
+        public bool Select(SQLiteConnection connection, bool keepConnectionOpen, bool distinct, IEnumerable<string> columnNames, IEnumerable<(string ColumnName, object Value)> filters, int? limit, out Row[] result, out Exception exception)
         {
             string commandText = GetSelectString(distinct, columnNames, filters, limit, out (string Placeholder, object Value)[] parameters);
 
-            return ExecuteCommandWithResult(connection, commandText, columnNames, parameters, out result, out exception);
+            return ExecuteCommandWithResult(connection, keepConnectionOpen, commandText, columnNames, parameters, out result, out exception);
         }
 
         /// <summary>
@@ -596,7 +631,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// Otherwise <see langword="false"/>.</returns>
         public bool Select(bool distinct, IEnumerable<string> columnNames, IEnumerable<(string ColumnName, object Value)> filters, int? limit, out Row[] result, out Exception exception)
         {
-            return Select(null, distinct, columnNames, filters, limit, out result, out exception);
+            return Select(null, false, distinct, columnNames, filters, limit, out result, out exception);
         }
 
         /// <summary>
@@ -604,6 +639,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// are applied.
         /// </summary>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="distinct"></param>
         /// <param name="columnName"></param>
         /// <param name="filters"></param>
@@ -611,11 +647,11 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// <param name="exception"></param>
         /// <returns><see langword="true"/>, if the selection did not throw any <see cref="Exception"/>s. 
         /// Otherwise <see langword="false"/>.</returns>
-        public bool Select(SQLiteConnection connection, bool distinct, string columnName, IEnumerable<(string ColumnName, object Value)> filters, out object result, out Exception exception)
+        public bool Select(SQLiteConnection connection, bool keepConnectionOpen, bool distinct, string columnName, IEnumerable<(string ColumnName, object Value)> filters, out object result, out Exception exception)
         {
             string commandText = GetSelectString(distinct, new string[] { columnName }, filters, 1, out (string Placeholder, object Value)[] parameters);
 
-            return ExecuteScalar(connection, commandText, parameters, out result, out exception);
+            return ExecuteScalar(connection, keepConnectionOpen, commandText, parameters, out result, out exception);
         }
 
         /// <summary>
@@ -631,7 +667,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// Otherwise <see langword="false"/>.</returns>
         public bool Select(bool distinct, string columnName, IEnumerable<(string ColumnName, object Value)> filters, out object result, out Exception exception)
         {
-            return Select(null, distinct, columnName, filters, out result, out exception);
+            return Select(null, false, distinct, columnName, filters, out result, out exception);
         }
 
         private string GetSelectString(bool distinct, IEnumerable<string> columnNames, IEnumerable<(string ColumnName, object Value)> filters, int? limit, out (string Placeholder, object Value)[] parameters)
@@ -725,16 +761,17 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// the given <paramref name="filters"/> exists, check the <paramref name="result"/>.
         /// </remarks>
         /// <param name="connection"></param>
+        /// <param name="keepConnectionOpen"></param>
         /// <param name="filters"></param>
         /// <param name="result"></param>
         /// <param name="exception"></param>
         /// <returns><see langword="true"/>, if the exists query did not throw any <see cref="Exception"/>s. 
         /// Otherwise <see langword="false"/>.</returns>
-        public bool Exists(SQLiteConnection connection, IEnumerable<(string ColumnName, object Value)> filters, out bool result, out Exception exception)
+        public bool Exists(SQLiteConnection connection, bool keepConnectionOpen, IEnumerable<(string ColumnName, object Value)> filters, out bool result, out Exception exception)
         {
             string commandText = GetExistsString(filters, out (string Placeholder, object Value)[] parameters);
 
-            bool eval = ExecuteScalar(connection, commandText, parameters, out object scalarResult, out exception);
+            bool eval = ExecuteScalar(connection, keepConnectionOpen, commandText, parameters, out object scalarResult, out exception);
 
             if (scalarResult == null)
             {
@@ -762,7 +799,7 @@ namespace AchievementLib.Pack.PersistantData.SQLite
         /// Otherwise <see langword="false"/>.</returns>
         public bool Exists(IEnumerable<(string ColumnName, object Value)> filters, out bool result, out Exception exception)
         {
-            return Exists(null, filters, out result, out exception);
+            return Exists(null, false, filters, out result, out exception);
         }
 
         private string GetExistsString(IEnumerable<(string ColumnName, object Value)> filters, out (string Placeholder, object Value)[] parameters)

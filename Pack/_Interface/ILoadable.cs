@@ -22,38 +22,38 @@ namespace AchievementLib.Pack
         /// Loads the <see cref="ILoadable"/>. Might throw Exceptions.
         /// </summary>
         /// <param name="resourceManager"></param>
-        /// <param name="graphicsDevice"></param>
-        void Load(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice);
+        /// <param name="graphicsDeviceProvider"></param>
+        void Load(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider);
 
         /// <summary>
         /// Attempts to load the <see cref="ILoadable"/>.
         /// </summary>
         /// <param name="resourceManager"></param>
-        /// <param name="graphicsDevice"></param>
+        /// <param name="graphicsDeviceProvider"></param>
         /// <param name="exception"></param>
         /// <returns>True, if the <see cref="ILoadable"/> was sucessfully loaded. Otherwise 
         /// false.</returns>
-        bool TryLoad(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, out PackResourceException exception);
+        bool TryLoad(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, out PackResourceException exception);
 
         /// <summary>
         /// Loads the <see cref="ILoadable"/> asynchronously. Might 
         /// throw Exceptions.
         /// </summary>
         /// <param name="resourceManager"></param>
-        /// <param name="graphicsDevice"></param>
+        /// <param name="graphicsDeviceProvider"></param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="OperationCanceledException"></exception>
-        Task LoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken);
+        Task LoadAsync(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken);
 
         /// <summary>
         /// Attempts to load the <see cref="ILoadable"/> asynchronously.
         /// </summary>
         /// <param name="resourceManager"></param>
-        /// <param name="graphicsDevice"></param>
+        /// <param name="graphicsDeviceProvider"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>True, if the <see cref="ILoadable"/> was sucessfully loaded. Otherwise 
         /// false. Might contain information on a <see cref="PackResourceException"/>.</returns>
         /// <exception cref="OperationCanceledException"></exception>
-        Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, GraphicsDevice graphicsDevice, CancellationToken cancellationToken);
+        Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken);
     }
 }
