@@ -86,14 +86,14 @@ namespace AchievementLib.Pack.PersistantData
         }
 
         /// <summary>
-        /// <inheritdoc cref="StoreProperty(SQLiteConnection, bool, object, string)"/>
+        /// <inheritdoc cref="StoreProperty(SQLiteConnection, bool, IRetrievable, string)"/>
         /// </summary>
         /// <param name="connection"></param>
         /// <param name="keepConnectionOpen"></param>
         /// <param name="object"></param>
         /// <param name="propertyName"></param>
         /// <returns><see langword="true"/>, if the property was successfully stored. Otherwise <see langword="false"/>.</returns>
-        public static bool TryStoreProperty(SQLiteConnection connection, bool keepConnectionOpen, object @object, string propertyName)
+        public static bool TryStoreProperty(SQLiteConnection connection, bool keepConnectionOpen, IRetrievable @object, string propertyName)
         {
             try
             {
@@ -108,15 +108,15 @@ namespace AchievementLib.Pack.PersistantData
         }
 
         /// <summary>
-        /// <inheritdoc cref="StoreProperty(object, string)"/>
+        /// <inheritdoc cref="StoreProperty(IRetrievable, string)"/>
         /// </summary>
         /// <remarks>
-        /// <inheritdoc cref="StoreProperty(object, string)"/>
+        /// <inheritdoc cref="StoreProperty(IRetrievable, string)"/>
         /// </remarks>
         /// <param name="object"></param>
         /// <param name="propertyName"></param>
         /// <returns><see langword="true"/>, if the property was successfully stored. Otherwise <see langword="false"/>.</returns>
-        public static bool TryStoreProperty(object @object, string propertyName)
+        public static bool TryStoreProperty(IRetrievable @object, string propertyName)
         {
             return TryStoreProperty(null, false, @object, propertyName);
         }
@@ -321,11 +321,16 @@ namespace AchievementLib.Pack.PersistantData
         /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
         /// the upsert command fails.</exception>
-        internal static void StoreProperty(SQLiteConnection connection, bool keepConnectionOpen, object @object, string propertyName)
+        internal static void StoreProperty(SQLiteConnection connection, bool keepConnectionOpen, IRetrievable @object, string propertyName)
         {
             if (@object == null)
             {
                 throw new ArgumentNullException(nameof(@object));
+            }
+
+            if (@object.IsRetrieving)
+            {
+                return;
             }
 
             StoreAttribute storeAttribute = AttributeUtil.GetAttribute<StoreAttribute>(@object);
@@ -382,7 +387,7 @@ namespace AchievementLib.Pack.PersistantData
         /// <exception cref="ArgumentNullException">If <paramref name="object"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">If the creation of the <see cref="SQLite.Table"/> or 
         /// the upsert command fails.</exception>
-        internal static void StoreProperty(object @object, string propertyName)
+        internal static void StoreProperty(IRetrievable @object, string propertyName)
         {
             StoreProperty(null, false, @object, propertyName);
         }
