@@ -77,7 +77,7 @@ namespace AchievementLib.Pack.V1.Models
                 {
                     graphicsDeviceProvider.LendGraphicsDevice((graphicsDevice) =>
                     {
-                        LoadedTexture = Texture2D.FromStream(graphicsDevice, fileStream);
+                        LoadedTexture = TextureUtil.FromStreamPremultiplied(graphicsDevice, fileStream);
                     });
                 }
             }
@@ -167,7 +167,7 @@ namespace AchievementLib.Pack.V1.Models
                 {
                     graphicsDeviceProvider.LendGraphicsDevice((graphicsDevice) =>
                     {
-                        LoadedTexture = Texture2D.FromStream(graphicsDevice, fileStream);
+                        LoadedTexture = TextureUtil.FromStreamPremultiplied(graphicsDevice, fileStream);
                     });
                 }
             }
