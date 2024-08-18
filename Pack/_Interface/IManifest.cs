@@ -35,6 +35,11 @@ namespace AchievementLib.Pack
         ILocalizable Name { get; }
 
         /// <summary>
+        /// The description of the Achievement Pack.
+        /// </summary>
+        ILocalizable Description { get; }
+
+        /// <summary>
         /// The file path of the achievement pack.
         /// </summary>
         [JsonIgnore]

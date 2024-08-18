@@ -27,10 +27,11 @@ namespace AchievementLib.Pack.V1.Models
         [JsonIgnore]
         ILocalizable IManifest.Name => Name;
 
-        /// <summary>
-        /// The description of the Achievement Pack.
-        /// </summary>
+        /// <inheritdoc cref="IManifest.Description"/>
         public Localizable Description { get; set; }
+
+        [JsonIgnore]
+        ILocalizable IManifest.Description => Description;
 
         /// <inheritdoc/>
         public string Namespace { get; set; }

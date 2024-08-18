@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace AchievementLib.Pack
 {
@@ -50,6 +51,31 @@ namespace AchievementLib.Pack
         public static string GetDetailedName(this IManifest manifest)
         {
             return $"{manifest.Name.GetLocalized("en")} ({manifest.Namespace}) v{manifest.Version}";
+        }
+
+        /// <summary>
+        /// Attempts to retrieve the last modified date of the pack file.
+        /// </summary>
+        /// <param name="manifest"></param>
+        /// <param name="lastUpdate"></param>
+        /// <returns><see langword="true"/>, if the attempt was successfull. 
+        /// Otherwise <see langword="false"/>.</returns>
+        public static bool TryGetLastFileUpdate(this IManifest manifest, out DateTime lastUpdate)
+        {
+            lastUpdate = DateTime.MinValue;
+            FileInfo fileInfo;
+
+            try
+            {
+                fileInfo = new FileInfo(manifest.PackFilePath);
+                lastUpdate = fileInfo.LastWriteTime;
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

@@ -29,6 +29,13 @@ namespace AchievementLib.Pack
         ILocalizable IManifest.Name => Name;
 
         /// <inheritdoc/>
+        public V1.Models.Localizable Description { get; set; }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        ILocalizable IManifest.Description => Description;
+
+        /// <inheritdoc/>
         [JsonIgnore]
         public string PackFilePath { get; set; }
 
@@ -40,7 +47,9 @@ namespace AchievementLib.Pack
                 && !string.IsNullOrWhiteSpace(Author)
                 && !string.IsNullOrWhiteSpace(Namespace)
                 && Name != null
-                && Name.IsValid();
+                && Name.IsValid()
+                && Description != null
+                && Description.IsValid();
         }
 
         /// <inheritdoc/>
@@ -52,6 +61,7 @@ namespace AchievementLib.Pack
                 try
                 {
                     Name?.Validate();
+                    Description?.Validate();
                 }
                 catch (PackFormatException ex)
                 {
