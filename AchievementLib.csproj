@@ -98,6 +98,7 @@
     <Compile Include="Pack\V1\Models\_Type\SpecializationType.cs" />
     <Compile Include="Pack\V1\Models\_Type\_Extensions\ProfessionTypeExtensions.cs" />
     <Compile Include="Pack\V1\Models\_Type\_Extensions\SpecializationTypeExtensions.cs" />
+    <Compile Include="Pack\V1\_Util\MetaAchievementUtil.cs" />
     <Compile Include="Pack\_Interface\IGraphicsDeviceProvider.cs" />
     <Compile Include="_Type\ObjectiveDisplay.cs" />
     <Compile Include="Pack\V1\V1Constants.cs" />

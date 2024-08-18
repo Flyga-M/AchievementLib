@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace AchievementLib.Pack
 {
@@ -7,6 +8,12 @@ namespace AchievementLib.Pack
     /// </summary>
     public interface ILocalizable : IValidateable
     {
+        /// <summary>
+        /// Determines whether the <see cref="ILocalizable"/> has at least one entry.
+        /// </summary>
+        [JsonIgnore]
+        bool AnyLocale { get; }
+
         /// <summary>
         /// Determines whether the <see cref="ILocalizable"/> has an entry for the 
         /// <paramref name="locale"/>.
@@ -74,5 +81,11 @@ namespace AchievementLib.Pack
         /// If the <see cref="ILocalizable"/> does not contain an entry for any locale at 
         /// all, it will return <see cref="string.Empty"/>.</returns>
         string GetLocalized(string locale, IEnumerable<ILocalizable> references, string fallbackLocale);
+
+        /// <summary>
+        /// Returns all entries of the <see cref="ILocalizable"/>.
+        /// </summary>
+        /// <returns>All entries of the <see cref="ILocalizable"/>.</returns>
+        Dictionary<string, string> GetAll();
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace AchievementLib.Pack.V1.Models
@@ -6,10 +7,29 @@ namespace AchievementLib.Pack.V1.Models
     /// <inheritdoc cref="ILocalizable"/>
     public class Localizable : ILocalizable
     {
+        private Dictionary<string, string> _byLocale;
+
         /// <summary>
-        /// The values accessible via their locale.
+        /// The values accessible via their locale. 
+        /// [Optional]
         /// </summary>
-        public Dictionary<string, string> ByLocale { get; set; }
+        public Dictionary<string, string> ByLocale
+        {
+            get
+            {
+                if (_byLocale == null)
+                {
+                    _byLocale = new Dictionary<string, string>();
+                }
+
+                return _byLocale;
+            }
+            set => _byLocale = value;
+        }
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public bool AnyLocale => ByLocale.Any();
 
         /// <inheritdoc/>
         public bool HasLocale(string locale)
@@ -81,11 +101,17 @@ namespace AchievementLib.Pack.V1.Models
 
             return GetLocalized(fallbackLocale);
         }
+        
+        /// <inheritdoc/>
+        public Dictionary<string, string> GetAll()
+        {
+            return new Dictionary<string, string>(ByLocale);
+        }
 
         /// <inheritdoc/>
         public bool IsValid()
         {
-            return ByLocale != null && ByLocale.Any();
+            return true;
         }
 
         /// <inheritdoc/>

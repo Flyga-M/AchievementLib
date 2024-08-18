@@ -104,6 +104,21 @@ namespace AchievementLib.Pack.V1.Models
                     $"Referenced type: {Achievement.Reference.GetType()}.");
             }
 
+            Objective parentObjective = this.ParentCondition?.ParentObjective;
+
+            if (parentObjective != null)
+            {
+                if (!parentObjective.Name.AnyLocale)
+                {
+                    parentObjective.Name.ByLocale = referencedAchievement.Name.GetAll();
+                }
+
+                if (!parentObjective.Description.AnyLocale)
+                {
+                    parentObjective.Description.ByLocale = referencedAchievement.Description.GetAll();
+                }
+            }
+
             Resolved?.Invoke(this, null);
         }
 
@@ -120,6 +135,21 @@ namespace AchievementLib.Pack.V1.Models
                 exception = new PackReferenceException("Reference in AchievementAction must be to another IAchievement. " +
                     $"Referenced type: {Achievement.Reference.GetType()}.");
                 return false;
+            }
+
+            Objective parentObjective = this.ParentCondition?.ParentObjective;
+
+            if (parentObjective != null)
+            {
+                if (!parentObjective.Name.AnyLocale)
+                {
+                    parentObjective.Name.ByLocale = referencedAchievement.Name.GetAll();
+                }
+
+                if (!parentObjective.Description.AnyLocale)
+                {
+                    parentObjective.Description.ByLocale = referencedAchievement.Description.GetAll();
+                }
             }
 
             Resolved?.Invoke(this, null);

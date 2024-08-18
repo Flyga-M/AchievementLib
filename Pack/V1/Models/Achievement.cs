@@ -127,8 +127,9 @@ namespace AchievementLib.Pack.V1.Models
         /// <param name="resetType"></param>
         /// <param name="resetCondition"></param>
         /// <param name="isPinned"></param>
+        /// <param name="metaObjectives"></param>
         [JsonConstructor]
-        public Achievement(string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableTexture icon, Color? color, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, ObjectiveDisplay objectiveDisplay, bool isRepeatable, bool isHidden, ResetType resetType, Condition resetCondition, bool isPinned)
+        public Achievement(string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableTexture icon, Color? color, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, ObjectiveDisplay objectiveDisplay, bool isRepeatable, bool isHidden, ResetType resetType, Condition resetCondition, bool isPinned, IEnumerable<ResolvableHierarchyReference> metaObjectives)
         {
             Id = id;
             Name = name;
@@ -169,6 +170,12 @@ namespace AchievementLib.Pack.V1.Models
 
                     prerequesite.Resolved += OnPrerequesiteResolved;
                 }
+            }
+
+            if (metaObjectives != null && metaObjectives.Any())
+            {
+                // TODO: should throw if this returns false
+                TryAddObjectives(MetaAchievementUtil.GetMetaObjectives(metaObjectives));
             }
         }
 
