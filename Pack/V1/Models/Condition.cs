@@ -364,7 +364,7 @@ namespace AchievementLib.Pack.V1.Models
                 resolvable.Resolve(context);
             }
 
-            Resolved?.Invoke(this, null);
+            Resolved?.Invoke(this, EventArgs.Empty);
         }
 
         /// <inheritdoc/>
@@ -372,10 +372,17 @@ namespace AchievementLib.Pack.V1.Models
         {
             if (Action is IResolvable resolvable)
             {
-                return resolvable.TryResolve(context, out exception);
+                bool actionResolved = resolvable.TryResolve(context, out exception);
+
+                if (actionResolved)
+                {
+                    Resolved?.Invoke(this, EventArgs.Empty);
+                }
+
+                return actionResolved;
             }
 
-            Resolved?.Invoke(this, null);
+            Resolved?.Invoke(this, EventArgs.Empty);
 
             exception = null;
             return true;

@@ -36,6 +36,16 @@ namespace AchievementLib.Pack.V1.JSON
                 converters.Add(RestraintConverter.Default);
             }
 
+            if (!converters.Any(converter => converter is ColorConverter))
+            {
+                converters.Add(ColorConverter.Default);
+            }
+
+            if (!converters.Any(converter => converter is TextureConverter))
+            {
+                converters.Add(TextureConverter.Default);
+            }
+
             if (!converters.Any(converter => converter is BoundingObjectConverter))
             {
                 converters.Add(BoundingObjectConverter.Default);

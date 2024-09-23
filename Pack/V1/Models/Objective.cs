@@ -300,7 +300,7 @@ namespace AchievementLib.Pack.V1.Models
         public void Resolve(IResolveContext context)
         {
             Condition.Resolve(context);
-            Resolved?.Invoke(this, null);
+            Resolved?.Invoke(this, EventArgs.Empty);
         }
 
         /// <inheritdoc/>
@@ -310,7 +310,7 @@ namespace AchievementLib.Pack.V1.Models
             
             if(success)
             {
-                Resolved?.Invoke(this, null);
+                Resolved?.Invoke(this, EventArgs.Empty);
             }
             return success;
         }

@@ -119,7 +119,7 @@ namespace AchievementLib.Pack.V1.Models
                 }
             }
 
-            Resolved?.Invoke(this, null);
+            Resolved?.Invoke(this, EventArgs.Empty);
         }
 
         /// <inheritdoc/>
@@ -152,7 +152,7 @@ namespace AchievementLib.Pack.V1.Models
                 }
             }
 
-            Resolved?.Invoke(this, null);
+            Resolved?.Invoke(this, EventArgs.Empty);
 
             exception = null;
             return true;

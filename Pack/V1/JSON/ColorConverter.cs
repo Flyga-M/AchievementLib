@@ -2,12 +2,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AchievementLib.Pack.V1.JSON
 {
@@ -17,6 +11,11 @@ namespace AchievementLib.Pack.V1.JSON
     /// </summary>
     public class ColorConverter : JsonConverter
     {
+        /// <summary>
+        /// The default <see cref="ColorConverter"/>.
+        /// </summary>
+        public static readonly ColorConverter Default = new ColorConverter();
+        
         /// <inheritdoc/>
         /// <remarks>Will return <see langword="true"/>, if the given <paramref name="objectType"/> is either 
         /// <see cref="Color"/> or <see cref="Nullable"/>&lt;<see cref="Color"/>&gt;.</remarks>
