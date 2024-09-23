@@ -25,8 +25,8 @@ namespace AchievementLib.Pack.V1.Models
 
         /// <inheritdoc/>
         /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="PackReferenceException"></exception>
         public void Resolve(IResolveContext context)
         {
             if (context == null)
@@ -34,23 +34,10 @@ namespace AchievementLib.Pack.V1.Models
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (!(context is IHierarchyResolveContext hierarchyContext))
+            if (!context.CanResolve(this))
             {
-                throw new ArgumentException($"Must provide IResolveContext that is {typeof(IHierarchyResolveContext)}. " +
-                    $"Provided context: {context.GetType()}", nameof(context));
-            }
-
-            Resolve(hierarchyContext);
-        }
-
-        /// <inheritdoc cref="IResolvable.Resolve(IResolveContext)"/>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
-        public void Resolve(IHierarchyResolveContext context)
-        {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
+                throw new InvalidOperationException($"This {nameof(ResolvableHierarchyReference)} can not " +
+                    $"be resolved by the provided {nameof(context)} ({context.GetType()}).");
             }
 
             if (string.IsNullOrWhiteSpace(ReferenceId))
@@ -58,36 +45,30 @@ namespace AchievementLib.Pack.V1.Models
                 throw new InvalidOperationException("ReferenceId is null or invalid.");
             }
 
-            if (!context.TryResolveId(ReferenceId, out IHierarchyObject resolved))
+            try
             {
-                throw new InvalidOperationException($"ReferenceId {ReferenceId} could not be found in the provided context.");
+                Reference = context.Resolve(this) as IHierarchyObject;
+            }
+            catch (Exception ex)
+            {
+                throw new PackReferenceException($"ReferenceId {ReferenceId} could not be " +
+                    $"resolved with the provided context.", ReferenceId, ex);
             }
 
-            if (resolved == null)
+            if (Reference == null)
             {
-                throw new InvalidOperationException($"ReferenceId {ReferenceId} could not be found in the provided context.");
+                throw new PackReferenceException($"ReferenceId {ReferenceId} could not be " +
+                    $"resolved with the provided context.", ReferenceId);
             }
 
-            Reference = resolved;
-            Resolved?.Invoke(this, null);
+            Resolved?.Invoke(this, EventArgs.Empty);
         }
 
         /// <inheritdoc/>
         public bool TryResolve(IResolveContext context, out PackReferenceException exception)
         {
-            if (!(context is IHierarchyResolveContext hierarchyContext))
-            {
-                exception = new PackReferenceException($"Provided IResolveContext ({context.GetType()}) is not " +
-                    $"of correct type {typeof(IHierarchyResolveContext)}.");
-                return false;
-            }
+            exception = null;
 
-            return TryResolve(hierarchyContext, out exception);
-        }
-
-        /// <inheritdoc cref="IResolvable.TryResolve(IResolveContext, out PackReferenceException)"/>
-        public bool TryResolve(IHierarchyResolveContext context, out PackReferenceException exception)
-        {
             try
             {
                 Resolve(context);
@@ -98,7 +79,6 @@ namespace AchievementLib.Pack.V1.Models
                 return false;
             }
 
-            exception = null;
             return IsResolved;
         }
 

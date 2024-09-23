@@ -11,11 +11,8 @@ namespace AchievementLib.Pack.V1.Models
     /// <inheritdoc cref="ILoadableResource"/> 
     /// In this implementation the resource is a <see cref="Texture2D"/>.
     /// </summary>
-    public class LoadableTexture : ILoadableResource
+    public class LoadableTexture : LoadableOrResolvableTexture
     {
-        /// <inheritdoc/>
-        public string Path { get; set; }
-
         /// <inheritdoc/>
         [JsonIgnore]
         public string ActualPath
@@ -32,18 +29,11 @@ namespace AchievementLib.Pack.V1.Models
         }
 
         /// <inheritdoc/>
-        [JsonIgnore]
-        public bool IsLoaded => LoadedTexture != null;
-
-        /// <summary>
-        /// The loaded texture. Might be null, if <see cref="ILoadable.IsLoaded"/> == false.
-        /// </summary>
-        [JsonIgnore]
-        public Texture2D LoadedTexture { get; private set; }
-
-        /// <inheritdoc/>
-        [JsonIgnore]
-        public object LoadedResource => LoadedTexture;
+        [JsonConstructor]
+        public LoadableTexture(string path) : base(path, 0)
+        {
+            /** NOOP **/
+        }
 
         /// <summary>
         /// <inheritdoc/>
@@ -54,7 +44,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="PackResourceException"></exception>
-        public void Load(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider)
+        public override void Load(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider)
         {
             if (resourceManager == null)
             {
@@ -96,7 +86,7 @@ namespace AchievementLib.Pack.V1.Models
         }
 
         /// <inheritdoc/>
-        public bool TryLoad(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, out PackResourceException exception)
+        public override bool TryLoad(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, out PackResourceException exception)
         {
             exception = null;
             
@@ -140,7 +130,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="PackResourceException"></exception>
         /// <exception cref="OperationCanceledException"></exception>
-        public async Task LoadAsync(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken)
+        public override async Task LoadAsync(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -187,7 +177,7 @@ namespace AchievementLib.Pack.V1.Models
 
         /// <inheritdoc/>
         /// <exception cref="OperationCanceledException"></exception>
-        public async Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken)
+        public override async Task<(bool, PackResourceException)> TryLoadAsync(AchievementPackResourceManager resourceManager, IGraphicsDeviceProvider graphicsDeviceProvider, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             try
@@ -223,22 +213,24 @@ namespace AchievementLib.Pack.V1.Models
         }
 
         /// <inheritdoc/>
-        public void Dispose()
+        public override void Dispose()
         {
             LoadedTexture?.Dispose();
 
             LoadedTexture = null;
+
+            base.Dispose(); // redundant atm
         }
 
         /// <inheritdoc/>
-        public bool IsValid()
+        public override bool IsValid()
         {
             return !string.IsNullOrWhiteSpace(ActualPath);
         }
 
         /// <inheritdoc/>
         /// <exception cref="PackFormatException"></exception>
-        public void Validate()
+        public override void Validate()
         {
             if (!IsValid())
             {

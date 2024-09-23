@@ -37,51 +37,6 @@ namespace AchievementLib.Pack
         }
 
         /// <summary>
-        /// Attempts to resolve the <paramref name="fullName"/> with the information provided by the 
-        /// <see cref="HierarchyResolveContext"/>.
-        /// </summary>
-        /// <param name="fullName"></param>
-        /// <param name="resolved"></param>
-        /// <returns></returns>
-        public bool TryResolveId(string fullName, out IHierarchyObject resolved)
-        {
-            resolved = null;
-            IEnumerable<IHierarchyObject> candidates = _roots.Where(root => root.IsNamespaceParentOf(fullName));
-
-            if (!candidates.Any())
-            {
-                return false;
-            }
-
-            foreach (IHierarchyObject root in candidates)
-            {
-                string @namespace = root.GetFullName();
-                
-                if (@namespace == fullName)
-                {
-                    resolved = root;
-                    return true;
-                }
-                
-                string relativeId = fullName.Substring(@namespace.Length + 1); // +1 for the dot
-                
-                if (string.IsNullOrWhiteSpace(relativeId))
-                {
-                    continue;
-                }
-
-                resolved = root.GetChild(relativeId);
-
-                if (resolved != null)
-                {
-                    break;
-                }
-            }
-
-            return resolved != null;
-        }
-
-        /// <summary>
         /// Attempts to add a <paramref name="root"/> to the <see cref="HierarchyResolveContext"/>.
         /// </summary>
         /// <param name="root"></param>
@@ -154,6 +109,109 @@ namespace AchievementLib.Pack
         public void Clear()
         {
             _roots.Clear();
+        }
+
+        /// <inheritdoc/>
+        /// <exception cref="InvalidOperationException">If the <paramref name="resolvable"/> 
+        /// can't be resolved by any of the added roots</exception>
+        /// <exception cref="ArgumentNullException">If <paramref name="resolvable"/> is 
+        /// <see langword="null"/>.</exception>
+        public IHierarchyObject Resolve(IResolvableHierarchyReference resolvable)
+        {
+            if (resolvable == null)
+            {
+                throw new ArgumentNullException(nameof(resolvable));
+            }
+
+            IEnumerable<IHierarchyObject> candidates = _roots.Where(root => root.IsNamespaceParentOf(resolvable.ReferenceId));
+
+            if (!candidates.Any())
+            {
+                throw new InvalidOperationException($"Resolvable with id " +
+                    $"{resolvable.ReferenceId} can't be resolved by any of " +
+                    $"the added roots.");
+            }
+
+            IHierarchyObject resolved = null;
+
+            foreach (IHierarchyObject root in candidates)
+            {
+                string @namespace = root.GetFullName();
+
+                if (@namespace == resolvable.ReferenceId)
+                {
+                    return root;
+                }
+
+                string relativeId = resolvable.ReferenceId.Substring(@namespace.Length + 1); // +1 for the dot
+
+                if (string.IsNullOrWhiteSpace(relativeId))
+                {
+                    continue;
+                }
+
+                resolved = root.GetChild(relativeId);
+
+                if (resolved != null)
+                {
+                    break;
+                }
+            }
+
+            if (resolved == null)
+            {
+                throw new InvalidOperationException($"Resolvable with id " +
+                    $"{resolvable.ReferenceId} can't be resolved by any of " +
+                    $"the added roots.");
+            }
+
+            return resolved;
+        }
+
+        /// <inheritdoc/>
+        public bool TryResolve(IResolvableHierarchyReference resolvable, out IHierarchyObject resolved)
+        {
+            resolved = null;
+            try
+            {
+                resolved = Resolve(resolvable);
+            }
+            catch (Exception)
+            {
+                // NOOP
+            }
+
+            return resolved != null;
+        }
+
+        /// <inheritdoc/>
+        public bool CanResolve(object resolvable)
+        {
+            if (resolvable == null)
+            {
+                return false;
+            }
+
+            return typeof(IResolvableHierarchyReference).IsAssignableFrom(resolvable.GetType());
+        }
+
+        /// <inheritdoc/>
+        public object Resolve(object resolvable)
+        {
+            return Resolve(resolvable as IResolvableHierarchyReference);
+        }
+
+        /// <inheritdoc/>
+        public bool TryResolve(object resolvable, out object resolved)
+        {
+            resolved = null;
+
+            if (!CanResolve(resolvable))
+            {
+                return false;
+            }
+
+            return TryResolve(resolvable as IResolvableHierarchyReference, out resolved);
         }
     }
 }

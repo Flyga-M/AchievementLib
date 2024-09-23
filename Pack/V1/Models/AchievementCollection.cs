@@ -1,12 +1,12 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using AchievementLib.Pack.V1.JSON;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System;
-using AchievementLib.Pack.V1.JSON;
-using Microsoft.Xna.Framework;
 
 namespace AchievementLib.Pack.V1.Models
 {
@@ -14,7 +14,7 @@ namespace AchievementLib.Pack.V1.Models
     /// <inheritdoc cref="IAchievementCollection"/>
     /// This is the V1 implementation.
     /// </summary>
-    public class AchievementCollection : IAchievementCollection, ILoadable
+    public class AchievementCollection : IAchievementCollection, ILoadable, IResolvable
     {
         /// <inheritdoc/>
         public string Id { get; }
@@ -34,15 +34,15 @@ namespace AchievementLib.Pack.V1.Models
         IEnumerable<IAchievement> IAchievementCollection.Achievements => Achievements;
 
         /// <inheritdoc cref="IAchievementCollection.Icon"/>
-        public LoadableTexture Icon { get; }
+        public LoadableOrResolvableTexture Icon { get; internal set; }
 
         /// <inheritdoc cref="IAchievementCollection.Color"/>
         [JsonConverter(typeof(ColorConverter))]
-        public Color? Color { get; }
+        public Color? Color { get; internal set; }
 
         /// <inheritdoc/>
         [JsonIgnore]
-        Texture2D IAchievementCollection.Icon => Icon?.LoadedTexture;
+        Texture2D IAchievementCollection.Icon => Icon?.Texture;
 
         /// <inheritdoc/>
         [JsonIgnore]
@@ -56,6 +56,9 @@ namespace AchievementLib.Pack.V1.Models
         [JsonIgnore]
         public IHierarchyObject[] Children => Achievements.ToArray();
 
+        /// <inheritdoc/>
+        public bool IsResolved => Icon?.IsResolved ?? true;
+
         /// <summary>
         /// Instantiates an <see cref="AchievementCollection"/>.
         /// </summary>
@@ -65,7 +68,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <param name="icon"></param>
         /// <param name="color"></param>
         [JsonConstructor]
-        public AchievementCollection(string id, Localizable name, IEnumerable<Achievement> achievements, LoadableTexture icon, Color? color)
+        public AchievementCollection(string id, Localizable name, IEnumerable<Achievement> achievements, LoadableOrResolvableTexture icon, Color? color)
         {
             Id = id;
             Name = name;
@@ -79,6 +82,9 @@ namespace AchievementLib.Pack.V1.Models
                 TryAddAchievements(achievements);
             }
         }
+
+        /// <inheritdoc/>
+        public event EventHandler Resolved;
 
         private bool TryAddAchievement(Achievement achievement)
         {
@@ -218,6 +224,31 @@ namespace AchievementLib.Pack.V1.Models
             }
 
             return TryAddAchievement(achievement);
+        }
+
+        /// <inheritdoc/>
+        public void Resolve(IResolveContext context)
+        {
+            Icon?.Resolve(context);
+
+            Resolved?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <inheritdoc/>
+        public bool TryResolve(IResolveContext context, out PackReferenceException exception)
+        {
+            exception = null;
+
+            if (Icon != null)
+            {
+                if (!Icon.TryResolve(context, out exception))
+                {
+                    return false;
+                }
+            }
+
+            Resolved?.Invoke(this, EventArgs.Empty);
+            return true;
         }
     }
 }

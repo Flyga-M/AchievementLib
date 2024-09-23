@@ -52,7 +52,9 @@ namespace AchievementLib.Pack.V1.Models
         public string Id { get; }
 
         [StorageProperty(IsPrimaryKey = true, ColumnName = "Id", DoNotRetrieve = true)]
+#pragma warning disable IDE0051 // Remove unused private members
         private string FullId => this.GetFullName();
+#pragma warning restore IDE0051 // Remove unused private members
 
         /// <inheritdoc cref="IAchievement.Name"/>
         public Localizable Name { get; }
@@ -64,10 +66,10 @@ namespace AchievementLib.Pack.V1.Models
         public Localizable LockedDescription { get; }
 
         /// <summary>
-        /// The <see cref="LoadableTexture"/> to the icon that is displayed for 
+        /// The <see cref="LoadableOrResolvableTexture"/> of the icon that is displayed for 
         /// the <see cref="Achievement"/>. [Optional]
         /// </summary>
-        public LoadableTexture Icon { get; }
+        public LoadableOrResolvableTexture Icon { get; }
 
         /// <inheritdoc cref="IAchievement.Color"/>
         [JsonConverter(typeof(ColorConverter))]
@@ -129,7 +131,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <param name="isPinned"></param>
         /// <param name="metaObjectives"></param>
         [JsonConstructor]
-        public Achievement(string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableTexture icon, Color? color, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, ObjectiveDisplay objectiveDisplay, bool isRepeatable, bool isHidden, ResetType resetType, Condition resetCondition, bool isPinned, IEnumerable<ResolvableHierarchyReference> metaObjectives)
+        public Achievement(string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableOrResolvableTexture icon, Color? color, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, ObjectiveDisplay objectiveDisplay, bool isRepeatable, bool isHidden, ResetType resetType, Condition resetCondition, bool isPinned, IEnumerable<ResolvableHierarchyReference> metaObjectives)
         {
             Id = id;
             Name = name;
@@ -424,7 +426,8 @@ namespace AchievementLib.Pack.V1.Models
             {
                 return (!Prerequesites.Any() || Prerequesites.All(achievement => achievement.IsResolved))
                     && (!Objectives.Any() || Objectives.All(objective => objective.IsResolved)
-                    && (ResetCondition == null || ResetCondition.IsResolved));
+                    && (ResetCondition == null || ResetCondition.IsResolved)
+                    && (Icon == null || Icon.IsResolved));
             }
         }
 
@@ -438,7 +441,7 @@ namespace AchievementLib.Pack.V1.Models
         ILocalizable IAchievement.LockedDescription => LockedDescription;
 
         [JsonIgnore]
-        Texture2D IAchievement.Icon => Icon?.LoadedTexture;
+        Texture2D IAchievement.Icon => Icon?.Texture;
 
         [JsonIgnore]
         IEnumerable<IAchievement> IAchievement.Prerequesites => Prerequesites.Select(resolvable => (IAchievement)resolvable.Reference);
@@ -795,7 +798,6 @@ namespace AchievementLib.Pack.V1.Models
         /// <inheritdoc cref="ResolvableHierarchyReference.Resolve(IResolveContext)"/>
         public void Resolve(IResolveContext context)
         {
-            
             if (Prerequesites != null)
             {
                 foreach (ResolvableHierarchyReference achievement in Prerequesites)
@@ -817,12 +819,11 @@ namespace AchievementLib.Pack.V1.Models
                 }
             }
 
-            if (ResetCondition != null)
-            {
-                ResetCondition.Resolve(context);
-            }
+            ResetCondition?.Resolve(context);
 
-            Resolved?.Invoke(this, null);
+            Icon?.Resolve(context);
+
+            Resolved?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -831,7 +832,8 @@ namespace AchievementLib.Pack.V1.Models
         /// <param name="context"></param>
         /// <param name="exception"></param>
         /// <returns><inheritdoc/> Will only return true, if all <see cref="Prerequesites"/> and <see cref="Objectives"/> 
-        /// have been successfully resolved.</returns>
+        /// and the <see cref="ResetCondition"/> and the <see cref="Icon"/> have been 
+        /// successfully resolved.</returns>
         public bool TryResolve(IResolveContext context, out PackReferenceException exception)
         {
             List<PackReferenceException> exceptions = new List<PackReferenceException>();
@@ -873,6 +875,14 @@ namespace AchievementLib.Pack.V1.Models
                 }
             }
 
+            if (Icon != null)
+            {
+                if (!Icon.TryResolve(context, out PackReferenceException iconException))
+                {
+                    exceptions.Add(iconException);
+                }
+            }
+
             exception = exceptions.FirstOrDefault();
 
             if (exceptions.Count > 1)
@@ -883,7 +893,7 @@ namespace AchievementLib.Pack.V1.Models
 
             if (!exceptions.Any())
             {
-                Resolved?.Invoke(this, null);
+                Resolved?.Invoke(this, EventArgs.Empty);
             }
 
             return !exceptions.Any();
