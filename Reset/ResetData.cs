@@ -41,6 +41,18 @@ namespace AchievementLib.Reset
         }
 
         /// <summary>
+        /// The last occurence of the reset.
+        /// </summary>
+        public virtual DateTime LastOccurence
+        {
+            get
+            {
+                DateTime next = NextOccurence;
+                return NextOccurence - Interval;
+            }
+        }
+
+        /// <summary>
         /// The <see cref="TimeSpan"/> until the <see cref="NextOccurence"/>.
         /// </summary>
         public TimeSpan UntilNextOccurence

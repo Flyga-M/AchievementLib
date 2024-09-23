@@ -91,6 +91,27 @@ namespace AchievementLib.Reset
         }
 
         /// <summary>
+        /// Determines whether the reset with the given <paramref name="id"/> has 
+        /// occured at least once since the <paramref name="date"/>.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="date"></param>
+        /// <returns><see langword="true"/>, if the reset with the given 
+        /// <paramref name="id"/> has occured at least once since
+        /// the <paramref name="date"/>. Otherwise <see langword="false"/>.</returns>
+        public bool ResetOccured(string id, DateTime date)
+        {
+            ResetData resetData = _data.Where(reset => reset.Id == id).FirstOrDefault();
+
+            if (resetData == null)
+            {
+                return false;
+            }
+
+            return date < resetData.LastOccurence;
+        }
+
+        /// <summary>
         /// Attempts to remove add the <paramref name="data"/> to the <see cref="ResetManager"/>.
         /// </summary>
         /// <param name="data"></param>

@@ -47,7 +47,7 @@ namespace AchievementLib.Reset
                     month = now.Month;
                 }
 
-                return new DateTime(year, month, day, now.Hour, now.Minute, now.Second);
+                return new DateTime(year, month, day, start.Hour, start.Minute, start.Second);
             }
         }
 
@@ -57,9 +57,22 @@ namespace AchievementLib.Reset
             get
             {
                 DateTime start = Start;
-                DateTime next = GetNextOccurence();
 
-                return next-start;
+                if (start.IsInTheFuture())
+                {
+                    return start - LastOccurence;
+                }
+
+                return GetNextOccurence() - start;
+            }
+        }
+
+        /// <inheritdoc/>
+        public override DateTime LastOccurence
+        {
+            get
+            {
+                return GetLastOccurence();
             }
         }
 
@@ -74,6 +87,11 @@ namespace AchievementLib.Reset
         {
             DateTime start = Start;
 
+            if (start.IsInTheFuture())
+            {
+                return start;
+            }
+
             if (!FixDay)
             {
                 return start.AddDays(1);
@@ -85,6 +103,28 @@ namespace AchievementLib.Reset
             }
 
             return start.AddYears(1);
+        }
+
+        private DateTime GetLastOccurence()
+        {
+            DateTime start = Start;
+
+            if (!start.IsInTheFuture())
+            {
+                return start;
+            }
+
+            if (!FixDay)
+            {
+                return start.AddDays(-1);
+            }
+
+            if (!FixMonth)
+            {
+                return start.AddMonths(-1);
+            }
+
+            return start.AddYears(-1);
         }
     }
 }
