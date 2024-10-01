@@ -36,8 +36,8 @@ namespace AchievementLib.Pack.V1.Models
         [JsonConstructor]
         public MapAction(int? mapId, MapType? mapType)
         {
-            this.MapId = MapId;
-            this.MapType = MapType;
+            this.MapId = mapId;
+            this.MapType = mapType;
         }
 
         /// <inheritdoc/>
