@@ -111,6 +111,13 @@ namespace AchievementLib.Pack
         bool IsPinned { get; }
 
         /// <summary>
+        /// Determines whether any of the associated <see cref="IAction"/>s use the 
+        /// GW2 API.
+        /// </summary>
+        [JsonIgnore]
+        bool UsesApi {  get; }
+
+        /// <summary>
         /// The current tier, that the <see cref="IAchievement"/> is completing. 1-indexed.
         /// </summary>
         [JsonIgnore]

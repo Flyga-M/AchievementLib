@@ -111,6 +111,10 @@ namespace AchievementLib.Pack.V1.Models
         [JsonIgnore]
         public bool IsRetrieving { get; set; }
 
+        /// <inheritdoc/>
+        [JsonIgnore]
+        public bool UsesApi => this.GetActions().Any(action => action is ApiAction);
+
         /// <summary>
         /// Instantiates an <see cref="Achievement"/>.
         /// </summary>

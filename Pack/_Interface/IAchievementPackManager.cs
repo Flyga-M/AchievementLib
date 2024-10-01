@@ -61,6 +61,17 @@ namespace AchievementLib.Pack
         bool IsEnabled { get; }
 
         /// <summary>
+        /// The <see cref="DateTime"/> when the <see cref="IAchievementPackManager"/> was 
+        /// last enabled. Is persistent across sessions.
+        /// </summary>
+        /// <remarks>
+        /// May be <see cref="DateTime.MinValue"/>, if the <see cref="IAchievementPackManager"/> was 
+        /// never enabled.
+        /// </remarks>
+        [StorageProperty]
+        DateTime LastEnabled { get; }
+
+        /// <summary>
         /// The <see cref="PackLoadState"/> of the <see cref="IAchievementPackManager"/>.
         /// </summary>
         PackLoadState State { get; }

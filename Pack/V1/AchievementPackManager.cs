@@ -32,6 +32,7 @@ namespace AchievementLib.Pack.V1
         private object _packStateLock = new object();
 
         private bool _isEnabled;
+        private DateTime _lastEnabled;
 
         private PackLoadReport _report;
 
@@ -203,6 +204,27 @@ namespace AchievementLib.Pack.V1
                 if (oldValue != _isEnabled && !IsRetrieving)
                 {
                     Storage.TryStoreProperty(this, nameof(IsEnabled));
+                }
+
+                if (value)
+                {
+                    LastEnabled = DateTime.Now;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        [StorageProperty]
+        public DateTime LastEnabled
+        {
+            get => _lastEnabled;
+            private set
+            {
+                DateTime oldValue = _lastEnabled;
+                _lastEnabled = value;
+                if (oldValue != _lastEnabled && !IsRetrieving)
+                {
+                    Storage.TryStoreProperty(this, nameof(LastEnabled));
                 }
             }
         }
