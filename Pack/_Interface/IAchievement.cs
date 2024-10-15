@@ -61,11 +61,11 @@ namespace AchievementLib.Pack
         IEnumerable<IAchievement> Prerequesites { get; }
 
         /// <summary>
-        /// The tiers in which this <see cref="IAchievement"/> can be completed. 
-        /// The values describe how many <see cref="Objectives"/> (in total) are needed to complete 
-        /// the tier.
+        /// The <see cref="ITier"/>s in which this <see cref="IAchievement"/> can be completed. 
+        /// The values describe how many <see cref="CurrentObjectives"/> are needed to complete 
+        /// the tier and how many points are awarded for completion.
         /// </summary>
-        IEnumerable<int> Tiers { get; }
+        IEnumerable<ITier> Tiers { get; }
 
         /// <summary>
         /// All <see cref="IObjective">IObjectives</see> that are part of this 

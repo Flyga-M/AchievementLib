@@ -39,5 +39,22 @@ namespace AchievementLib.Pack
 
             return actions.ToArray();
         }
+
+        /// <summary>
+        /// Returns the current amount of points rewarded by the <see cref="IAchievement"/>.
+        /// </summary>
+        /// <param name="achievement"></param>
+        /// <returns></returns>
+        public static int GetCurrentPoints(this IAchievement achievement)
+        {
+            int points = 0;
+            // achievement.CurrentTier is 1-indexed, so "<" is accurate
+            for (int i = 0; i < achievement.CurrentTier; i++)
+            {
+                points += achievement.Tiers.ElementAt(i).Points;
+            }
+
+            return points;
+        }
     }
 }

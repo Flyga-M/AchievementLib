@@ -93,6 +93,7 @@
     <Compile Include="Pack\V1\Models\PositionAreaAction.cs" />
     <Compile Include="Pack\V1\Models\ResolvableHierarchyReference.cs" />
     <Compile Include="Pack\V1\Models\RestraintSubLevel.cs" />
+    <Compile Include="Pack\V1\Models\Tier.cs" />
     <Compile Include="Pack\V1\Models\_Type\ChooseOption.cs" />
     <Compile Include="Pack\V1\Models\_Type\ComparisonTarget.cs" />
     <Compile Include="Pack\V1\Models\_Type\MapType.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Pack\_Interface\IGraphicsDeviceProvider.cs" />
     <Compile Include="Pack\_Interface\IResolvableTexture.cs" />
     <Compile Include="Pack\_Interface\ITextureResolveContext.cs" />
+    <Compile Include="Pack\_Interface\ITier.cs" />
     <Compile Include="_Type\ObjectiveDisplay.cs" />
     <Compile Include="Pack\V1\V1Constants.cs" />
     <Compile Include="Pack\V1\JSON\ActionConverter.cs" />

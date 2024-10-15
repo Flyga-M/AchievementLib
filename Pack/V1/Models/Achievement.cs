@@ -84,7 +84,10 @@ namespace AchievementLib.Pack.V1.Models
         public IEnumerable<ResolvableHierarchyReference> Prerequesites { get; }
 
         /// <inheritdoc cref="IAchievement.Tiers"/>
-        public IEnumerable<int> Tiers { get; }
+        public IEnumerable<Tier> Tiers { get; }
+
+        /// <inheritdoc cref="IAchievement.Tiers"/>
+        IEnumerable<ITier> IAchievement.Tiers => Tiers;
 
         /// <inheritdoc cref="IAchievement.Objectives"/>
         public List<Objective> Objectives { get; }
@@ -135,7 +138,7 @@ namespace AchievementLib.Pack.V1.Models
         /// <param name="isPinned"></param>
         /// <param name="metaObjectives"></param>
         [JsonConstructor]
-        public Achievement(string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableOrResolvableTexture icon, Color? color, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<int> tiers, IEnumerable<Objective> objectives, ObjectiveDisplay objectiveDisplay, bool isRepeatable, bool isHidden, ResetType resetType, Condition resetCondition, bool isPinned, IEnumerable<ResolvableHierarchyReference> metaObjectives)
+        public Achievement(string id, Localizable name, Localizable description, Localizable lockedDescription, LoadableOrResolvableTexture icon, Color? color, IEnumerable<ResolvableHierarchyReference> prerequesites, IEnumerable<Tier> tiers, IEnumerable<Objective> objectives, ObjectiveDisplay objectiveDisplay, bool isRepeatable, bool isHidden, ResetType resetType, Condition resetCondition, bool isPinned, IEnumerable<ResolvableHierarchyReference> metaObjectives)
         {
             Id = id;
             Name = name;
@@ -304,7 +307,8 @@ namespace AchievementLib.Pack.V1.Models
         {
             for (int i = 0; i < Tiers.Count(); i++)
             {
-                int upperBound = Tiers.ElementAt(i);
+                Tier currentTier = Tiers.ElementAt(i);
+                int upperBound = currentTier.Count;
 
                 if (CurrentObjectives < upperBound)
                 {
@@ -469,7 +473,7 @@ namespace AchievementLib.Pack.V1.Models
                     return 0;
                 }
 
-                return Tiers.Last();
+                return Tiers.Last().Count;
             }
         }
 
@@ -654,6 +658,7 @@ namespace AchievementLib.Pack.V1.Models
                 && (Icon == null || Icon.IsValid())
                 && Tiers != null
                 && Tiers.Any()
+                && Tiers.All(tier => tier.IsValid())
                 && Objectives != null
                 && Objectives.Any()
                 && Objectives.All(objective => objective.IsValid())
@@ -677,6 +682,13 @@ namespace AchievementLib.Pack.V1.Models
                         foreach (Objective objective in Objectives)
                         {
                             objective.Validate();
+                        }
+                    }
+                    if (Tiers != null)
+                    {
+                        foreach (Tier tier in Tiers)
+                        {
+                            tier.Validate();
                         }
                     }
                     ResetCondition?.Validate();
